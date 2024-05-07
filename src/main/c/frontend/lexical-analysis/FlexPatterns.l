@@ -128,7 +128,7 @@
 "<<"                                        { BitwiseOperatorLexemeAction(createLexicalAnalyzerContext());/* zero fill left shift */ }
 ">>"                                        { BitwiseOperatorLexemeAction(createLexicalAnalyzerContext());/* signed right shift */ }
 
-[+-]?[[:digit:]]+[.][[:digit:]]+[e][+-]?[[:digit:]]+    { FloatLexemeAction(createLexicalAnalyzerContext());/* fp literal in sci notation */ }
+[+-]?[[:digit:]]+([.][[:digit:]]+)?[e][+-]?[[:digit:]]+ { FloatLexemeAction(createLexicalAnalyzerContext());/* fp literal in sci notation */ }
 [+-]?[[:digit:]]+[.][[:digit:]]+                        { FloatLexemeAction(createLexicalAnalyzerContext());/* floating point literal */ }
 [+-]?[[:digit:]]+                                       { IntegerLexemeAction(createLexicalAnalyzerContext());/* integer literal */ }
 [_[:alpha:]][[:alnum:]]*                                { IgnoredLexemeAction(createLexicalAnalyzerContext());/* variable or function */ }
