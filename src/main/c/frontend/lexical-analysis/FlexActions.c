@@ -73,16 +73,16 @@ Token IntegerLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext) {
 	return INTEGER;
 }
 
-Token ParenthesisLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext) {
-	_logLexicalAnalyzerContext(__FUNCTION__, lexicalAnalyzerContext);
-	Token token;
-	switch (lexicalAnalyzerContext->lexeme[0]) {
-		case '(': token = OPEN_PARENTHESIS; break;
-		case ')': token = CLOSE_PARENTHESIS; break;
-	}
-	lexicalAnalyzerContext->semanticValue->token = token;
-	return token;
-}
+// Token ParenthesisLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext) {
+// 	_logLexicalAnalyzerContext(__FUNCTION__, lexicalAnalyzerContext);
+// 	Token token;
+// 	switch (lexicalAnalyzerContext->lexeme[0]) {
+// 		case '(': token = OPEN_PARENTHESIS; break;
+// 		case ')': token = CLOSE_PARENTHESIS; break;
+// 	}
+// 	lexicalAnalyzerContext->semanticValue->token = token;
+// 	return token;
+// }
 
 Token UnknownLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext) {
 	_logLexicalAnalyzerContext(__FUNCTION__, lexicalAnalyzerContext);
@@ -203,6 +203,46 @@ Token BitwiseOperatorLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContex
 		case '~': token = BITWISE_NOT; break;
 		case '<': token = BITWISE_LSHIFT; break;
 		case '>': token = BITWISE_RSHIFT; break;
+	}
+	lexicalAnalyzerContext->semanticValue->token = token;
+	return token;
+}
+
+Token ParenthesisLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext) {
+	_logLexicalAnalyzerContext(__FUNCTION__, lexicalAnalyzerContext);
+	Token token;
+	switch (lexicalAnalyzerContext->lexeme[0]) {
+		case '(': token = OPEN_PARENTHESIS; break;
+		case ')': token = CLOSE_PARENTHESIS; break;
+	}
+	lexicalAnalyzerContext->semanticValue->token = token;
+	return token;
+}
+
+Token ColonLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext) {
+	_logLexicalAnalyzerContext(__FUNCTION__, lexicalAnalyzerContext);
+	Token token;
+	lexicalAnalyzerContext->semanticValue->token = COLON;
+	return COLON;
+}
+
+Token BracketLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext) {
+	_logLexicalAnalyzerContext(__FUNCTION__, lexicalAnalyzerContext);
+	Token token;
+	switch (lexicalAnalyzerContext->lexeme[0]) {
+		case '[': token = OPEN_BRACKET; break;
+		case ']': token = CLOSE_BRACKET; break;
+	}
+	lexicalAnalyzerContext->semanticValue->token = token;
+	return token;
+}
+
+Token BraceLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext) {
+	_logLexicalAnalyzerContext(__FUNCTION__, lexicalAnalyzerContext);
+	Token token;
+	switch (lexicalAnalyzerContext->lexeme[0]) {
+		case '{': token = OPEN_BRACE; break;
+		case '}': token = CLOSE_BRACE; break;
 	}
 	lexicalAnalyzerContext->semanticValue->token = token;
 	return token;

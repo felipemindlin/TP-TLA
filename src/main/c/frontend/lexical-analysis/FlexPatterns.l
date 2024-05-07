@@ -73,13 +73,13 @@
 
 "\n"                                        { IgnoredLexemeAction(createLexicalAnalyzerContext());/* new line */ }
 "\t"                                        { IgnoredLexemeAction(createLexicalAnalyzerContext());/* tab */ }
-":"                                         { IgnoredLexemeAction(createLexicalAnalyzerContext());/* colon */ }
-"("                                         { IgnoredLexemeAction(createLexicalAnalyzerContext());/* left parenthesis */ }
-")"                                         { IgnoredLexemeAction(createLexicalAnalyzerContext());/* right parenthesis */ }
-"["                                         { IgnoredLexemeAction(createLexicalAnalyzerContext());/* left square bracket */ }
-"]"                                         { IgnoredLexemeAction(createLexicalAnalyzerContext());/* right square bracket */ }
-"{"                                         { IgnoredLexemeAction(createLexicalAnalyzerContext());/* left curly brace */ }
-"}"                                         { IgnoredLexemeAction(createLexicalAnalyzerContext());/* right curly brace */ }
+":"                                         { ColonLexemeAction(createLexicalAnalyzerContext());/* colon */ }
+"("                                         { ParenthesisLexemeAction(createLexicalAnalyzerContext());/* left parenthesis */ }
+")"                                         { ParenthesisLexemeAction(createLexicalAnalyzerContext());/* right parenthesis */ }
+"["                                         { BracketLexemeAction(createLexicalAnalyzerContext());/* left square bracket */ }
+"]"                                         { BracketLexemeAction(createLexicalAnalyzerContext());/* right square bracket */ }
+"{"                                         { BraceLexemeAction(createLexicalAnalyzerContext());/* left curly brace */ }
+"}"                                         { BraceLexemeAction(createLexicalAnalyzerContext());/* right curly brace */ }
 
 "+"                                         { ArithmeticOperatorLexemeAction(createLexicalAnalyzerContext());/* addition */ }
 "-"                                         { ArithmeticOperatorLexemeAction(createLexicalAnalyzerContext());/* subtraction */ }

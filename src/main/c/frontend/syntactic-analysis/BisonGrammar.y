@@ -36,13 +36,19 @@
 
 /** Terminals. */
 %token <integer> INTEGER
-%token <token> ADD
-%token <token> CLOSE_PARENTHESIS
-%token <token> DIV
-%token <token> MUL
-%token <token> OPEN_PARENTHESIS
-%token <token> SUB
 
+%token <token> COLON
+%token <token> OPEN_PARENTHESIS
+%token <token> CLOSE_PARENTHESIS
+%token <token> OPEN_BRACKET
+%token <token> CLOSE_BRACKET
+%token <token> OPEN_BRACE
+%token <token> CLOSE_BRACE
+
+%token <token> ADD
+%token <token> SUB
+%token <token> MUL
+%token <token> DIV
 %token <token> EXP
 %token <token> FLOOR_DIV
 %token <token> MOD
