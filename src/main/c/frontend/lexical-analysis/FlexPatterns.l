@@ -41,8 +41,8 @@
 "await"                                     { IgnoredLexemeAction(createLexicalAnalyzerContext());/* await keyword */ }
 "async"                                     { IgnoredLexemeAction(createLexicalAnalyzerContext());/* async keyword */ }
 
-"False"                                     { BooleanLexemeAction(createLexicalAnalyzerContext());/* boolean false */ }
-"True"                                      { BooleanLexemeAction(createLexicalAnalyzerContext());/* boolean true */ }
+"False"                                     { return BooleanLexemeAction(createLexicalAnalyzerContext());/* boolean false */ }
+"True"                                      { return BooleanLexemeAction(createLexicalAnalyzerContext());/* boolean true */ }
 "None"                                      { IgnoredLexemeAction(createLexicalAnalyzerContext());/* null value */ }
 
 "class"                                     { IgnoredLexemeAction(createLexicalAnalyzerContext());/* class definition keyword */ }
@@ -72,44 +72,44 @@
 "type"                                      { IgnoredLexemeAction(createLexicalAnalyzerContext());/* type keyword - blocked in type statements */ }
 
 "\n"                                        { IgnoredLexemeAction(createLexicalAnalyzerContext());/* new line */ }
-"\t"                                        { TabLexemeAction(createLexicalAnalyzerContext());/* tab */ }
-":"                                         { ColonLexemeAction(createLexicalAnalyzerContext());/* colon */ }
-"("                                         { ParenthesisLexemeAction(createLexicalAnalyzerContext());/* left parenthesis */ }
-")"                                         { ParenthesisLexemeAction(createLexicalAnalyzerContext());/* right parenthesis */ }
-"["                                         { BracketLexemeAction(createLexicalAnalyzerContext());/* left square bracket */ }
-"]"                                         { BracketLexemeAction(createLexicalAnalyzerContext());/* right square bracket */ }
-"{"                                         { BraceLexemeAction(createLexicalAnalyzerContext());/* left curly brace */ }
-"}"                                         { BraceLexemeAction(createLexicalAnalyzerContext());/* right curly brace */ }
+"\t"                                        { return TabLexemeAction(createLexicalAnalyzerContext());/* tab */ }
+":"                                         { return ColonLexemeAction(createLexicalAnalyzerContext());/* colon */ }
+"("                                         { return ParenthesisLexemeAction(createLexicalAnalyzerContext());/* left parenthesis */ }
+")"                                         { return ParenthesisLexemeAction(createLexicalAnalyzerContext());/* right parenthesis */ }
+"["                                         { return BracketLexemeAction(createLexicalAnalyzerContext());/* left square bracket */ }
+"]"                                         { return BracketLexemeAction(createLexicalAnalyzerContext());/* right square bracket */ }
+"{"                                         { return BraceLexemeAction(createLexicalAnalyzerContext());/* left curly brace */ }
+"}"                                         { return BraceLexemeAction(createLexicalAnalyzerContext());/* right curly brace */ }
 
-"+"                                         { ArithmeticOperatorLexemeAction(createLexicalAnalyzerContext());/* addition */ }
-"-"                                         { ArithmeticOperatorLexemeAction(createLexicalAnalyzerContext());/* subtraction */ }
-"*"                                         { ArithmeticOperatorLexemeAction(createLexicalAnalyzerContext());/* multiplication */ }
-"/"                                         { ArithmeticOperatorLexemeAction(createLexicalAnalyzerContext());/* division */ }
-"%"                                         { ArithmeticOperatorLexemeAction(createLexicalAnalyzerContext());/* modulus */ }
-"**"                                        { ArithmeticOperatorLexemeAction(createLexicalAnalyzerContext());/* exponentiation */ }
-"//"                                        { ArithmeticOperatorLexemeAction(createLexicalAnalyzerContext());/* floor division */ }
+"+"                                         { return ArithmeticOperatorLexemeAction(createLexicalAnalyzerContext());/* addition */ }
+"-"                                         { return ArithmeticOperatorLexemeAction(createLexicalAnalyzerContext());/* subtraction */ }
+"*"                                         { return ArithmeticOperatorLexemeAction(createLexicalAnalyzerContext());/* multiplication */ }
+"/"                                         { return ArithmeticOperatorLexemeAction(createLexicalAnalyzerContext());/* division */ }
+"%"                                         { return ArithmeticOperatorLexemeAction(createLexicalAnalyzerContext());/* modulus */ }
+"**"                                        { return ArithmeticOperatorLexemeAction(createLexicalAnalyzerContext());/* exponentiation */ }
+"//"                                        { return ArithmeticOperatorLexemeAction(createLexicalAnalyzerContext());/* floor division */ }
 
-"="                                         { AssignmentOperatorLexemeAction(createLexicalAnalyzerContext());/* assignment */ }
-"+="                                        { AssignmentOperatorLexemeAction(createLexicalAnalyzerContext());/* addition assignment */ }
-"-="                                        { AssignmentOperatorLexemeAction(createLexicalAnalyzerContext());/* subtraction assignment */ }
-"*="                                        { AssignmentOperatorLexemeAction(createLexicalAnalyzerContext());/* multiplication assignment */ }
-"/="                                        { AssignmentOperatorLexemeAction(createLexicalAnalyzerContext());/* division assignment */ }
-"%="                                        { AssignmentOperatorLexemeAction(createLexicalAnalyzerContext());/* modulus assignment */ }
-"**="                                       { AssignmentOperatorLexemeAction(createLexicalAnalyzerContext());/* exponentiation assignment */ }
-"//="                                       { AssignmentOperatorLexemeAction(createLexicalAnalyzerContext());/* floor division assignment */ }
-"&="                                        { AssignmentOperatorLexemeAction(createLexicalAnalyzerContext());/* bitwise AND assignment */ }
-"|="                                        { AssignmentOperatorLexemeAction(createLexicalAnalyzerContext());/* bitwise OR assignment */ }
-"^="                                        { AssignmentOperatorLexemeAction(createLexicalAnalyzerContext());/* bitwise XOR assignment */ }
-">>="                                       { AssignmentOperatorLexemeAction(createLexicalAnalyzerContext());/* bitwise right shift assignment */ }
-"<<="                                       { AssignmentOperatorLexemeAction(createLexicalAnalyzerContext());/* bitwise left shift assignment */ }
-":="                                        { AssignmentOperatorLexemeAction(createLexicalAnalyzerContext());/* walrus operator - assign then print */ }
+"="                                         { return AssignmentOperatorLexemeAction(createLexicalAnalyzerContext());/* assignment */ }
+"+="                                        { return AssignmentOperatorLexemeAction(createLexicalAnalyzerContext());/* addition assignment */ }
+"-="                                        { return AssignmentOperatorLexemeAction(createLexicalAnalyzerContext());/* subtraction assignment */ }
+"*="                                        { return AssignmentOperatorLexemeAction(createLexicalAnalyzerContext());/* multiplication assignment */ }
+"/="                                        { return AssignmentOperatorLexemeAction(createLexicalAnalyzerContext());/* division assignment */ }
+"%="                                        { return AssignmentOperatorLexemeAction(createLexicalAnalyzerContext());/* modulus assignment */ }
+"**="                                       { return AssignmentOperatorLexemeAction(createLexicalAnalyzerContext());/* exponentiation assignment */ }
+"//="                                       { return AssignmentOperatorLexemeAction(createLexicalAnalyzerContext());/* floor division assignment */ }
+"&="                                        { return AssignmentOperatorLexemeAction(createLexicalAnalyzerContext());/* bitwise AND assignment */ }
+"|="                                        { return AssignmentOperatorLexemeAction(createLexicalAnalyzerContext());/* bitwise OR assignment */ }
+"^="                                        { return AssignmentOperatorLexemeAction(createLexicalAnalyzerContext());/* bitwise XOR assignment */ }
+">>="                                       { return AssignmentOperatorLexemeAction(createLexicalAnalyzerContext());/* bitwise right shift assignment */ }
+"<<="                                       { return AssignmentOperatorLexemeAction(createLexicalAnalyzerContext());/* bitwise left shift assignment */ }
+":="                                        { return AssignmentOperatorLexemeAction(createLexicalAnalyzerContext());/* walrus operator - assign then print */ }
 
-"=="                                        { ComparisonOperatorLexemeAction(createLexicalAnalyzerContext());/* equality comparison */ }
-"!="                                        { ComparisonOperatorLexemeAction(createLexicalAnalyzerContext());/* inequality comparison */ }
-"<"                                         { ComparisonOperatorLexemeAction(createLexicalAnalyzerContext());/* less than comparison */ }
-"<="                                        { ComparisonOperatorLexemeAction(createLexicalAnalyzerContext());/* less than or equal comparison */ }
-">"                                         { ComparisonOperatorLexemeAction(createLexicalAnalyzerContext());/* greater than comparison */ }
-">="                                        { ComparisonOperatorLexemeAction(createLexicalAnalyzerContext());/* greater than or equal comparison */ }
+"=="                                        { return ComparisonOperatorLexemeAction(createLexicalAnalyzerContext());/* equality comparison */ }
+"!="                                        { return ComparisonOperatorLexemeAction(createLexicalAnalyzerContext());/* inequality comparison */ }
+"<"                                         { return ComparisonOperatorLexemeAction(createLexicalAnalyzerContext());/* less than comparison */ }
+"<="                                        { return ComparisonOperatorLexemeAction(createLexicalAnalyzerContext());/* less than or equal comparison */ }
+">"                                         { return ComparisonOperatorLexemeAction(createLexicalAnalyzerContext());/* greater than comparison */ }
+">="                                        { return ComparisonOperatorLexemeAction(createLexicalAnalyzerContext());/* greater than or equal comparison */ }
 
 "and"                                       { IgnoredLexemeAction(createLexicalAnalyzerContext());/* logical AND */ }
 "or"                                        { IgnoredLexemeAction(createLexicalAnalyzerContext());/* logical OR */ }
@@ -121,16 +121,16 @@
 "in"                                        { IgnoredLexemeAction(createLexicalAnalyzerContext());/* membership test */ }
 "not in"                                    { IgnoredLexemeAction(createLexicalAnalyzerContext());/* negated membership test */ }
 
-"^"                                         { BitwiseOperatorLexemeAction(createLexicalAnalyzerContext());/* bitwise XOR */ }
-"&"                                         { BitwiseOperatorLexemeAction(createLexicalAnalyzerContext());/* bitwise AND */ }
-"|"                                         { BitwiseOperatorLexemeAction(createLexicalAnalyzerContext());/* bitwise OR */ }
-"~"                                         { BitwiseOperatorLexemeAction(createLexicalAnalyzerContext());/* bitwise NOT */ }
-"<<"                                        { BitwiseOperatorLexemeAction(createLexicalAnalyzerContext());/* zero fill left shift */ }
-">>"                                        { BitwiseOperatorLexemeAction(createLexicalAnalyzerContext());/* signed right shift */ }
+"^"                                         { return BitwiseOperatorLexemeAction(createLexicalAnalyzerContext());/* bitwise XOR */ }
+"&"                                         { return BitwiseOperatorLexemeAction(createLexicalAnalyzerContext());/* bitwise AND */ }
+"|"                                         { return BitwiseOperatorLexemeAction(createLexicalAnalyzerContext());/* bitwise OR */ }
+"~"                                         { return BitwiseOperatorLexemeAction(createLexicalAnalyzerContext());/* bitwise NOT */ }
+"<<"                                        { return BitwiseOperatorLexemeAction(createLexicalAnalyzerContext());/* zero fill left shift */ }
+">>"                                        { return BitwiseOperatorLexemeAction(createLexicalAnalyzerContext());/* signed right shift */ }
 
-[+-]?[[:digit:]]+([.][[:digit:]]+)?[e][+-]?[[:digit:]]+ { FloatLexemeAction(createLexicalAnalyzerContext());/* fp literal in sci notation */ }
-[+-]?[[:digit:]]+[.][[:digit:]]+                        { FloatLexemeAction(createLexicalAnalyzerContext());/* floating point literal */ }
-[+-]?[[:digit:]]+                                       { IntegerLexemeAction(createLexicalAnalyzerContext());/* integer literal */ }
+[+-]?[[:digit:]]+([.][[:digit:]]+)?[e][+-]?[[:digit:]]+ { return FloatLexemeAction(createLexicalAnalyzerContext());/* fp literal in sci notation */ }
+[+-]?[[:digit:]]+[.][[:digit:]]+                        { return FloatLexemeAction(createLexicalAnalyzerContext());/* floating point literal */ }
+[+-]?[[:digit:]]+                                       { return IntegerLexemeAction(createLexicalAnalyzerContext());/* integer literal */ }
 [_[:alpha:]][[:alnum:]]*                                { IgnoredLexemeAction(createLexicalAnalyzerContext());/* variable or function */ }
 [[:space:]]                                             { IgnoredLexemeAction(createLexicalAnalyzerContext()); }
 .                                                       { return UnknownLexemeAction(createLexicalAnalyzerContext()); }
