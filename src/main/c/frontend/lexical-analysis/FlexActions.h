@@ -26,7 +26,10 @@ void EndMultilineCommentLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerCon
 void IgnoredLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);
 
 Token IntegerLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);
+Token FloatLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);
+Token BooleanLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);
 
+Token TabLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);
 Token ColonLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);
 Token ParenthesisLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);
 Token BracketLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);

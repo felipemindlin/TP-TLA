@@ -67,11 +67,11 @@ void IgnoredLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext) {
 // 	return token;
 // }
 
-Token IntegerLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext) {
-	_logLexicalAnalyzerContext(__FUNCTION__, lexicalAnalyzerContext);
-	lexicalAnalyzerContext->semanticValue->integer = atoi(lexicalAnalyzerContext->lexeme);
-	return INTEGER;
-}
+// Token IntegerLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext) {
+// 	_logLexicalAnalyzerContext(__FUNCTION__, lexicalAnalyzerContext);
+// 	lexicalAnalyzerContext->semanticValue->integer = atoi(lexicalAnalyzerContext->lexeme);
+// 	return INTEGER;
+// }
 
 // Token ParenthesisLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext) {
 // 	_logLexicalAnalyzerContext(__FUNCTION__, lexicalAnalyzerContext);
@@ -91,6 +91,30 @@ Token UnknownLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext) {
 
 /* OUR FUNCTIONS */
 // TODO: definir estandar de nombres para funciones "privadas"
+
+Token IntegerLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext) {
+	_logLexicalAnalyzerContext(__FUNCTION__, lexicalAnalyzerContext);
+	lexicalAnalyzerContext->semanticValue->integer = atoi(lexicalAnalyzerContext->lexeme);
+	return INTEGER;
+}
+
+Token FloatLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext) {
+	_logLexicalAnalyzerContext(__FUNCTION__, lexicalAnalyzerContext);
+	lexicalAnalyzerContext->semanticValue->fp_number = atof(lexicalAnalyzerContext->lexeme);
+	return FLOAT;
+}
+
+Token BooleanLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext) {
+	_logLexicalAnalyzerContext(__FUNCTION__, lexicalAnalyzerContext);
+	boolean value;
+	switch (lexicalAnalyzerContext->lexeme[0]) {
+		case 'T': value = true; break;
+		case 'F': value = false; break;
+	}
+	lexicalAnalyzerContext->semanticValue->boolean = value;
+	return BOOLEAN;
+}
+
 // Not exposed to the header file
 Token AsteriskArithmeticOperatorPicker(char * lexeme, int length) {
 	if (length == 2 && lexeme[1] == '*') return EXP;
@@ -217,6 +241,12 @@ Token ParenthesisLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext) {
 	}
 	lexicalAnalyzerContext->semanticValue->token = token;
 	return token;
+}
+
+Token TabLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext) {
+	_logLexicalAnalyzerContext(__FUNCTION__, lexicalAnalyzerContext);
+	lexicalAnalyzerContext->semanticValue->token = TAB;
+	return TAB;
 }
 
 Token ColonLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext) {

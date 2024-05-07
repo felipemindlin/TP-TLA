@@ -10,6 +10,8 @@
 	/** Terminals. */
 
 	int integer;
+	double fp_number;
+	boolean boolean;
 	Token token;
 
 	/** Non-terminals. */
@@ -36,7 +38,10 @@
 
 /** Terminals. */
 %token <integer> INTEGER
+%token <fp_number> FLOAT
+%token <boolean> BOOLEAN
 
+%token <token> TAB
 %token <token> COLON
 %token <token> OPEN_PARENTHESIS
 %token <token> CLOSE_PARENTHESIS
