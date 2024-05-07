@@ -25,10 +25,14 @@ void BeginMultilineCommentLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerC
 void EndMultilineCommentLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);
 void IgnoredLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);
 
-Token ArithmeticOperatorLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);
 Token IntegerLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);
 Token ParenthesisLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);
 
 Token UnknownLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);
+
+Token ArithmeticOperatorLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);
+Token AssignmentOperatorLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);
+Token ComparisonOperatorLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);
+Token BitwiseOperatorLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);
 
 #endif

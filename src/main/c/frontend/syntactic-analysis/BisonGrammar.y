@@ -43,6 +43,49 @@
 %token <token> OPEN_PARENTHESIS
 %token <token> SUB
 
+%token <token> EXP
+%token <token> FLOOR_DIV
+%token <token> MOD
+
+%token <token> ASSIGN
+%token <token> ASSIGN_ADD
+%token <token> ASSIGN_SUB
+%token <token> ASSIGN_MUL
+%token <token> ASSIGN_DIV
+%token <token> ASSIGN_MOD
+%token <token> ASSIGN_EXP
+%token <token> ASSIGN_FLOOR_DIV
+%token <token> ASSIGN_BITWISE_AND
+%token <token> ASSIGN_BITWISE_OR
+%token <token> ASSIGN_BITWISE_XOR
+%token <token> ASSIGN_BITWISE_LSHIFT
+%token <token> ASSIGN_BITWISE_RSHIFT
+%token <token> ASSIGN_WALRUS
+
+%token <token> COMPARISON_EQ
+%token <token> COMPARISON_NEQ
+%token <token> COMPARISON_GT
+%token <token> COMPARISON_GTE
+%token <token> COMPARISON_LT
+%token <token> COMPARISON_LTE
+
+%token <token> LOGICAL_AND
+%token <token> LOGICAL_OR
+%token <token> LOGICAL_NOT
+
+%token <token> IS
+%token <token> IS_NOT
+
+%token <token> IN
+%token <token> NOT_IN
+
+%token <token> BITWISE_AND
+%token <token> BITWISE_OR
+%token <token> BITWISE_XOR
+%token <token> BITWISE_NOT
+%token <token> BITWISE_LSHIFT
+%token <token> BITWISE_RSHIFT
+
 %token <token> UNKNOWN
 
 /** Non-terminals. */
