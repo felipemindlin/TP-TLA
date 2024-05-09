@@ -98,10 +98,47 @@ Token IdentifierLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext) {
 	return IDENTIFIER;
 }
 
+
 Token IntegerLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext) {
 	_logLexicalAnalyzerContext(__FUNCTION__, lexicalAnalyzerContext);
 	lexicalAnalyzerContext->semanticValue->integer = atoi(lexicalAnalyzerContext->lexeme);
 	return INTEGER;
+}
+
+
+Token IfLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext) {
+    _logLexicalAnalyzerContext(__FUNCTION__, lexicalAnalyzerContext);
+    return IF;
+}
+
+
+Token ElifLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext) {
+    _logLexicalAnalyzerContext(__FUNCTION__, lexicalAnalyzerContext);
+    return ELIF;
+}
+
+
+Token ElseLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext) {
+    _logLexicalAnalyzerContext(__FUNCTION__, lexicalAnalyzerContext);
+    return ELSE;
+}
+
+Token ForLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext) {
+    _logLexicalAnalyzerContext(__FUNCTION__, lexicalAnalyzerContext);
+    return FOR;
+}
+
+Token WhileLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext) {
+    _logLexicalAnalyzerContext(__FUNCTION__, lexicalAnalyzerContext);
+    return WHILE;
+}
+Token BreakLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext) {
+    _logLexicalAnalyzerContext(__FUNCTION__, lexicalAnalyzerContext);
+    return BREAK;
+}
+Token ContinueLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext) {
+    _logLexicalAnalyzerContext(__FUNCTION__, lexicalAnalyzerContext);
+    return CONTINUE;
 }
 
 Token FloatLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext) {
@@ -119,6 +156,11 @@ Token BooleanLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext) {
 	}
 	lexicalAnalyzerContext->semanticValue->boolean = value;
 	return BOOLEAN;
+}
+
+Token NoneLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext) {
+    _logLexicalAnalyzerContext(__FUNCTION__, lexicalAnalyzerContext);
+    return NONE;
 }
 
 // Not exposed to the header file
@@ -141,10 +183,10 @@ Token ArithmeticOperatorLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerCon
 	switch (lexicalAnalyzerContext->lexeme[0] ) {
 		case '-': token = SUB; break;
 		case '*': token = AsteriskArithmeticOperatorPicker
-			(lexicalAnalyzerContext->lexeme, lexicalAnalyzerContext->length); 
+			(lexicalAnalyzerContext->lexeme, lexicalAnalyzerContext->length);
 			break;
 		case '/': token = SlashArithmeticOperatorPicker
-			(lexicalAnalyzerContext->lexeme, lexicalAnalyzerContext->length); 
+			(lexicalAnalyzerContext->lexeme, lexicalAnalyzerContext->length);
 			break;
 		case '+': token = ADD; break;
 		case '%': token = MOD; break;
@@ -175,10 +217,10 @@ Token AssignmentOperatorLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerCon
 		case '+': token = ASSIGN_ADD; break;
 		case '-': token = ASSIGN_SUB; break;
 		case '*': token = AsteriskAssignmentOperatorPicker
-			(lexicalAnalyzerContext->lexeme, lexicalAnalyzerContext->length); 
+			(lexicalAnalyzerContext->lexeme, lexicalAnalyzerContext->length);
 			break;
 		case '/': token = SlashAssignmentOperatorPicker
-			(lexicalAnalyzerContext->lexeme, lexicalAnalyzerContext->length); 
+			(lexicalAnalyzerContext->lexeme, lexicalAnalyzerContext->length);
 			break;
 		case '%': token = ASSIGN_MOD; break;
 		case '&': token = ASSIGN_BITWISE_AND; break;
@@ -216,7 +258,7 @@ Token ComparisonOperatorLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerCon
 			(lexicalAnalyzerContext->lexeme, lexicalAnalyzerContext->length);
 			break;
 		case '<': token = LeftChevronComparisonOperatorPicker
-			(lexicalAnalyzerContext->lexeme, lexicalAnalyzerContext->length); 
+			(lexicalAnalyzerContext->lexeme, lexicalAnalyzerContext->length);
 			break;
 	}
 	lexicalAnalyzerContext->semanticValue->token = token;

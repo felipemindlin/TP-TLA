@@ -43,6 +43,8 @@
 %token <boolean> BOOLEAN
 %token <var_name> IDENTIFIER
 
+%token <token> NONE
+
 %token <token> TAB
 %token <token> COLON
 %token <token> OPEN_PARENTHESIS
@@ -98,6 +100,15 @@
 %token <token> BITWISE_NOT
 %token <token> BITWISE_LSHIFT
 %token <token> BITWISE_RSHIFT
+
+%token <token> IF
+%token <token> ELIF
+%token <token> ELSE
+
+%token <token> FOR
+%token <token> WHILE
+%token <token> BREAK
+%token <token> CONTINUE
 
 %token <token> UNKNOWN
 
