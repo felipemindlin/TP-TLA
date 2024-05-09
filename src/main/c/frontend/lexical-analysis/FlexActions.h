@@ -28,6 +28,7 @@ void IgnoredLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);
 Token IntegerLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);
 Token FloatLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);
 Token BooleanLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);
+Token NoneLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);
 Token IdentifierLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);
 
 Token TabLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);
@@ -35,6 +36,14 @@ Token ColonLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);
 Token ParenthesisLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);
 Token BracketLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);
 Token BraceLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);
+
+Token IfLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);
+Token ElifLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);
+Token ElseLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);
+Token ForLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);
+Token WhileLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);
+Token BreakLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);
+Token ContinueLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);
 
 Token UnknownLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);
 
