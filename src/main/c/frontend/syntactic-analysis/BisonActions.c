@@ -47,6 +47,15 @@ Expression * ArithmeticExpressionSemanticAction(Expression * leftExpression, Exp
 	return expression;
 }
 
+Expression * BitArithmeticExpressionSemanticAction(Expression * leftExpression, Expression * rightExpression, ExpressionType type) {
+	_logSyntacticAnalyzerAction(__FUNCTION__);
+	Expression * expression = calloc(1, sizeof(Expression));
+	expression->leftExpression = leftExpression;
+	expression->rightExpression = rightExpression;
+	expression->type = type;
+	return expression;
+}
+
 Expression * FactorExpressionSemanticAction(Factor * factor) {
 	_logSyntacticAnalyzerAction(__FUNCTION__);
 	Expression * expression = calloc(1, sizeof(Expression));
