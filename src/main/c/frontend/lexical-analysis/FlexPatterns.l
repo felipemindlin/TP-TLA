@@ -71,6 +71,7 @@
 "case"                                      { IgnoredLexemeAction(createLexicalAnalyzerContext());/* case keyword - blocked in match statements */ }
 "type"                                      { IgnoredLexemeAction(createLexicalAnalyzerContext());/* type keyword - blocked in type statements */ }
 
+[[:space:]]{4}                              { return TabLexemeAction(createLexicalAnalyzerContext());/* tab */}
 "\n"                                        { IgnoredLexemeAction(createLexicalAnalyzerContext());/* new line */ }
 "\t"                                        { return TabLexemeAction(createLexicalAnalyzerContext());/* tab */ }
 ":"                                         { return ColonLexemeAction(createLexicalAnalyzerContext());/* colon */ }

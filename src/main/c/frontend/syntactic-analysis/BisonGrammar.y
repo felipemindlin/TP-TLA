@@ -12,6 +12,7 @@
 	int integer;
 	double fp_number;
 	boolean boolean;
+	char * var_name;
 	Token token;
 
 	/** Non-terminals. */
@@ -40,6 +41,7 @@
 %token <integer> INTEGER
 %token <fp_number> FLOAT
 %token <boolean> BOOLEAN
+%token <var_name> IDENTIFIER
 
 %token <token> TAB
 %token <token> COLON
