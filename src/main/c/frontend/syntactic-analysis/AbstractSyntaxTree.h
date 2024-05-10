@@ -16,7 +16,9 @@ void shutdownAbstractSyntaxTreeModule();
 
 typedef enum ExpressionType ExpressionType;
 typedef enum FactorType FactorType;
+typedef enum DataType DataType;
 
+typedef struct Variable Variable;
 typedef struct Constant Constant;
 typedef struct Expression Expression;
 typedef struct Factor Factor;
@@ -75,8 +77,18 @@ enum FactorType {
 	EXPRESSION
 };
 
+enum DataType {
+	DATA_INT,
+};
+
 struct Constant {
 	int value;
+};
+
+/* NEEDS FREE */
+struct Variable {
+	int value;
+	DataType type;
 };
 
 struct Factor {

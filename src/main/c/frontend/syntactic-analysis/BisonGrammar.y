@@ -21,6 +21,7 @@
 	Expression * expression;
 	Factor * factor;
 	Program * program;
+	Variable * variable;
 }
 
 /**
@@ -45,6 +46,7 @@
 
 %token <token> NONE
 
+%token <token> NEWLINE_TOKEN
 %token <token> TAB
 %token <token> COLON
 %token <token> OPEN_PARENTHESIS
@@ -114,6 +116,7 @@
 
 /** Non-terminals. */
 %type <constant> constant
+%type <variable> variable
 %type <expression> expression
 %type <factor> factor
 %type <program> program
@@ -165,6 +168,7 @@ factor: OPEN_PARENTHESIS expression CLOSE_PARENTHESIS				{ $$ = ExpressionFactor
 
 constant: INTEGER													{ $$ = IntegerConstantSemanticAction($1); }
 	;
+
 
 %%
 
