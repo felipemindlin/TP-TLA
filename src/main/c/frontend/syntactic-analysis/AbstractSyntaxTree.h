@@ -17,10 +17,12 @@ void shutdownAbstractSyntaxTreeModule();
 typedef enum ExpressionType ExpressionType;
 typedef enum FactorType FactorType;
 typedef enum DataType DataType;
+typedef enum CondType CondType;
 
 typedef struct Variable Variable;
 typedef struct Constant Constant;
 typedef struct Expression Expression;
+typedef struct Conditional Conditional;
 typedef struct Factor Factor;
 typedef struct Program Program;
 
@@ -51,15 +53,6 @@ enum ExpressionType {
 	BITWISE_LEFT_SHIFT_ASSIGNMENT,
 	BITWISE_RIGHT_SHIFT_ASSIGNMENT,
 	RETURNED_ASSIGNMENT,
-	EQUALS_COMPARISON,
-	NOT_EQUALS_COMPARISON,
-	GREATER_THAN_COMPARISON,
-	GREATER_THAN_OR_EQUALS_COMPARISON,
-	LESS_THAN_COMPARISON,
-	LESS_THAN_OR_EQUALS_COMPARISON,
-	LOGIC_AND,
-	LOGIC_OR,
-	LOGIC_NOT,
 	IDENTITY,
 	NOT_IDENTITY,
 	MEMBERSHIP,
@@ -71,6 +64,19 @@ enum ExpressionType {
 	BIT_ARITHMETIC_LEFT_SHIFT,
 	BIT_ARITHMETIC_RIGHT_SHIFT,
 };
+
+enum CondType { // Non arithmetic
+	LOGIC_AND,
+	LOGIC_OR,
+	LOGIC_NOT,
+	EQUALS_COMPARISON,
+	NOT_EQUALS_COMPARISON,
+	GREATER_THAN_COMPARISON,
+	GREATER_THAN_OR_EQUALS_COMPARISON,
+	LESS_THAN_COMPARISON,
+	LESS_THAN_OR_EQUALS_COMPARISON,
+};
+
 
 enum FactorType {
 	CONSTANT,
@@ -109,6 +115,18 @@ struct Expression {
 	};
 	ExpressionType type;
 };
+
+struct Conditional {
+	union {
+		Factor * factor;
+		struct {
+			Conditional * leftCond;
+			Conditional * rightCond;
+		};
+	};
+	CondType type;
+};
+
 
 struct Program {
 	Expression * expression;

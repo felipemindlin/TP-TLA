@@ -38,6 +38,13 @@ Constant * IntegerConstantSemanticAction(const int value) {
 	return constant;
 }
 
+Constant * BooleanConstantSemanticAction(const int value) {
+	_logSyntacticAnalyzerAction(__FUNCTION__);
+	Constant * constant = calloc(1, sizeof(Constant));
+	constant->value = value;
+	return constant;
+}
+
 Expression * ArithmeticExpressionSemanticAction(Expression * leftExpression, Expression * rightExpression, ExpressionType type) {
 	_logSyntacticAnalyzerAction(__FUNCTION__);
 	Expression * expression = calloc(1, sizeof(Expression));

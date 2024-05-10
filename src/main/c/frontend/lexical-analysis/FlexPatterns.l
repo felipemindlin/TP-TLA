@@ -112,9 +112,9 @@
 ">"                                         { return ComparisonOperatorLexemeAction(createLexicalAnalyzerContext());/* greater than comparison */ }
 ">="                                        { return ComparisonOperatorLexemeAction(createLexicalAnalyzerContext());/* greater than or equal comparison */ }
 
-"and"                                       { IgnoredLexemeAction(createLexicalAnalyzerContext());/* logical AND */ }
-"or"                                        { IgnoredLexemeAction(createLexicalAnalyzerContext());/* logical OR */ }
-"not"                                       { IgnoredLexemeAction(createLexicalAnalyzerContext());/* logical NOT */ }
+"and"                                       { return ConditionalLexemeAction(createLexicalAnalyzerContext());/* logical AND */ }
+"or"                                        { return ConditionalLexemeAction(createLexicalAnalyzerContext());/* logical OR */ }
+"not"                                       { return ConditionalLexemeAction(createLexicalAnalyzerContext());/* logical NOT */ }
 
 "is"                                        { IgnoredLexemeAction(createLexicalAnalyzerContext());/* identity comparison */ }
 "is not"                                    { IgnoredLexemeAction(createLexicalAnalyzerContext());/* negated identity comparison */ }

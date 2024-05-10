@@ -151,11 +151,19 @@ Token BooleanLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext) {
 	_logLexicalAnalyzerContext(__FUNCTION__, lexicalAnalyzerContext);
 	boolean value;
 	switch (lexicalAnalyzerContext->lexeme[0]) {
-		case 'T': value = true; break;
-		case 'F': value = false; break;
+		case 'True': value = true; break;
+		case 'False': value = false; break;
 	}
 	lexicalAnalyzerContext->semanticValue->boolean = value;
 	return BOOLEAN;
+}
+
+Token ConditionalLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext) {
+	_logLexicalAnalyzerContext(__FUNCTION__, lexicalAnalyzerContext);
+	switch (lexicalAnalyzerContext->lexeme[0]) {
+		case 'and': return LOGIC_AND; 
+		case 'or': return LOGIC_OR; 
+	}
 }
 
 Token NewlineLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext) {

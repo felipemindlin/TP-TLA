@@ -19,6 +19,7 @@
 
 	Constant * constant;
 	Expression * expression;
+	Conditional * conditional;
 	Factor * factor;
 	Program * program;
 	Variable * variable;
@@ -117,6 +118,7 @@
 /** Non-terminals. */
 %type <constant> constant
 %type <variable> variable
+%type <conditional> conditional
 %type <expression> expression
 %type <factor> factor
 %type <program> program
@@ -146,6 +148,9 @@
 
 program: expression													{ $$ = ExpressionProgramSemanticAction(currentCompilerState(), $1); }
 	;
+conditional: constant[left] LOGICAL_AND constant[right]		{ $$ = ConditionalEvalSemanticAction($left, $right, LOGICAL_AND); }
+	| 		 BOOLEAN[left] LOGICAL_OR BOOLEAN[right]		{ $$ = ConditionalEvalSemanticAction($left, $right, LOGICAL_OR); }
+	;
 
 expression: expression[left] ADD expression[right]					{ $$ = ArithmeticExpressionSemanticAction($left, $right, ADDITION); }
 	| expression[left] DIV expression[right]						{ $$ = ArithmeticExpressionSemanticAction($left, $right, DIVISION); }
@@ -167,6 +172,7 @@ factor: OPEN_PARENTHESIS expression CLOSE_PARENTHESIS				{ $$ = ExpressionFactor
 	;
 
 constant: INTEGER													{ $$ = IntegerConstantSemanticAction($1); }
+	|	BOOLEAN														{ $$ = BooleanConstantSemanticAction($1); }
 	;
 
 
