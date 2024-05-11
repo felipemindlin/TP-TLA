@@ -75,6 +75,7 @@
 "\n"                                        { IgnoredLexemeAction(createLexicalAnalyzerContext());/* new line */ }
 "\t"                                        { return TabLexemeAction(createLexicalAnalyzerContext());/* tab */ }
 ":"                                         { return ColonLexemeAction(createLexicalAnalyzerContext());/* colon */ }
+","                                         { return CommaLexemeAction(createLexicalAnalyzerContext());/* comma */ }
 "("                                         { return ParenthesisLexemeAction(createLexicalAnalyzerContext());/* left parenthesis */ }
 ")"                                         { return ParenthesisLexemeAction(createLexicalAnalyzerContext());/* right parenthesis */ }
 "["                                         { return BracketLexemeAction(createLexicalAnalyzerContext());/* left square bracket */ }

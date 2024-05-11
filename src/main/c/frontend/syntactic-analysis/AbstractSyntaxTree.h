@@ -25,6 +25,7 @@ typedef struct Expression Expression;
 typedef struct Conditional Conditional;
 typedef struct Factor Factor;
 typedef struct Program Program;
+typedef struct Arguments Arguments;
 
 /**
  * Node types for the Abstract Syntax Tree (AST).
@@ -127,6 +128,15 @@ struct Conditional {
 	CondType type;
 };
 
+struct Arguments {
+	union {
+		struct {
+			Expression * leftExpression;
+			Arguments * rightArguments;
+		};
+		Expression * loneExpression;
+	};
+};
 
 struct Program {
 	Expression * expression;

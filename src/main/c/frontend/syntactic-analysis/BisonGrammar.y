@@ -47,6 +47,8 @@
 
 %token <token> NONE
 
+%token <token> COMMA
+
 %token <token> NEWLINE_TOKEN
 %token <token> TAB
 %token <token> COLON
@@ -113,6 +115,8 @@
 %token <token> BREAK
 %token <token> CONTINUE
 
+%token <token> DEF
+
 %token <token> UNKNOWN
 
 /** Non-terminals. */
@@ -172,9 +176,12 @@ factor: OPEN_PARENTHESIS expression CLOSE_PARENTHESIS				{ $$ = ExpressionFactor
 	;
 
 constant: INTEGER													{ $$ = IntegerConstantSemanticAction($1); }
-	|	BOOLEAN														{ $$ = BooleanConstantSemanticAction($1); }
+	| BOOLEAN														{ $$ = BooleanConstantSemanticAction($1); }
 	;
-
+ 
+arguments: %empty
+	| 	expression[left] COMMA arguments[right]											
+	|   expression[left]
 
 %%
 

@@ -18,7 +18,8 @@
 *~
 
 # Application specific.
-/program
+/programs/**
 BisonParser.c
 BisonParser.h
 FlexScanner.c
+POROTOS.c
