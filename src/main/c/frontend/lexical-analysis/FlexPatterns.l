@@ -47,7 +47,7 @@
 
 "class"                                     { IgnoredLexemeAction(createLexicalAnalyzerContext());/* class definition keyword */ }
 "del"                                       { IgnoredLexemeAction(createLexicalAnalyzerContext());/* object deletion keyword */ }
-"def"                                       { IgnoredLexemeAction(createLexicalAnalyzerContext());/* function definition keyword */ }
+"def"                                       { return DefineLexemeAction(createLexicalAnalyzerContext());/* function definition keyword */ }
 "lambda"                                    { IgnoredLexemeAction(createLexicalAnalyzerContext());/* lambda function definition keyword */ }
 
 "return"                                    { IgnoredLexemeAction(createLexicalAnalyzerContext());/* return keyword */ }
@@ -71,8 +71,8 @@
 "case"                                      { IgnoredLexemeAction(createLexicalAnalyzerContext());/* case keyword - blocked in match statements */ }
 "type"                                      { IgnoredLexemeAction(createLexicalAnalyzerContext());/* type keyword - blocked in type statements */ }
 
-[[:space:]]{4}                              { return TabLexemeAction(createLexicalAnalyzerContext());/* tab */}
-"\n"                                        { IgnoredLexemeAction(createLexicalAnalyzerContext());/* new line */ }
+[\n]                                        { return NewlineLexemeAction(createLexicalAnalyzerContext());/* new line */ }
+[ ]{4}                                      { return TabLexemeAction(createLexicalAnalyzerContext());/* tab */}
 "\t"                                        { return TabLexemeAction(createLexicalAnalyzerContext());/* tab */ }
 ":"                                         { return ColonLexemeAction(createLexicalAnalyzerContext());/* colon */ }
 ","                                         { return CommaLexemeAction(createLexicalAnalyzerContext());/* comma */ }

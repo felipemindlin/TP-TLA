@@ -14,11 +14,14 @@ void shutdownAbstractSyntaxTreeModule();
  * This typedefs allows self-referencing types.
  */
 
+typedef enum DepthType DepthType;
 typedef enum ExpressionType ExpressionType;
 typedef enum FactorType FactorType;
 typedef enum DataType DataType;
 typedef enum CondType CondType;
 typedef enum ParametersType ParamType;
+typedef enum SentenceType SentenceType;
+typedef enum NewlineType NewlineType;
 
 typedef struct Variable Variable;
 typedef struct Constant Constant;
@@ -29,10 +32,22 @@ typedef struct Program Program;
 typedef struct Parameters Parameters;
 typedef struct FunctionCall FunctionCall;
 typedef struct VariableCall VariableCall;
+typedef struct Sentence Sentence;
+typedef struct Depth Depth;
+typedef struct Newline Newline;
 
 /**
  * Node types for the Abstract Syntax Tree (AST).
  */
+enum DepthType {
+	TAB_DEPTH,
+	END_DEPTH
+};
+
+enum NewlineType {
+	FINAL_NEWLINE,
+	NOT_FINAL_NEWLINE
+};
 
 enum ExpressionType {
 	ADDITION,
@@ -91,6 +106,11 @@ enum DataType {
 	DATA_INT,
 };
 
+enum SentenceType {
+	FUNCTION_DEFINITION,
+	FUNCTION_CALL
+};
+
 enum ParametersType {
 	EMPTY,
 	FINAL,
@@ -137,6 +157,17 @@ struct Conditional {
 	CondType type;
 };
 
+struct Sentence {
+	union {
+		FunctionCall * functionCall;
+		struct {
+			const char * functionName;
+			Parameters * parameters;
+		};
+	};
+	SentenceType type;
+};
+
 struct VariableCall {
 	const char * variableName;
 };
@@ -156,6 +187,14 @@ struct Parameters {
 
 struct Program {
 	Expression * expression;
+};
+
+struct Depth {
+	DepthType type;
+};
+
+struct Newline {
+	NewlineType type;
 };
 
 /**

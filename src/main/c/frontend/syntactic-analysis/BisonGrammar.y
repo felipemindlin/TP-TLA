@@ -26,6 +26,9 @@
 	Parameters * parameters;
 	FunctionCall * functionCall;
 	VariableCall * variableCall;
+	Sentence * sentence;
+	Depth * depth;
+	Newline * newline;
 }
 
 /**
@@ -132,6 +135,9 @@
 %type <parameters> parameters
 %type <functionCall> functionCall
 %type <variableCall> variableCall
+%type <sentence> sentence
+%type <depth> depth
+%type <newline> newline
 
 /**
  * Precedence and associativity.
@@ -157,11 +163,11 @@
 %%
 
 program: expression													{ $$ = ExpressionProgramSemanticAction(currentCompilerState(), $1); }
-	| functionCall program
+	| depth sentence program							 
 	;
 
-conditional: constant[left] LOGICAL_AND constant[right]		{ $$ = ConditionalEvalSemanticAction($left, $right, LOGICAL_AND); }
-	| 		 BOOLEAN[left] LOGICAL_OR BOOLEAN[right]		{ $$ = ConditionalEvalSemanticAction($left, $right, LOGICAL_OR); }
+conditional: constant[left] LOGICAL_AND constant[right]		{ $$ = ConditionalEvalSemanticAction($left, $right, LOGIC_AND); }
+	| 		 BOOLEAN[left] LOGICAL_OR BOOLEAN[right]		{ $$ = ConditionalEvalSemanticAction($left, $right, LOGIC_OR); }
 	;
 
 expression: expression[left] ADD expression[right]					{ $$ = ArithmeticExpressionSemanticAction($left, $right, ADDITION); }
@@ -187,6 +193,9 @@ constant: INTEGER													{ $$ = IntegerConstantSemanticAction($1); }
 	| BOOLEAN														{ $$ = BooleanConstantSemanticAction($1); }
 	;
 
+sentence: DEF IDENTIFIER[id] OPEN_PARENTHESIS parameters[params] CLOSE_PARENTHESIS COLON newline				{ $$ = FunctionDefinitionSentenceSemanticAction($id, $params, FUNCTION_DEFINITION); }
+	| functionCall newline																					{ $$ = FunctionCallSentenceSemanticAction($1, FUNCTION_CALL); }
+
 variableCall: IDENTIFIER 											{ $$ = VariableCallSemanticAction($1); }			
 
 functionCall: IDENTIFIER[id] OPEN_PARENTHESIS parameters[params] CLOSE_PARENTHESIS 	{ $$ = FunctionCallSemanticAction($id, $params); }
@@ -196,6 +205,10 @@ parameters: %empty													{ $$ = ParametersSemanticAction(NULL, NULL, EMPTY
 	| 	expression[left] COMMA parameters[right]				    { $$ = ParametersSemanticAction($left, $right, NOT_FINAL); }							
 	|   expression[left]											{ $$ = ParametersSemanticAction($left, NULL, FINAL); }
 
+depth: %empty														{ $$ = DepthSemanticAction(END_DEPTH); }
+	| TAB depth														{ $$ = DepthSemanticAction(TAB_DEPTH); }
+
+newline: NEWLINE_TOKEN												{ $$ = NewlineSemanticAction(FINAL_NEWLINE); }
 %%
 
 	/* | FLOAT 														{ $$ = FloatConstantSemanticAction($1); }

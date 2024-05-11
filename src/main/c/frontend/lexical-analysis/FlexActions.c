@@ -168,12 +168,6 @@ Token ConditionalLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext) {
 	return value;
 }
 
-Token NewlineLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext) {
-	_logLexicalAnalyzerContext(__FUNCTION__, lexicalAnalyzerContext);
-	lexicalAnalyzerContext->semanticValue->token = NEWLINE_TOKEN;
-	return NEWLINE_TOKEN;
-}
-
 Token NoneLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext) {
     _logLexicalAnalyzerContext(__FUNCTION__, lexicalAnalyzerContext);
     return NONE;
@@ -311,6 +305,12 @@ Token TabLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext) {
 	_logLexicalAnalyzerContext(__FUNCTION__, lexicalAnalyzerContext);
 	lexicalAnalyzerContext->semanticValue->token = TAB;
 	return TAB;
+}
+
+Token NewlineLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext) {
+	_logLexicalAnalyzerContext(__FUNCTION__, lexicalAnalyzerContext);
+	lexicalAnalyzerContext->semanticValue->token = NEWLINE_TOKEN;
+	return NEWLINE_TOKEN;
 }
 
 Token ColonLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext) {

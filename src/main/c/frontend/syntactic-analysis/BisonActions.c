@@ -1,4 +1,8 @@
 #include "BisonActions.h"
+/* GLOBAL VARIABLES*/
+static int expectedDepth = 0;
+static int currentDepth = 0;
+
 
 /* MODULE INTERNAL STATE */
 
@@ -26,7 +30,7 @@ static void _logSyntacticAnalyzerAction(const char * functionName);
  * Logs a syntactic-analyzer action in DEBUGGING level.
  */
 static void _logSyntacticAnalyzerAction(const char * functionName) {
-	logDebugging(_logger, "%s", functionName);
+	logDebugging(_logger, "%s (Expected depth: %d, Current: %d)", functionName, expectedDepth, currentDepth);
 }
 
 /* PUBLIC FUNCTIONS */
@@ -102,6 +106,36 @@ Program * ExpressionProgramSemanticAction(CompilerState * compilerState, Express
 	return program;
 }
 
+Sentence * FunctionCallSentenceSemanticAction(FunctionCall * callee, SentenceType type) {
+	if (expectedDepth != currentDepth) {
+		logError(_logger, "Expected depth (%d) is different from current depth (%d).", expectedDepth, currentDepth);
+		return NULL;
+	} else {
+		currentDepth = 0;
+		expectedDepth = (expectedDepth == 0)? 0 : expectedDepth - 1; 
+	}
+	_logSyntacticAnalyzerAction(__FUNCTION__);
+	Sentence * sentence = calloc(1, sizeof(Sentence));
+	sentence->functionCall = callee;
+	sentence->type = type;
+	return sentence;
+}
+
+Sentence * FunctionDefinitionSentenceSemanticAction(const char * function, Parameters * parameters, SentenceType type) {
+	if (expectedDepth != currentDepth) {
+		logError(_logger, "Expected depth (%d) is different from current depth (%d).", expectedDepth, currentDepth);
+	} else {
+		currentDepth = 0;
+	}
+	_logSyntacticAnalyzerAction(__FUNCTION__);
+	expectedDepth++;
+	Sentence * sentence = calloc(1, sizeof(Sentence));
+	sentence->type = type;
+	sentence->functionName = function;
+	sentence->parameters = parameters;
+	return sentence;
+}
+
 FunctionCall * FunctionCallSemanticAction(const char * function, Parameters * parameters) {
 	_logSyntacticAnalyzerAction(__FUNCTION__);
 	FunctionCall * functionCall = calloc(1, sizeof(FunctionCall));
@@ -125,4 +159,19 @@ Parameters * ParametersSemanticAction(Expression * leftExpression, Parameters * 
 	parameters->rightParameters = followingParameters;
 	parameters->type = type;
 	return parameters;
+}
+
+Depth * DepthSemanticAction(DepthType type) {
+	if (type != END_DEPTH) { currentDepth++; }
+	_logSyntacticAnalyzerAction(__FUNCTION__);
+	Depth * depth = calloc(1, sizeof(Depth));
+	depth->type = type;
+	return depth;
+}
+
+Newline * NewlineSemanticAction(NewlineType type) {
+	_logSyntacticAnalyzerAction(__FUNCTION__);
+	Newline * newline = calloc(1, sizeof(Newline));
+	newline->type = type;
+	return newline;
 }

@@ -31,6 +31,7 @@ Token BooleanLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);
 Token NoneLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);
 Token IdentifierLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);
 
+Token NewlineLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);
 Token TabLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);
 Token ColonLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);
 Token CommaLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);
