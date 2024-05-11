@@ -23,6 +23,9 @@
 	Factor * factor;
 	Program * program;
 	Variable * variable;
+	Parameters * parameters;
+	FunctionCall * functionCall;
+	VariableCall * variableCall;
 }
 
 /**
@@ -126,6 +129,9 @@
 %type <expression> expression
 %type <factor> factor
 %type <program> program
+%type <parameters> parameters
+%type <functionCall> functionCall
+%type <variableCall> variableCall
 
 /**
  * Precedence and associativity.
@@ -151,7 +157,9 @@
 %%
 
 program: expression													{ $$ = ExpressionProgramSemanticAction(currentCompilerState(), $1); }
+	| functionCall program
 	;
+
 conditional: constant[left] LOGICAL_AND constant[right]		{ $$ = ConditionalEvalSemanticAction($left, $right, LOGICAL_AND); }
 	| 		 BOOLEAN[left] LOGICAL_OR BOOLEAN[right]		{ $$ = ConditionalEvalSemanticAction($left, $right, LOGICAL_OR); }
 	;
@@ -178,10 +186,15 @@ factor: OPEN_PARENTHESIS expression CLOSE_PARENTHESIS				{ $$ = ExpressionFactor
 constant: INTEGER													{ $$ = IntegerConstantSemanticAction($1); }
 	| BOOLEAN														{ $$ = BooleanConstantSemanticAction($1); }
 	;
- 
-arguments: %empty
-	| 	expression[left] COMMA arguments[right]											
-	|   expression[left]
+
+variableCall: IDENTIFIER 											{ $$ = VariableCallSemanticAction($1); }			
+
+functionCall: IDENTIFIER[id] OPEN_PARENTHESIS parameters[params] CLOSE_PARENTHESIS 	{ $$ = FunctionCallSemanticAction($id, $params); }
+	;
+
+parameters: %empty													{ $$ = ParametersSemanticAction(NULL, NULL, EMPTY); }
+	| 	expression[left] COMMA parameters[right]				    { $$ = ParametersSemanticAction($left, $right, NOT_FINAL); }							
+	|   expression[left]											{ $$ = ParametersSemanticAction($left, NULL, FINAL); }
 
 %%
 

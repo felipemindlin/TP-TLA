@@ -133,7 +133,7 @@
 [+-]?[[:digit:]]+([.][[:digit:]]+)?[e][+-]?[[:digit:]]+ { return FloatLexemeAction(createLexicalAnalyzerContext());/* fp literal in sci notation */ }
 [+-]?[[:digit:]]+[.][[:digit:]]+                        { return FloatLexemeAction(createLexicalAnalyzerContext());/* floating point literal */ }
 [+-]?[[:digit:]]+                                       { return IntegerLexemeAction(createLexicalAnalyzerContext());/* integer literal */ }
-[_[:alpha:]][[:alnum:]]*                                { IgnoredLexemeAction(createLexicalAnalyzerContext());/* variable or function */ }
+[_[:alpha:]][[:alnum:]]*                                { return IdentifierLexemeAction(createLexicalAnalyzerContext());/* variable or function */ }
 [[:space:]]                                             { IgnoredLexemeAction(createLexicalAnalyzerContext()); }
 .                                                       { return UnknownLexemeAction(createLexicalAnalyzerContext()); }
 

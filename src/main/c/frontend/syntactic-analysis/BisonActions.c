@@ -101,3 +101,28 @@ Program * ExpressionProgramSemanticAction(CompilerState * compilerState, Express
 	}
 	return program;
 }
+
+FunctionCall * FunctionCallSemanticAction(const char * function, Parameters * parameters) {
+	_logSyntacticAnalyzerAction(__FUNCTION__);
+	FunctionCall * functionCall = calloc(1, sizeof(FunctionCall));
+	functionCall->functionName = function; // function is obtained from strdup, should be freed
+	functionCall->functionArguments = parameters;
+	return functionCall;
+}
+
+VariableCall * VariableCallSemanticAction(const char * variable) {
+	_logSyntacticAnalyzerAction(__FUNCTION__);
+	VariableCall * variableCall = calloc(1, sizeof(VariableCall));
+	variableCall->variableName = variable;
+	return variableCall;
+}
+
+Parameters * ParametersSemanticAction(Expression * leftExpression, Parameters * followingParameters, 
+									ParamType type) {
+	_logSyntacticAnalyzerAction(__FUNCTION__);
+	Parameters * parameters = calloc(1, sizeof(Parameters));
+	parameters->leftExpression = leftExpression;
+	parameters->rightParameters = followingParameters;
+	parameters->type = type;
+	return parameters;
+}

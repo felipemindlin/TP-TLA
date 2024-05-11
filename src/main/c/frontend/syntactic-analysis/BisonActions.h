@@ -27,4 +27,8 @@ Factor * ExpressionFactorSemanticAction(Expression * expression);
 Program * ExpressionProgramSemanticAction(CompilerState * compilerState, Expression * expression);
 Conditional * ConditionalEvalSemanticAction(Conditional * leftCond, Conditional * rightCond, CondType type);
 
+VariableCall * VariableCallSemanticAction(const char * variableName);
+FunctionCall * FunctionCallSemanticAction(const char * functionName, Parameters * parameters);
+Parameters * ParametersSemanticAction(Expression * leftExpression, Parameters * nextParameters, ParamType type);
+
 #endif

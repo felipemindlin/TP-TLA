@@ -18,6 +18,7 @@ typedef enum ExpressionType ExpressionType;
 typedef enum FactorType FactorType;
 typedef enum DataType DataType;
 typedef enum CondType CondType;
+typedef enum ParametersType ParamType;
 
 typedef struct Variable Variable;
 typedef struct Constant Constant;
@@ -25,7 +26,9 @@ typedef struct Expression Expression;
 typedef struct Conditional Conditional;
 typedef struct Factor Factor;
 typedef struct Program Program;
-typedef struct Arguments Arguments;
+typedef struct Parameters Parameters;
+typedef struct FunctionCall FunctionCall;
+typedef struct VariableCall VariableCall;
 
 /**
  * Node types for the Abstract Syntax Tree (AST).
@@ -88,6 +91,12 @@ enum DataType {
 	DATA_INT,
 };
 
+enum ParametersType {
+	EMPTY,
+	FINAL,
+	NOT_FINAL
+};
+
 struct Constant {
 	int value;
 };
@@ -128,14 +137,21 @@ struct Conditional {
 	CondType type;
 };
 
-struct Arguments {
-	union {
-		struct {
-			Expression * leftExpression;
-			Arguments * rightArguments;
-		};
-		Expression * loneExpression;
+struct VariableCall {
+	const char * variableName;
+};
+
+struct FunctionCall {
+	const char * functionName;
+	Parameters * functionArguments;
+};
+
+struct Parameters {
+	struct {
+		Expression * leftExpression;
+		Parameters * rightParameters;
 	};
+	ParamType type;
 };
 
 struct Program {
