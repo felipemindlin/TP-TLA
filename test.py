@@ -1,0 +1,2 @@
+if boca:
+    print("Peru")

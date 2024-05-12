@@ -117,17 +117,17 @@ enum ParametersType {
 	NOT_FINAL
 };
 
-struct Constant {
+struct Constant { 
 	int value;
 };
 
-/* NEEDS FREE */
+
 struct Variable {
 	int value;
 	DataType type;
 };
 
-struct Factor {
+struct Factor { 
 	union {
 		Constant * constant;
 		Expression * expression;
@@ -135,7 +135,7 @@ struct Factor {
 	FactorType type;
 };
 
-struct Expression {
+struct Expression { 
 	union {
 		Factor * factor;
 		struct {
@@ -204,5 +204,18 @@ void releaseConstant(Constant * constant);
 void releaseExpression(Expression * expression);
 void releaseFactor(Factor * factor);
 void releaseProgram(Program * program);
+
+void releaseVariable(Variable * variable);
+void releaseConditional(Conditional * condtional);
+void releaseSentence(Sentence * sentence);
+void releaseVariableCall(VariableCall * variableCall);
+void releaseFunctionCall(FunctionCall * functionCall);
+void releaseParameters(Parameters * parameters);
+void releaseNewline(Newline * newline);
+void releaseDepth(Depth * depth);
+
+
+
+
 
 #endif
