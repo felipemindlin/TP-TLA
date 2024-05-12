@@ -133,9 +133,19 @@
 
 %token <token> DEF
 %token <token> RETURNS
-
 %token <token> CLASS
 
+%token <token> RAISE_KEYWORD_TOKEN
+%token <token> TRY_KEYWORD_TOKEN
+%token <token> EXCEPT_KEYWORD_TOKEN
+%token <token> FINALLY_KEYWORD_TOKEN
+%token <token> RETURN_KEYWORD_TOKEN
+%token <token> PASS_KEYWORD_TOKEN
+%token <token> YIELD_KEYWORD_TOKEN
+%token <token> MATCH_KEYWORD_TOKEN
+%token <token> CASE_KEYWORD_TOKEN
+%token <token> TYPE_KEYWORD_TOKEN
+%token <token> ASSERT_KEYWORD_TOKEN
 %token <token> UNKNOWN
 
 /** Non-terminals. */

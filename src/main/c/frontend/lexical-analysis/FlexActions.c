@@ -96,7 +96,7 @@ Token UnknownLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext) {
 Token IdentifierLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext) {
 	_logLexicalAnalyzerContext(__FUNCTION__, lexicalAnalyzerContext);
 	lexicalAnalyzerContext->semanticValue->var_name = strdup(lexicalAnalyzerContext->lexeme);
-    if(isDefinedFunction(lexicalAnalyzerContext->lexeme){
+    if (isDefinedFunction(lexicalAnalyzerContext->lexeme)) {
         return BUILTIN_IDENTIFIER;
     }
 	return IDENTIFIER;
@@ -161,9 +161,86 @@ Token ReturnsLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext) {
     return RETURNS;
 }
 
+Token ReturnKeywordLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext) {
+	_logLexicalAnalyzerContext(__FUNCTION__, lexicalAnalyzerContext);
+	return RETURN_KEYWORD_TOKEN;
+}
+
+Token PassKeywordLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext) {
+	_logLexicalAnalyzerContext(__FUNCTION__, lexicalAnalyzerContext);
+	return PASS_KEYWORD_TOKEN;
+}
+
+Token YieldKeywordLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext) {
+	_logLexicalAnalyzerContext(__FUNCTION__, lexicalAnalyzerContext);
+	return YIELD_KEYWORD_TOKEN;
+}
+
+Token RaiseKeywordLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext) {
+	_logLexicalAnalyzerContext(__FUNCTION__, lexicalAnalyzerContext);
+	return RAISE_KEYWORD_TOKEN;
+}
+
+Token TryKeywordLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext) {
+	_logLexicalAnalyzerContext(__FUNCTION__, lexicalAnalyzerContext);
+	return TRY_KEYWORD_TOKEN;
+}
+
+Token ExceptKeywordLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext) {
+	_logLexicalAnalyzerContext(__FUNCTION__, lexicalAnalyzerContext);
+	return EXCEPT_KEYWORD_TOKEN;
+}
+
+Token FinallyKeywordLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext) {
+	_logLexicalAnalyzerContext(__FUNCTION__, lexicalAnalyzerContext);
+	return FINALLY_KEYWORD_TOKEN;
+}
+
+Token MatchKeywordLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext) {
+	_logLexicalAnalyzerContext(__FUNCTION__, lexicalAnalyzerContext);
+	return MATCH_KEYWORD_TOKEN;
+}
+
+Token CaseKeywordLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext) {
+	_logLexicalAnalyzerContext(__FUNCTION__, lexicalAnalyzerContext);
+	return CASE_KEYWORD_TOKEN;
+}
+
+Token TypeKeywordLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext) {
+	_logLexicalAnalyzerContext(__FUNCTION__, lexicalAnalyzerContext);
+	return TYPE_KEYWORD_TOKEN;
+}
+
+Token AssertKeywordLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext) {
+	_logLexicalAnalyzerContext(__FUNCTION__, lexicalAnalyzerContext);
+	return ASSERT_KEYWORD_TOKEN;
+}
+
 Token DotLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext) {
     _logLexicalAnalyzerContext(__FUNCTION__, lexicalAnalyzerContext);
     return DOT;
+}
+
+Token IdentityEvaluationLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext) {
+	_logLexicalAnalyzerContext(__FUNCTION__, lexicalAnalyzerContext);
+	Token token;
+	switch (lexicalAnalyzerContext->length) {
+		case 2: token = IS; 	break;
+		case 6: token = IS_NOT; break;
+	}
+	lexicalAnalyzerContext->semanticValue->token = token;
+	return token;
+}
+
+Token MembershipEvaluationLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext) {
+	_logLexicalAnalyzerContext(__FUNCTION__, lexicalAnalyzerContext);
+	Token token;
+	switch (lexicalAnalyzerContext->lexeme[0]) {
+		case 'i': token = IN; break;
+		case 'n': token = NOT_IN; break;
+	}
+	lexicalAnalyzerContext->semanticValue->token = token;
+	return token;
 }
 
 Token BooleanLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext) {
