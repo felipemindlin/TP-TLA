@@ -204,7 +204,6 @@ void releaseConstant(Constant * constant);
 void releaseExpression(Expression * expression);
 void releaseFactor(Factor * factor);
 void releaseProgram(Program * program);
-
 void releaseVariable(Variable * variable);
 void releaseConditional(Conditional * condtional);
 void releaseSentence(Sentence * sentence);
