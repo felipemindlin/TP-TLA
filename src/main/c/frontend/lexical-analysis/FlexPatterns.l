@@ -45,10 +45,11 @@
 "True"                                      { return BooleanLexemeAction(createLexicalAnalyzerContext());/* boolean true */ }
 "None"                                      { return NoneLexemeAction(createLexicalAnalyzerContext());/* null value */ }
 
-"class"                                     { IgnoredLexemeAction(createLexicalAnalyzerContext());/* class definition keyword */ }
+"class"                                     { return ClassLexemeAction(createLexicalAnalyzerContext());/* class definition keyword */ }
 "del"                                       { IgnoredLexemeAction(createLexicalAnalyzerContext());/* object deletion keyword */ }
 "def"                                       { return DefineLexemeAction(createLexicalAnalyzerContext());/* function definition keyword */ }
 "lambda"                                    { IgnoredLexemeAction(createLexicalAnalyzerContext());/* lambda function definition keyword */ }
+"->"([:space:]*)?[_[:alpha:]][[:alnum:]]*   { return ReturnsLexemeAction(createLexicalAnalyzerContext()); /* function return type keyword */}
 
 "return"                                    { IgnoredLexemeAction(createLexicalAnalyzerContext());/* return keyword */ }
 "yield"                                     { IgnoredLexemeAction(createLexicalAnalyzerContext());/* yield keyword */ }
@@ -82,6 +83,7 @@
 "]"                                         { return BracketLexemeAction(createLexicalAnalyzerContext());/* right square bracket */ }
 "{"                                         { return BraceLexemeAction(createLexicalAnalyzerContext());/* left curly brace */ }
 "}"                                         { return BraceLexemeAction(createLexicalAnalyzerContext());/* right curly brace */ }
+"."                                         { return DotLexemeAction(createLexicalAnalyzerContext()); /* dots for method calls */ }
 
 "+"                                         { return ArithmeticOperatorLexemeAction(createLexicalAnalyzerContext());/* addition */ }
 "-"                                         { return ArithmeticOperatorLexemeAction(createLexicalAnalyzerContext());/* subtraction */ }

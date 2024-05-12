@@ -38,6 +38,8 @@ Token CommaLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);
 Token ParenthesisLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);
 Token BracketLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);
 Token BraceLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);
+Token DotLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);
+Token ClassLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);
 
 Token ConditionalLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);
 Token IfLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);
@@ -47,6 +49,7 @@ Token ForLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);
 Token WhileLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);
 Token BreakLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);
 Token ContinueLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);
+Token ReturnsLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);
 
 Token DefineLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);
 
