@@ -17,19 +17,38 @@ void shutdownAbstractSyntaxTreeModule();
 typedef enum DepthType DepthType;
 typedef enum ExpressionType ExpressionType;
 typedef enum FactorType FactorType;
+typedef enum ConstantType ConstantType;
 typedef enum DataType DataType;
 typedef enum CondType CondType;
 typedef enum ParametersType ParamType;
 typedef enum SentenceType SentenceType;
 typedef enum NewlineType NewlineType;
+typedef enum BlockType BlockType;
+typedef enum ComparisonCond ComparisonCond;
+typedef enum BooleanCond BooleanCond;
+typedef enum ObjectCond ObjectCond;
+typedef enum ForType ForType;
+typedef enum Which Which;
+
+/* Every Block will be of the following types */
+typedef struct Block Block;
+typedef struct FunctionDefinition FunctionDefinition;
+typedef struct ClassDefinition ClassDefinition;
+typedef struct Conditional Conditional;
+typedef struct While While;
+typedef struct For For;
 
 typedef struct Variable Variable;
 typedef struct Constant Constant;
+typedef struct Object Object;
+typedef struct List List;
+typedef struct List Tuple;
 typedef struct Expression Expression;
-typedef struct Conditional Conditional;
 typedef struct Factor Factor;
 typedef struct Program Program;
 typedef struct Parameters Parameters;
+typedef struct FunctionDefinition FunctionDefinition;
+typedef struct MethodCall MethodCall;
 typedef struct FunctionCall FunctionCall;
 typedef struct VariableCall VariableCall;
 typedef struct Sentence Sentence;
@@ -85,17 +104,52 @@ enum ExpressionType {
 };
 
 enum CondType { // Non arithmetic
+    BOOLEAN_COND,
+    VARIABLE_AND_BOOLEAN_COND,
+    VARIABLE_BOOLEAN_COND,
+    COMPARISON_COND,
+    VARIABLE_COMPARISON_COND,
+    VARIABLE_AND_CONST_COMPARISON_COND,
+    OBJECT_COMPARISON_COND,
+    VARIABLE_OBJECT_COMPARISON_COND,
+    VARIABLE_AND_OBJECT_COMPARISON_COND,
+    EXPRESSION_COND,
+    VARIABLE_COND,
+    OBJECT_COND,
+};
+
+enum ForType {
+    FOR_FACTOR,
+    FOR_FACTOR_AND_VARIABLE,
+    FOR_VARIABLE,
+};
+
+enum Which {
+    VARIABLE_ON_THE_LEFT,
+    FACTOR_ON_THE_LEFT,
+};
+
+enum BooleanCond {
 	LOGIC_AND,
 	LOGIC_OR,
 	LOGIC_NOT,
+};
+
+enum ComparisonCond {
 	EQUALS_COMPARISON,
 	NOT_EQUALS_COMPARISON,
 	GREATER_THAN_COMPARISON,
 	GREATER_THAN_OR_EQUALS_COMPARISON,
 	LESS_THAN_COMPARISON,
 	LESS_THAN_OR_EQUALS_COMPARISON,
+    IN_COMPARISON,
+    NOT_IN_COMPARISON,
 };
 
+enum ObjectCond {
+    IS_COND,
+    IS_NOT_COND,
+};
 
 enum FactorType {
 	CONSTANT,
@@ -104,6 +158,20 @@ enum FactorType {
 
 enum DataType {
 	DATA_INT,
+    DATA_FLOAT,
+    DATA_STRING,
+    DATA_BOOLEAN,
+    DATA_OBJECT,
+    DATA_GENERIC,
+};
+
+enum ConstantType {
+	CONSTANT_INT,
+    CONSTANT_FLOAT,
+    CONSTANT_STRING,
+    CONSTANT_BOOLEAN,
+    CONSTANT_LIST,
+    CONSTANT_TUPLE,
 };
 
 enum SentenceType {
@@ -117,17 +185,141 @@ enum ParametersType {
 	NOT_FINAL
 };
 
-struct Constant { 
-	int value;
+enum BlockType {
+    FUNC_DEF,
+    CLASS_DEF,
+    CONDITIONAL,
+    WHILE_BLOCK,
+    FOR_BLOCK,
+};
+
+struct Object {
+    char * className;
+};
+
+struct FunctionDefinition {
+	const char * functionName;
+	Parameters * functionArguments;
+    DataType returnType;
+    Object * objectReturnType;
+};
+
+struct MethodCall {
+    Object * object;
+    FunctionCall * functionCall;
+};
+
+struct ClassDefinition {
+    char * className;
+    Class * parent;
+    Variable ** fields;
+};
+
+struct Conditional {
+	union {
+		struct {
+            Expression * leftExpression;
+            Expression * rightExpression;
+            ComparisonCond comparisonCond;
+        };
+        struct {
+            VariableCall * leftExpressionVar;
+            VariableCall * rightExpressionVar;
+            ComparisonCond comprCondition;
+        };
+        struct {
+            VariableCall * expressionVar;
+            Factor * exp;
+            ComparisonCond comprCond;
+        };
+		struct {
+			Conditional * leftCond;
+			Conditional * rightCond;
+            BooleanCond booleanCond;
+		};
+        Object * object;
+        VariableCall * variable;
+        struct {
+            Object * leftObject;
+            Object * rightObject;
+            ObjectCond objectCond;
+        };
+        struct{
+            VariableCall * variableLeftObj;
+            VariableCall * variableRightObj;
+            ObjectCond objCondition;
+        };
+        struct {
+            VariableCall * variableObj;
+            Object * obj;
+            ObjectCond objCond;
+        };
+        Expression * expression;
+	};
+	CondType type;
+};
+
+struct While {
+    Conditional * conditional;
+};
+
+struct For {
+    union {
+        struct {
+            Factor * left;
+            Factor * right;
+        };
+        struct {
+            VariableCall * leftVar;
+            VariableCall * rightVar;
+        };
+        struct {
+            VariableCall * var;
+            Factor * fact;
+            Which which;
+        };
+    };
+    ForType type;
+};
+
+struct Block {
+    union {
+        FunctionDefinition * functionDefinition;
+        ClassDefinition * classDefinition;
+        Conditional * conditional;
+        While * whileBlock;
+        For * forBlock;
+    };
+    BlockType type;
+};
+struct Constant {
+	union{
+        int integer;
+        int boolean;
+        float decimal;
+        char * string;
+        List * list;
+        Tuple * tuple;
+    };
+    ConstantType type;
 };
 
 
 struct Variable {
-	int value;
+	union {
+        int integer;
+        float decimal;
+        int boolean;
+        char * string;
+        List * list;
+        Tuple * tuple;
+        Object * object;
+    };
+    char * identifier;
 	DataType type;
 };
 
-struct Factor { 
+struct Factor {
 	union {
 		Constant * constant;
 		Expression * expression;
@@ -135,7 +327,7 @@ struct Factor {
 	FactorType type;
 };
 
-struct Expression { 
+struct Expression {
 	union {
 		Factor * factor;
 		struct {
@@ -144,17 +336,6 @@ struct Expression {
 		};
 	};
 	ExpressionType type;
-};
-
-struct Conditional {
-	union {
-		Factor * factor;
-		struct {
-			Conditional * leftCond;
-			Conditional * rightCond;
-		};
-	};
-	CondType type;
 };
 
 struct Sentence {
@@ -175,6 +356,10 @@ struct VariableCall {
 struct FunctionCall {
 	const char * functionName;
 	Parameters * functionArguments;
+};
+
+struct List {
+    Parameters * elements;
 };
 
 struct Parameters {
@@ -214,7 +399,12 @@ void releaseNewline(Newline * newline);
 void releaseDepth(Depth * depth);
 
 
-
-
+void releaseWhile(While * whileBlock);
+void releaseConditional(Conditional * conditional);
+void releaseFor(For * forBlock);
+void releaseList(List * list);
+void releaseTuple(Tuple * tuple);
+void releaseFunctionDefinition(FunctionDefinition * functionDefinition);
+void releaseClassDefinition(ClassDefinition * classDefinition);
 
 #endif
