@@ -1,1 +1,2 @@
-7 * 5
+def my_func:
+    return 1
