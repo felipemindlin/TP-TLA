@@ -29,6 +29,7 @@ typedef enum BooleanCond BooleanCond;
 typedef enum ObjectCond ObjectCond;
 typedef enum ForType ForType;
 typedef enum Which Which;
+typedef enum MethodCallType MethodCallType;
 
 /* Every Block will be of the following types */
 typedef struct Block Block;
@@ -118,6 +119,11 @@ enum CondType { // Non arithmetic
     OBJECT_COND,
 };
 
+enum MethodCallType {
+    OBJECT_TRIGGER,
+    VARIABLE_TRIGGER,
+};
+
 enum ForType {
     FOR_FACTOR,
     FOR_FACTOR_AND_VARIABLE,
@@ -157,12 +163,8 @@ enum FactorType {
 };
 
 enum DataType {
-	DATA_INT,
-    DATA_FLOAT,
-    DATA_STRING,
-    DATA_BOOLEAN,
     DATA_OBJECT,
-    DATA_GENERIC,
+    DATA_INFERRED,
 };
 
 enum ConstantType {
@@ -205,8 +207,12 @@ struct FunctionDefinition {
 };
 
 struct MethodCall {
-    Object * object;
+    union {
+        Object * object;
+        VariableCall * variableCall;
+    };
     FunctionCall * functionCall;
+    MethodCallType type;
 };
 
 struct ClassDefinition {
@@ -360,6 +366,7 @@ struct FunctionCall {
 
 struct List {
     Parameters * elements;
+    Object * objectType;
 };
 
 struct Parameters {
@@ -398,9 +405,8 @@ void releaseParameters(Parameters * parameters);
 void releaseNewline(Newline * newline);
 void releaseDepth(Depth * depth);
 
-
-void releaseWhile(While * whileBlock);
 void releaseConditional(Conditional * conditional);
+void releaseWhile(While * whileBlock);
 void releaseFor(For * forBlock);
 void releaseList(List * list);
 void releaseTuple(Tuple * tuple);

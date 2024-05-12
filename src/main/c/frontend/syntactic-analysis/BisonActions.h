@@ -23,6 +23,7 @@ Constant * BooleanConstantSemanticAction(const int value);
 Constant * StringConstantSemanticAction(const char * value);
 Constant * FloatConstantSemanticAction(const float value);
 Constant * TupleConstantSemanticAction(List * value);
+Constant * TupleConstantSemanticAction(List * value);
 Constant * ListConstantSemanticAction(Tuple * value);
 Expression * ArithmeticExpressionSemanticAction(Expression * leftExpression, Expression * rightExpression, ExpressionType type);
 Expression * FactorExpressionSemanticAction(Factor * factor);
@@ -37,6 +38,12 @@ Sentence * FunctionDefinitionSentenceSemanticAction(const char * functionName, P
 
 List * ListSemanticAction(Parameters * parameters);
 Tuple * TupleSemanticAction(Parameters * parameters);
+
+List * EmptyListSemanticAction();
+List * TypedListSemanticAction(Object * objectType);
+Tuple * EmptyTupleSemanticAction();
+Tuple * TypedTupleSemanticAction(Object * objectType);
+
 
 Conditional * ConditionalBooleanSemanticAction(Conditional * left, Conditional * right, const BooleanCond booleanCond);
 Conditional * ConditionalBooleanVariableSemanticAction(VariableCall * left, VariableCall * right, const BooleanCond booleanCond);
@@ -62,11 +69,14 @@ For * ForFactorBlockSemanticAction(Factor * left, Factor * right);
 For * ForVariableBlockSemanticAction(VariableCall * left, VariableCall * right);
 For * ForFactorAndVariableBlockSemanticAction(VariableCall * var, Factor * fact, Which which);
 ClassDefinition * ClassDefinitionSemanticAction(const char * className, const char * parent);
+FunctionDefinition * FunctionDefinitionSemanticAction(const char * functionName, Parameters * parameters, DataType returnType, Object * objectReturnType);
 VariableCall * VariableCallSemanticAction(const char * variableName);
 FunctionCall * FunctionCallSemanticAction(const char * functionName, Parameters * parameters);
 Parameters * ParametersSemanticAction(Expression * leftExpression, Parameters * nextParameters, ParamType type);
 
 Depth * DepthSemanticAction(DepthType type);
 Newline * NewlineSemanticAction(NewlineType type);
+
+
 
 #endif

@@ -96,16 +96,26 @@ Expression * ArithmeticExpressionSemanticAction(Expression * leftExpression, Exp
 	return expression;
 }
 
-ClassDefinition * ClassDefintionSemanticAction(const char * className, const char * parent) {
+FunctionDefinition * FunctionDefinitionSemanticAction(const char * fName, Parameters * params, DataType retType, Object * objRetType) {
 	_logSyntacticAnalyzerAction(__FUNCTION__);
-    ClassDefiniton * classDefinition = calloc(1, sizeof(ClassDefinition));
-    classDefinition->className = malloc(strlen(className)+1);
-    classDefinition->className = strcpy(classDefinition->className, className);
-    if(parent == NULL){
-        classDefinition->parent = malloc(strlen(parent)+1);
-        classDefinition->parent = strcpy(classDefinition->parent, parent);
+	FunctionDefinition * functionDefinition = calloc(1, sizeof(FunctionDefinition));
+	functionDefinition->functionName = fName;
+	functionDefinition->functionArguments = params;
+	functionDefinition->returnType = retType;
+	functionDefinition->objectReturnType = objRetType;
+	return functionDefinition;
+}
 
+/* WITH THIS TREASURE I SUMMON DOUBLE FREE */
+ClassDefinition * ClassDefinitionSemanticAction(const char * className, const char * parent) {
+	_logSyntacticAnalyzerAction(__FUNCTION__);
+
+    ClassDefinition * classDefinition = calloc(1, sizeof(ClassDefinition));
+    classDefinition->className = className;
+    if(parent != NULL){
+        classDefinition->parent = parent;
     } else {
+		// Stand proud, you're not a child anymore?
         classDefinition->parent = malloc(strlen(OBJECT_STR)+1);
         classDefinition->parent = strcpy(classDefinition->parent, OBJECT_STR);
     }
@@ -202,6 +212,41 @@ Tuple * TupleSemanticAction(Parameters * elements) {
     Tuple * tuple = calloc(1, sizeof(Tuple));
 	tuple->elements = elements;
 	return tuple;
+}
+
+
+
+List * EmptyListSemanticAction(){
+	_logSyntacticAnalyzerAction(__FUNCTION__);
+	List * list = calloc(1, sizeof(List));
+	list->elements = NULL;
+	return list;
+
+}
+
+List * TypedListSemanticAction(Object * objectType){
+	_logSyntacticAnalyzerAction(__FUNCTION__);
+	List * list = calloc(1, sizeof(List));
+	list->objectType = objectType;
+	return list;
+
+}
+
+Tuple * EmptyTupleSemanticAction(){
+	_logSyntacticAnalyzerAction(__FUNCTION__);
+	Tuple * tuple = calloc(1, sizeof(Tuple));
+	tuple->elements = NULL;
+	return tuple;
+
+}
+
+Tuple * TypedTupleSemanticAction(Object * objectType){
+	_logSyntacticAnalyzerAction(__FUNCTION__);
+	Tuple * tuple = calloc(1, sizeof(Tuple));
+	tuple->objectType = objectType;
+	return tuple;
+
+
 }
 
 VariableCall * VariableCallSemanticAction(const char * variable) {
@@ -388,3 +433,4 @@ For * ForFactorAndVariableBlockSemanticAction(VariableCall * var, Factor * fact,
     forBlock->fact = fact;
     return forBlock;
 }
+

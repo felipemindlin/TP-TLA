@@ -30,11 +30,15 @@
 	Variable * variable;
     Object * object;
 	Parameters * parameters;
+	FunctionDefinition * functionDefinition;
+	ClassDefinition * classDefinition;
 	FunctionCall * functionCall;
 	VariableCall * variableCall;
 	Sentence * sentence;
 	Depth * depth;
+
 	Newline * newline;
+
 }
 
 /**
@@ -162,11 +166,19 @@
 %type <factor> factor
 %type <program> program
 %type <parameters> parameters
+%type <functionDefinition> functionDefinition
+%type <classDefinition> classDefinition
 %type <functionCall> functionCall
 %type <variableCall> variableCall
 %type <sentence> sentence
 %type <depth> depth
 %type <newline> newline
+
+%type <list> empty_list
+%type <list> typed_list
+%type <tuple> empty_tuple
+%type <tuple> typed_tuple
+
 
 /**
  * Precedence and associativity.
@@ -202,11 +214,12 @@ block: functionDefinition[blck] COLON NEWLINE_TOKEN TAB program[prog]   { $$ = F
      | for_block[blck] COLON NEWLINE_TOKEN TAB program[prog]            { $$ = WhileDefinitionBlockSemanticAction($blck, $prog); }
      ;
 
-functionDefinition: DEF IDENTIFIER[id] OPEN_PARENTHESIS parameters[args] CLOSE_PARENTHESIS                              { $$ = FunctionDefinitionSemanticAction($id, $args); }
-                  | DEF IDENTIFIER[id] OPEN_PARENTHESIS parameters[args] CLOSE_PARENTHESIS RETURNS BUILTIN_IDENTIFIER   { $$ = FunctionDefinitionSemanticAction($id, $args); }
+functionDefinition: DEF IDENTIFIER[id] OPEN_PARENTHESIS parameters[args] CLOSE_PARENTHESIS                              		{ $$ = FunctionDefinitionSemanticAction($id, $args, DATA_INFERRED, NULL); }
+                  | DEF IDENTIFIER[id] OPEN_PARENTHESIS parameters[args] CLOSE_PARENTHESIS RETURNS object[retObj]   			{ $$ = FunctionDefinitionSemanticAction($id, $args, DATA_OBJECT, $retObj); }
+				  ;
 
-classDefinition: CLASS IDENTIFIER[id] COLON                                                     { $$ = ClassDefinitionSemanticAction($id, NULL); }
-               | CLASS IDENTIFIER[id] OPEN_PARENTHESIS object[obj] CLOSE_PARENTHESIS COLON      { $$ = ClassDefintionSemanticAction($id, $obj); }
+classDefinition: CLASS IDENTIFIER[id]                                                    		{ $$ = ClassDefinitionSemanticAction($id, NULL); }
+               | CLASS IDENTIFIER[id] OPEN_PARENTHESIS object[obj] CLOSE_PARENTHESIS	        { $$ = ClassDefintionSemanticAction($id, $obj); }
                ;
 
 conditional: conditional[left] LOGICAL_AND conditional[right]       { $$ = ConditionalBooleanSemanticAction($left, $right, LOGIC_AND); }
@@ -316,7 +329,7 @@ empty_list: OPEN_BRACKET CLOSE_BRACKET                              { $$ = Empty
 typed_list: OPEN_BRACKET object[id] CLOSE_BRACKET                   { $$ = TypedDefinitionListSemanticAction($id); }
 
 tuple: empty_tuple                                                      { $$ = EmptyTupleSemanticAction(); }
-     | typed_tuple                                                      { $$ = TypedTupleSemanticAction }
+     | typed_tuple                                                      { $$ = TypedTupleSemanticAction($1) }
      | OPEN_PARENTHESIS parameters[params] CLOSE_PARENTHESIS            { $$ = TupleSemanticAction($params); }
 
 empty_tuple: OPEN_PARENTHESIS CLOSE_PARENTHESIS                         { $$ = EmptyTupleSemanticAction(); }
@@ -331,8 +344,8 @@ object: BUILTIN_IDENTIFIER                                          { $$ = Built
       | list                                                        { $$ = TupleObjectSemanticAction($1); }
       ;
 
-methodCall: object[obj] DOT functionCall[func]                      { $$ = ObjectMethodCallSemanticAction($obj, $func); }
-          | variableCall[var] DOT functionCall[func]                { $$ = VariableMethodCallSemanticAction($var, $func); }
+methodCall: object[obj] DOT functionCall[func]                      { $$ = ObjectMethodCallSemanticAction($obj, $func, OBJECT_TRIGGER); }
+          | variableCall[var] DOT functionCall[func]                { $$ = VariableMethodCallSemanticAction($var, $func, VARIABLE_TRIGGER); }
           ;
 
 fieldGetter: object[obj] DOT variableCall[field]                    { $$ = ObjectFieldGetterSemanticAction($obj, $field); }
