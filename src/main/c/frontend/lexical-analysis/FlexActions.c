@@ -95,12 +95,10 @@ Token UnknownLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext) {
 // Standard objects found in: https://docs.python.org/3/library/functions.html
 Token IdentifierLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext) {
 	_logLexicalAnalyzerContext(__FUNCTION__, lexicalAnalyzerContext);
-    if(isDefinedFunction(lexicalAnalyzerContext->lexeme){
-        lexicalAnalyzerContext->semanticValue->object = malloc(sizeof(Object));
-        lexicalAnalyzerContext->semanticValue->object->className = strdup(lexicalAnalyzerContext->lexeme);
-        return BUILTIN_OBJECT;
-    }
 	lexicalAnalyzerContext->semanticValue->var_name = strdup(lexicalAnalyzerContext->lexeme);
+    if(isDefinedFunction(lexicalAnalyzerContext->lexeme){
+        return BUILTIN_IDENTIFIER;
+    }
 	return IDENTIFIER;
 }
 
