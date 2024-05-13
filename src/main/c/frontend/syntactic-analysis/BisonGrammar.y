@@ -36,7 +36,6 @@
     FunctionDefinition * functionDefinition;
     ClassDefinition * classDefinition;
 	Depth * depth;
-	Newline * newline;
 	WhileBlock * whileBlock;
     ForBlock * forBlock;
     ConditionalBlock * conditionalBlock;
@@ -60,7 +59,6 @@
 %destructor { releaseMethodCall($$); } <methodCall>
 %destructor { releaseFunctionCall($$); } <functionCall>
 %destructor { releaseParameters($$); } <parameters>
-%destructor { releaseNewline($$); } <newline>
 %destructor { releaseDepth($$); } <depth>
 %destructor { releaseTuple($$); } <tuple>
 %destructor { releaseFunctionDefinition($$); } <functionDefinition>
@@ -188,7 +186,6 @@
 %type <functionDefinition> functionDefinition
 %type <classDefinition> classDefinition
 %type <depth> depth
-%type <newline> newline
 %type <whileBlock> whileBlock
 %type <forBlock> forBlock
 %type <conditionalBlock> ifBlock
@@ -242,7 +239,7 @@ block: functionDefinition[fdef] COLON NEWLINE_TOKEN TAB program[prog]           
      | forBlock[fblock] COLON NEWLINE_TOKEN TAB program[prog]                       { $$ = ForLoopBlockSemanticAction($fblock, $prog); }
 	 ;
 
-nextCondBlock: %empty
+nextCondBlock: %empty                                                                       { $$ = ConditionalBlockSemanticAction(NULL, NULL, NULL); }
              | elifBlock[elif] COLON NEWLINE_TOKEN TAB program[prog] nextCondBlock[next]    { $$ = ConditionalBlockSemanticAction($elif, $prog, $next); }
              | elseBlock[els] COLON NEWLINE_TOKEN TAB program[prog]                         { $$ = ConditionalBlockSemanticAction($els, $prog, NULL); }
 
@@ -341,7 +338,6 @@ parameters: %empty													{ $$ = ParametersSemanticAction(NULL, NULL, EMPTY
 depth: %empty														{ $$ = DepthSemanticAction(END_DEPTH); }
 	| TAB depth														{ $$ = DepthSemanticAction(TAB_DEPTH); }
 
-newline: NEWLINE_TOKEN												{ $$ = NewlineSemanticAction(FINAL_NEWLINE); }
 %%
 
 	/* | FLOAT 														{ $$ = FloatConstantSemanticAction($1); }
