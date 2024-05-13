@@ -31,6 +31,8 @@ Expression * ArithmeticExpressionSemanticAction(Expression * leftExpression, Exp
 Expression * ConstantExpressionSemanticAction(Constant * constant);
 Expression * VariableCallExpressionSemanticAction(VariableCall * var);
 Expression * FunctionCallExpressionSemanticAction(FunctionCall * fcall);
+Expression * MethodCallExpressionSemanticAction(MethodCall * methodCall);
+Expression * FieldGetterExpressionSemanticAction(FieldGetter * fieldGetter);
 
 Program * GeneralProgramSemanticAction(CompilerState * compilerState, Depth * dp, Sentence * sentence, Program * nprog);
 Program * FinishedProgramSemanticAction(CompilerState * compilerState);
@@ -73,10 +75,6 @@ ClassDefinition * TupleClassDefinitionSemanticAction(char * restrict id, Tuple *
 
 /** VARIABLE SECTION **/
 Variable * ExpressionVariableSemanticAction(char * restrict id, Expression * expr);
-Variable * MethodCallVariableSemanticAction(char * restrict id, MethodCall * methodCall);
-Variable * FieldGetterVariableSemanticAction(char * restrict id, FieldGetter * fieldGetter);
-Variable * ObjectVariableSemanticAction(char * restrict id, Object * obj);
-Variable * VariableCallVariableSemanticAction(char * restrict id, VariableCall * var);
 
 /** METHOD CALL SECTION **/
 MethodCall * VariableMethodCallSemanticAction(VariableCall *, FunctionCall *);

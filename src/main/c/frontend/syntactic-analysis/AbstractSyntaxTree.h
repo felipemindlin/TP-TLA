@@ -116,6 +116,8 @@ enum ExpressionType {
 	BIT_ARITHMETIC_RIGHT_SHIFT,
     VARIABLE_CALL_EXPRESSION,
     FUNCTION_CALL_EXPRESSION,
+    METHOD_CALL_EXPRESSION,
+    FIELD_GETTER_EXPRESSION,
     CONSTANT_EXPRESSION
 };
 
@@ -156,14 +158,6 @@ enum FunctionDefinitionType {
 enum ClassDefinitionType {
     CDT_TUPLE_INHERITANCE,
     CDT_NOT_INHERITS,
-};
-
-enum VariableType {
-	VT_EXPRESSION_VARIABLE,
-	VT_FUNCCALL_VARIABLE,
-	VT_METHODCALL_VARIABLE,
-	VT_FIELDGETTER_VARIABLE,
-	VT_OBJECT_VARIABLE,
 };
 
 enum MethodCallType {
@@ -230,15 +224,8 @@ struct Constant {
 
 
 struct Variable {
-	union {
-		Expression * expression;
-		FunctionCall * functionCall;
-		MethodCall * methodCall;
-		FieldGetter * fieldGetter;
-        Object * object;
-	};
+	Expression * expression;
 	char * identifier;
-	VariableType type;
 };
 
 struct Object {
@@ -261,6 +248,8 @@ struct Expression {
         Constant * constant;
         VariableCall * variableCall;
         FunctionCall * functionCall;
+        MethodCall * methodCall;
+        FieldGetter * fieldGetter;
 		struct {
 			Expression * leftExpression;
 			Expression * rightExpression;
@@ -431,6 +420,7 @@ void releaseBlock(Block * block);
 void releaseObject(Object * Object);
 void releaseClassDefinition(ClassDefinition * classDefinition);
 void releaseBinaryComparator(BinaryComparator * binaryComparator);
+void releaseFieldGetter(FieldGetter * fieldGetter);
 
 
 #endif

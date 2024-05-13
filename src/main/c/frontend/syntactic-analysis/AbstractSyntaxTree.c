@@ -101,6 +101,15 @@ void releaseExpression(Expression * expression) {
 				break;
             case CONSTANT_EXPRESSION:
                 releaseConstant(expression->constant);
+                break;
+            case METHOD_CALL_EXPRESSION:
+                releaseMethodCall(expression->methodCall);
+                break;
+            case FIELD_GETTER_EXPRESSION:
+                releaseFieldGetter(expression->fieldGetter);
+                break;
+            case FUNCTION_CALL_EXPRESSION:
+                releaseFunctionCall(expression->functionCall);
 		}
 		free(expression);
 	}
@@ -134,26 +143,9 @@ void releaseFieldGetter(FieldGetter * fieldGetter) {
 void releaseVariable(Variable * variable){
 	logDebugging(_logger, "Executing destructor: %s", __FUNCTION__);
 	if (variable != NULL) {
-		switch (variable->type) {
-			case VT_EXPRESSION_VARIABLE:
-				releaseExpression(variable->expression);
-				break;
-			case VT_FUNCCALL_VARIABLE:
-				releaseFunctionCall(variable->functionCall);
-				break;
-			case VT_METHODCALL_VARIABLE:
-				releaseMethodCall(variable->methodCall);
-				break;
-			case VT_FIELDGETTER_VARIABLE:
-				releaseFieldGetter(variable->fieldGetter);
-				break;
-			case VT_OBJECT_VARIABLE:
-				releaseObject(variable->object);
-				break;
-		}
+		releaseExpression(variable->expression);
 		free(variable);
 	}
-
 }
 
 void releaseConditional(Conditional * conditional){

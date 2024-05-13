@@ -127,6 +127,22 @@ Expression * FunctionCallExpressionSemanticAction(FunctionCall * fcall) {
 	return expression;
 }
 
+Expression * MethodCallExpressionSemanticAction(MethodCall * methodCall) {
+	_logSyntacticAnalyzerAction(__FUNCTION__);
+	Expression * expression = calloc(1, sizeof(Expression));
+	expression->methodCall = methodCall;
+	expression->type = METHOD_CALL_EXPRESSION;
+	return expression;
+}
+
+Expression * FieldGetterExpressionSemanticAction(FieldGetter * fieldGetter) {
+	_logSyntacticAnalyzerAction(__FUNCTION__);
+	Expression * expression = calloc(1, sizeof(Expression));
+	expression->fieldGetter = fieldGetter;
+	expression->type = FIELD_GETTER_EXPRESSION;
+	return expression;
+}
+
 Program * GeneralProgramSemanticAction(CompilerState * compilerState, Depth * dp, Sentence * sentence, Program * nprog) {
 	_logSyntacticAnalyzerAction(__FUNCTION__);
 	Program * program = calloc(1, sizeof(Program));
@@ -353,43 +369,6 @@ Variable * ExpressionVariableSemanticAction(char * restrict id, Expression * exp
 	Variable * variable = calloc(1, sizeof(Variable));
 	variable->expression = expr;
 	variable->identifier = id;
-	variable->type = VT_EXPRESSION_VARIABLE;
-	return variable;
-}
-
-Variable * FunctionCallVariableSemanticAction(char * restrict id, FunctionCall * fuckall) {
-	_logSyntacticAnalyzerAction(__FUNCTION__);
-	Variable * variable = calloc(1, sizeof(Variable));
-	variable->functionCall = fuckall;
-	variable->identifier = id;
-	variable->type = VT_FUNCCALL_VARIABLE;
-	return variable;
-}
-
-Variable * MethodCallVariableSemanticAction(char * restrict id, MethodCall * methall) {
-	_logSyntacticAnalyzerAction(__FUNCTION__);
-	Variable * variable = calloc(1, sizeof(Variable));
-	variable->methodCall = methall;
-	variable->identifier = id;
-	variable->type = VT_METHODCALL_VARIABLE;
-	return variable;
-}
-
-Variable * FieldGetterVariableSemanticAction(char * restrict id, FieldGetter * field) {
-	_logSyntacticAnalyzerAction(__FUNCTION__);
-	Variable * variable = calloc(1, sizeof(Variable));
-	variable->fieldGetter = field;
-	variable->identifier = id;
-	variable->type = VT_FIELDGETTER_VARIABLE;
-	return variable;
-}
-
-Variable * ObjectVariableSemanticAction(char * restrict id, Object * obj) {
-	_logSyntacticAnalyzerAction(__FUNCTION__);
-	Variable * variable = calloc(1, sizeof(Variable));
-	variable->object = obj;
-	variable->identifier = id;
-	variable->type = VT_OBJECT_VARIABLE;
 	return variable;
 }
 

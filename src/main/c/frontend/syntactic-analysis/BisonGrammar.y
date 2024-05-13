@@ -267,12 +267,11 @@ expression: expression[left] ADD expression[right]					{ $$ = ArithmeticExpressi
     | constant                                                      { $$ = ConstantExpressionSemanticAction($1); }
     | variableCall                                                  { $$ = VariableCallExpressionSemanticAction($1); }
     | functionCall                                                  { $$ = FunctionCallExpressionSemanticAction($1); }
+    | methodCall[method]                                            { $$ = MethodCallExpressionSemanticAction($method); }
+    | fieldGetter[field]                                            { $$ = FieldGetterExpressionSemanticAction($field); }
 	;
 
 variable: IDENTIFIER[id] ASSIGN expression[expr]                    { $$ = ExpressionVariableSemanticAction($id, $expr);}
-        | IDENTIFIER[id] ASSIGN methodCall[method]                  { $$ = MethodCallVariableSemanticAction($id, $method); }
-        | IDENTIFIER[id] ASSIGN fieldGetter[field]                  { $$ = FieldGetterVariableSemanticAction($id, $field); }
-        | IDENTIFIER[id] ASSIGN object[obj]                         { $$ = ObjectVariableSemanticAction($id, $obj); }
 		;
 
 conditional: conditional[left] LOGICAL_AND conditional[right]		    { $$ = BinaryConditionalSemanticAction(LOGIC_AND, $left, $right); }
