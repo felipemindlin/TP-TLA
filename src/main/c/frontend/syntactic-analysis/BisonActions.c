@@ -52,6 +52,22 @@ Constant * BooleanConstantSemanticAction(const boolean value) {
 	return constant;
 }
 
+Constant * FloatConstantSemanticAction(const double decimal) {
+	_logSyntacticAnalyzerAction(__FUNCTION__);
+	Constant * constant = calloc(1, sizeof(Constant));
+	constant->decimal = decimal;
+    constant->type = CT_FLOAT;
+	return constant;
+}
+
+Constant * StringConstantSemanticAction(char * restrict string) {
+	_logSyntacticAnalyzerAction(__FUNCTION__);
+	Constant * constant = calloc(1, sizeof(Constant));
+	constant->string = string;
+    constant->type = CT_STRING;
+	return constant;
+}
+
 Constant * ListConstantSemanticAction(List * lst) {
 	_logSyntacticAnalyzerAction(__FUNCTION__);
 	Constant * constant = calloc(1, sizeof(Constant));
@@ -92,6 +108,14 @@ Expression * ConstantExpressionSemanticAction(Constant * constant) {
 	Expression * expression = calloc(1, sizeof(Expression));
 	expression->constant = constant;
 	expression->type = CONSTANT_EXPRESSION;
+	return expression;
+}
+
+Expression * VariableCallExpressionSemanticAction(VariableCall * var) {
+	_logSyntacticAnalyzerAction(__FUNCTION__);
+	Expression * expression = calloc(1, sizeof(Expression));
+	expression->variableCall = var;
+	expression->type = VARIABLE_CALL_EXPRESSION;
 	return expression;
 }
 
@@ -175,6 +199,102 @@ Sentence * VariableSentenceSemanticAction(Variable * var) {
 	return sentence;
 }
 
+Sentence * BlockSentenceSemanticAction(Block * block) {
+	_logSyntacticAnalyzerAction(__FUNCTION__);
+	Sentence * sentence = calloc(1, sizeof(Sentence));
+	sentence->block = block;
+	sentence->type = BLOCK_SENTENCE;
+	return sentence;
+}
+
+/** BLOCK SECTION **/
+Block * FunctionDefinitionBlockSemanticAction(FunctionDefinition * fdef, Program * nextProg) {
+	_logSyntacticAnalyzerAction(__FUNCTION__);
+    Block * block = calloc(1, sizeof(Block));
+    block->type = BT_FUNCTION_DEFINITION;
+    block->functionDefinition = fdef;
+    block->nextProgram = nextProg;
+    return block;
+}
+
+Block * ClassDefinitionBlockSemanticAction(ClassDefinition * cdef, Program * nextProg) {
+	_logSyntacticAnalyzerAction(__FUNCTION__);
+    Block * block = calloc(1, sizeof(Block));
+    block->type = BT_CLASS_DEFINITION;
+    block->classDefinition = cdef;
+    block->nextProgram = nextProg;
+    return block;
+}
+
+/** FUNCTION DEFINITION SECTION **/
+FunctionDefinition * GenericFunctionDefinitionSemanticAction(char * restrict id, Parameters * params) {
+	_logSyntacticAnalyzerAction(__FUNCTION__);
+    FunctionDefinition * functionDefinition = calloc(1, sizeof(FunctionDefinition));
+    functionDefinition->functionName = id;
+    functionDefinition->parameters = params;
+    functionDefinition->type = FD_GENERIC;
+    return functionDefinition;
+}
+
+FunctionDefinition * ObjectFunctionDefinitionSemanticAction(char * restrict id, Parameters * params, Object * object) {
+	_logSyntacticAnalyzerAction(__FUNCTION__);
+    FunctionDefinition * functionDefinition = calloc(1, sizeof(FunctionDefinition));
+    functionDefinition->functionName = id;
+    functionDefinition->parameters = params;
+    functionDefinition->objectType = object;
+    functionDefinition->type = FD_OBJECT_TYPE;
+    return functionDefinition;
+}
+
+FunctionDefinition * VariableCallFunctionDefinitionSemanticAction(char * restrict id, Parameters * params, VariableCall * retVar) {
+	_logSyntacticAnalyzerAction(__FUNCTION__);
+    FunctionDefinition * functionDefinition = calloc(1, sizeof(FunctionDefinition));
+    functionDefinition->functionName = id;
+    functionDefinition->parameters = params;
+    functionDefinition->returnVariableType = retVar;
+    functionDefinition->type = FD_VARIABLE_CALL_TYPE;
+    return functionDefinition;
+
+}
+
+FunctionDefinition * TupleFunctionDefinitionSemanticAction(char * restrict id, Parameters * params, Tuple * tupleVar) {
+	_logSyntacticAnalyzerAction(__FUNCTION__);
+    FunctionDefinition * functionDefinition = calloc(1, sizeof(FunctionDefinition));
+    functionDefinition->functionName = id;
+    functionDefinition->parameters = params;
+    functionDefinition->tupleReturnType = tupleVar;
+    functionDefinition->type = FD_TUPLE_TYPE;
+    return functionDefinition;
+}
+
+FunctionDefinition * ListFunctionDefinitionSemanticAction(char * restrict id, Parameters * params, List * listVar) {
+	_logSyntacticAnalyzerAction(__FUNCTION__);
+    FunctionDefinition * functionDefinition = calloc(1, sizeof(FunctionDefinition));
+    functionDefinition->functionName = id;
+    functionDefinition->parameters = params;
+    functionDefinition->listReturnType = listVar;
+    functionDefinition->type = FD_LIST_TYPE;
+    return functionDefinition;
+}
+
+/** CLASS DEFINITION SECTION **/
+ClassDefinition * ClassDefinitionSemanticAction(char * restrict id) {
+	_logSyntacticAnalyzerAction(__FUNCTION__);
+    ClassDefinition * classDefinition = calloc(1, sizeof(ClassDefinition));
+    classDefinition->className = id;
+    classDefinition->type = CDT_NOT_INHERITS;
+    return classDefinition;
+}
+
+ClassDefinition * TupleClassDefinitionSemanticAction(char * restrict id, Tuple * tpl) {
+	_logSyntacticAnalyzerAction(__FUNCTION__);
+    ClassDefinition * classDefinition = calloc(1, sizeof(ClassDefinition));
+    classDefinition->className = id;
+    classDefinition->tuple = tpl;
+    classDefinition->type = CDT_TUPLE_INHERITANCE;
+    return classDefinition;
+}
+
 /** VARIABLE SECTION **/
 Variable * ExpressionVariableSemanticAction(char * restrict id, Expression * expr) {
 	_logSyntacticAnalyzerAction(__FUNCTION__);
@@ -221,24 +341,6 @@ Variable * ObjectVariableSemanticAction(char * restrict id, Object * obj) {
 	return variable;
 }
 
-Variable * ListVariableSemanticAction(char * restrict id, List * lst) {
-	_logSyntacticAnalyzerAction(__FUNCTION__);
-	Variable * variable = calloc(1, sizeof(Variable));
-	variable->list = lst;
-	variable->identifier = id;
-	variable->type = VT_LIST_VARIABLE;
-	return variable;
-}
-
-Variable * TupleVariableSemanticAction(char * restrict id, Tuple * tpl) {
-	_logSyntacticAnalyzerAction(__FUNCTION__);
-	Variable * variable = calloc(1, sizeof(Variable));
-	variable->tuple = tpl;
-	variable->identifier = id;
-	variable->type = VT_TUPLE_VARIABLE;
-	return variable;
-}
-
 /** METHOD CALL SECTION **/
 MethodCall * VariableMethodCallSemanticAction(VariableCall * var, FunctionCall * method) {
 	_logSyntacticAnalyzerAction(__FUNCTION__);
@@ -249,6 +351,15 @@ MethodCall * VariableMethodCallSemanticAction(VariableCall * var, FunctionCall *
 	return methodCall;
 }
 
+MethodCall * ConstantMethodCallSemanticAction(Constant * cons, FunctionCall * method) {
+	_logSyntacticAnalyzerAction(__FUNCTION__);
+	MethodCall * methodCall = calloc(1, sizeof(MethodCall));
+	methodCall->constant = cons;
+	methodCall->functionCall = method;
+	methodCall->type = MCT_CONSTANT_TRIGGER;
+	return methodCall;
+}
+
 /** FIELD GETTER SECTION **/
 FieldGetter * VariableFieldGetterSemanticAction(VariableCall * var, VariableCall * field) {
 	_logSyntacticAnalyzerAction(__FUNCTION__);
@@ -256,6 +367,15 @@ FieldGetter * VariableFieldGetterSemanticAction(VariableCall * var, VariableCall
 	fieldGetter->variableCall = var;
 	fieldGetter->field = field;
 	fieldGetter->type = FG_VARIABLE_OWNER;
+	return fieldGetter;
+}
+
+FieldGetter * ConstantFieldGetterSemanticAction(Constant * cons, VariableCall * field) {
+	_logSyntacticAnalyzerAction(__FUNCTION__);
+	FieldGetter * fieldGetter = calloc(1, sizeof(FieldGetter));
+	fieldGetter->constant = cons;
+	fieldGetter->field = field;
+	fieldGetter->type = FG_CONSTANT_OWNER;
 	return fieldGetter;
 }
 

@@ -12,6 +12,8 @@
 	int integer;
 	double fp_number;
 	boolean boolean;
+    char * string;
+
 	char * var_name;
 	Token token;
 
@@ -31,6 +33,9 @@
 	List * list;
 	VariableCall * variableCall;
 	Sentence * sentence;
+    Block * block;
+    FunctionDefinition * functionDefinition;
+    ClassDefinition * classDefinition;
 	Depth * depth;
 	Newline * newline;
 }
@@ -53,6 +58,7 @@
 %token <integer> INTEGER
 %token <fp_number> FLOAT
 %token <boolean> BOOLEAN
+%token <string> STRING
 
 %token <var_name> IDENTIFIER
 %token <var_name> BUILTIN_IDENTIFIER
@@ -160,6 +166,9 @@
 %type <list> list
 %type <variableCall> variableCall
 %type <sentence> sentence
+%type <block> block
+%type <functionDefinition> functionDefinition
+%type <classDefinition> classDefinition
 %type <depth> depth
 %type <newline> newline
 
@@ -194,9 +203,23 @@ program:  depth sentence program							{ $$ = GeneralProgramSemanticAction(curre
 	| YYEOF				                                    { $$ = FinishedProgramSemanticAction(currentCompilerState()); }
 	;
 
-conditional: constant[left] LOGICAL_AND constant[right]		{ $$ = ConditionalEvalSemanticAction($left, $right, LOGIC_AND); }
-	| 		 BOOLEAN[left] LOGICAL_OR BOOLEAN[right]		{ $$ = ConditionalEvalSemanticAction($left, $right, LOGIC_OR); }
-	;
+sentence: expression												{ $$ = ExpressionSentenceSemanticAction($1); }
+	| variable														{ $$ = VariableSentenceSemanticAction($1); }
+    | block                                                         { $$ = BlockSentenceSemanticAction($1); }
+
+block: functionDefinition[fdef] COLON NEWLINE_TOKEN TAB program[prog]   { $$ = FunctionDefinitionBlockSemanticAction($fdef, $prog); }
+     | classDefinition[cdef] COLON NEWLINE_TOKEN TAB program[prog]      { $$ = ClassDefinitionBlockSemanticAction($cdef, $prog); }
+     ;
+
+functionDefinition: DEF IDENTIFIER[id] OPEN_PARENTHESIS parameters[params] CLOSE_PARENTHESIS                                { $$ = GenericFunctionDefinitionSemanticAction($id, $params); }
+                  | DEF IDENTIFIER[id] OPEN_PARENTHESIS parameters[params] CLOSE_PARENTHESIS RETURNS object[retObj]         { $$ = ObjectFunctionDefinitionSemanticAction($id, $params, $retObj); }
+                  | DEF IDENTIFIER[id] OPEN_PARENTHESIS parameters[params] CLOSE_PARENTHESIS RETURNS variableCall[retVar]   { $$ = VariableCallFunctionDefinitionSemanticAction($id, $params, $retVar); }
+                  | DEF IDENTIFIER[id] OPEN_PARENTHESIS parameters[params] CLOSE_PARENTHESIS RETURNS tuple[tupleVar]        { $$ = TupleFunctionDefinitionSemanticAction($id, $params, $tupleVar); }
+                  | DEF IDENTIFIER[id] OPEN_PARENTHESIS parameters[params] CLOSE_PARENTHESIS RETURNS list[listVar]          { $$ = ListFunctionDefinitionSemanticAction($id, $params, $listVar); }
+
+classDefinition: CLASS IDENTIFIER[id]                               { $$ = ClassDefinitionSemanticAction($id); }
+               | CLASS IDENTIFIER[id] tuple[tpl]                    { $$ = TupleClassDefinitionSemanticAction($id, $tpl); }
+               ;
 
 expression: expression[left] ADD expression[right]					{ $$ = ArithmeticExpressionSemanticAction($left, $right, ADDITION); }
 	| expression[left] DIV expression[right]						{ $$ = ArithmeticExpressionSemanticAction($left, $right, DIVISION); }
@@ -211,16 +234,8 @@ expression: expression[left] ADD expression[right]					{ $$ = ArithmeticExpressi
 	| expression[left] BITWISE_LSHIFT expression[right]				{ $$ = ArithmeticExpressionSemanticAction($left, $right, BIT_ARITHMETIC_LEFT_SHIFT); }
 	| expression[left] BITWISE_RSHIFT expression[right]				{ $$ = ArithmeticExpressionSemanticAction($left, $right, BIT_ARITHMETIC_RIGHT_SHIFT); }
     | constant                                                      { $$ = ConstantExpressionSemanticAction($1); }
+    | variableCall                                                  { $$ = VariableCallExpressionSemanticAction($1); }
 	;
-
-constant: INTEGER													{ $$ = IntegerConstantSemanticAction($1); }
-	    | BOOLEAN													{ $$ = BooleanConstantSemanticAction($1); }
-        | list                                                      { $$ = ListConstantSemanticAction($1); }
-        | tuple                                                     { $$ = TupleConstantSemanticAction($1); }
-	    ;
-
-sentence: expression												{ $$ = ExpressionSentenceSemanticAction($1); }
-	| variable														{ $$ = VariableSentenceSemanticAction($1); }
 
 variable: IDENTIFIER[id] ASSIGN expression[expr]                    { $$ = ExpressionVariableSemanticAction($id, $expr);}
         | IDENTIFIER[id] ASSIGN functionCall[fcall]                 { $$ = FunctionCallVariableSemanticAction($id, $fcall); }
@@ -229,14 +244,27 @@ variable: IDENTIFIER[id] ASSIGN expression[expr]                    { $$ = Expre
         | IDENTIFIER[id] ASSIGN object[obj]                         { $$ = ObjectVariableSemanticAction($id, $obj); }
 		;
 
-methodCall: variableCall[var] DOT functionCall[func]				{ $$ = VariableMethodCallSemanticAction($var, $func); }
+conditional: constant[left] LOGICAL_AND constant[right]		{ $$ = ConditionalEvalSemanticAction($left, $right, LOGIC_AND); }
+	| 		 BOOLEAN[left] LOGICAL_OR BOOLEAN[right]		{ $$ = ConditionalEvalSemanticAction($left, $right, LOGIC_OR); }
 	;
+
+constant: INTEGER													{ $$ = IntegerConstantSemanticAction($1); }
+	    | BOOLEAN													{ $$ = BooleanConstantSemanticAction($1); }
+        | FLOAT                                                     { $$ = FloatConstantSemanticAction($1); }
+        | STRING                                                    { $$ = StringConstantSemanticAction($1); }
+        | list                                                      { $$ = ListConstantSemanticAction($1); }
+        | tuple                                                     { $$ = TupleConstantSemanticAction($1); }
+	    ;
+
+methodCall: variableCall[var] DOT functionCall[func]				{ $$ = VariableMethodCallSemanticAction($var, $func); }
+          | constant[cons] DOT functionCall[func]                   { $$ = ConstantMethodCallSemanticAction($cons, $func); }
+          ;
 
 fieldGetter: variableCall[var] DOT variableCall[field]				{ $$ = VariableFieldGetterSemanticAction($var, $field); }
-	;
+           | constant[cons] DOT variableCall[field]                 { $$ = ConstantFieldGetterSemanticAction($cons, $field);}
+           ;
 
 object: BUILTIN_IDENTIFIER  										{ $$ = ObjectSemanticAction($1, OT_BUILTIN); }
-	| IDENTIFIER 													{ $$ = ObjectSemanticAction($1, OT_OBJECT); }
 	;
 
 list: OPEN_BRACE parameters[params] CLOSE_BRACE			            { $$ = ParametrizedListSemanticAction($params); }

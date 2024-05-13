@@ -27,7 +27,9 @@ typedef enum MethodCallType MethodCallType;
 typedef enum FieldGetterType FieldGetterType;
 typedef enum ObjectType ObjectType;
 typedef enum ListType ListType;
-
+typedef enum BlockType BlockType;
+typedef enum FunctionDefinitionType FunctionDefinitionType;
+typedef enum ClassDefinitionType ClassDefinitionType;
 
 
 typedef struct Variable Variable;
@@ -44,6 +46,9 @@ typedef struct List List;
 typedef struct List Tuple;
 typedef struct VariableCall VariableCall;
 typedef struct Sentence Sentence;
+typedef struct Block Block;
+typedef struct FunctionDefinition FunctionDefinition;
+typedef struct ClassDefinition ClassDefinition;
 typedef struct Depth Depth;
 typedef struct Newline Newline;
 
@@ -63,6 +68,7 @@ enum NewlineType {
 enum ConstantType {
     CT_INTEGER,
     CT_BOOLEAN,
+    CT_FLOAT,
     CT_STRING,
     CT_LIST,
     CT_TUPLE,
@@ -101,7 +107,7 @@ enum ExpressionType {
 	BIT_ARITHMETIC_NOT,
 	BIT_ARITHMETIC_LEFT_SHIFT,
 	BIT_ARITHMETIC_RIGHT_SHIFT,
-    IN_PARENTHESIS_EXPRESSION,
+    VARIABLE_CALL_EXPRESSION,
     CONSTANT_EXPRESSION
 };
 
@@ -124,7 +130,28 @@ enum DataType {
 enum SentenceType {
 	EXPRESSION_SENTENCE,
     VARIABLE_SENTENCE,
-    BLOCK_SENTENCE
+    BLOCK_SENTENCE,
+};
+
+enum BlockType {
+    BT_FUNCTION_DEFINITION,
+    BT_CLASS_DEFINITION,
+    BT_CONDITIONAL,
+    BT_FOR,
+    BT_WHILE,
+};
+
+enum FunctionDefinitionType {
+    FD_GENERIC,
+    FD_OBJECT_TYPE,
+    FD_VARIABLE_CALL_TYPE,
+    FD_LIST_TYPE,
+    FD_TUPLE_TYPE
+};
+
+enum ClassDefinitionType {
+    CDT_TUPLE_INHERITANCE,
+    CDT_NOT_INHERITS,
 };
 
 enum VariableType {
@@ -133,23 +160,19 @@ enum VariableType {
 	VT_METHODCALL_VARIABLE,
 	VT_FIELDGETTER_VARIABLE,
 	VT_OBJECT_VARIABLE,
-	VT_LIST_VARIABLE,
-	VT_TUPLE_VARIABLE,
-	VT_VARIABLECALL_VARIABLE
 };
 
 enum MethodCallType {
-    MCT_OBJECT_TRIGGER,
     MCT_VARIABLE_TRIGGER,
+    MCT_CONSTANT_TRIGGER,
 };
 
 enum FieldGetterType {
-    FG_OBJECT_OWNER,
+    FG_CONSTANT_OWNER,
     FG_VARIABLE_OWNER,
 };
 
 enum ObjectType {
-  OT_OBJECT,
   OT_BUILTIN,
 };
 
@@ -169,6 +192,7 @@ struct Constant {
 	union{
         int integer;
         boolean boolean;
+        double decimal;
         char * string;
         List * list;
         Tuple * tuple;
@@ -183,10 +207,7 @@ struct Variable {
 		FunctionCall * functionCall;
 		MethodCall * methodCall;
 		FieldGetter * fieldGetter;
-		Object * object;
-        List * list;
-        Tuple * tuple;
-		// VariableCall * variableCall;
+        Object * object;
 	};
 	char * identifier;
 	VariableType type;
@@ -195,8 +216,6 @@ struct Variable {
 struct Object {
   union {
     char * className;
-    // List * list;
-    // Tuple * tuple;
   };
   ObjectType type;
 };
@@ -211,8 +230,8 @@ struct List {
 
 struct Expression {
 	union {
-		Expression * expression;
         Constant * constant;
+        VariableCall * variableCall;
 		struct {
 			Expression * leftExpression;
 			Expression * rightExpression;
@@ -235,9 +254,39 @@ struct Sentence {
 	union {
 		Expression * expression;
         Variable * variable;
-        // Block * block;
+        Block * block;
 	};
 	SentenceType type;
+};
+
+struct Block {
+    union {
+        FunctionDefinition * functionDefinition;
+        ClassDefinition * classDefinition;
+        // Conditional * conditional;
+        // For * forBlock;
+        // While * whileBlock;
+    };
+    Program * nextProgram;
+    BlockType type;
+};
+
+struct FunctionDefinition {
+    union {
+        Object * objectType;
+        VariableCall * returnVariableType;
+        List * listReturnType;
+        Tuple * tupleReturnType;
+    };
+    Parameters * parameters;
+    char * functionName;
+    FunctionDefinitionType type;
+};
+
+struct ClassDefinition {
+    Tuple * tuple;
+    char * className;
+    ClassDefinitionType type;
 };
 
 struct VariableCall {
@@ -251,8 +300,8 @@ struct FunctionCall {
 
 struct MethodCall {
 	union {
-        // Object * object;
         VariableCall * variableCall;
+        Constant * constant;
     };
     FunctionCall * functionCall;
     MethodCallType type;
@@ -260,8 +309,8 @@ struct MethodCall {
 
 struct FieldGetter {
     union {
-        // Object * object;
         VariableCall * variableCall;
+        Constant * constant;
     };
     VariableCall * field;
     FieldGetterType type;

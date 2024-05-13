@@ -34,8 +34,8 @@ void releaseExpression(Expression * expression) {
 				releaseExpression(expression->leftExpression);
 				releaseExpression(expression->rightExpression);
 				break;
-			case IN_PARENTHESIS_EXPRESSION:
-				releaseExpression(expression->expression);
+			case VARIABLE_CALL_EXPRESSION:
+				releaseVariableCall(expression->variableCall);
 				break;
             case CONSTANT_EXPRESSION:
                 releaseConstant(expression->constant);
