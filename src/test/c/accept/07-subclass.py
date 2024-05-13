@@ -1,3 +1,3 @@
-def class:
-    def clazz:
+class clazz:
+    class clazzz:
         x=7

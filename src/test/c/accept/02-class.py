@@ -1,2 +1,2 @@
-def class:
+class classy: 
     x=7

@@ -1,1 +1,4 @@
-1 / (3 - 3)
+def func():
+    saber = "excariba"
+
+x = saber
