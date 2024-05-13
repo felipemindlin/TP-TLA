@@ -73,29 +73,57 @@ void releaseVariable(Variable * variable){
 
 }
 
-void releaseConditional(Conditional * condtional){
+void releaseConditional(Conditional * conditional){
 	logDebugging(_logger, "Executing destructor: %s", __FUNCTION__);
-	if (condtional != NULL) {
-		switch (condtional->type) {
-			case LOGIC_AND:
-			case LOGIC_OR:
-			case EQUALS_COMPARISON:
-			case NOT_EQUALS_COMPARISON:
-			case GREATER_THAN_COMPARISON:
-			case GREATER_THAN_OR_EQUALS_COMPARISON:
-			case LESS_THAN_COMPARISON:
-			case LESS_THAN_OR_EQUALS_COMPARISON:
-				releaseConditional(condtional->leftCond);
-				releaseConditional(condtional->rightCond);
+	if (conditional != NULL) {
+		switch (conditional->type) {
+			case BOOLEAN_COND:
+                releaseConditional(conditional->leftCond);
+                releaseConditional(conditional->rightCond);
+                break;
+			case VARIABLE_AND_BOOLEAN_COND:
+                releaseConditional(conditional->cond);
+                releaseVariableCall(conditional->condVar);
+                break;
+			case VARIABLE_BOOLEAN_COND:
+                releaseVariableCall(conditional->leftCondVar);
+                releaseVariableCall(conditional->rightCondVar);
+                break;
+			case COMPARISON_COND:
+                releaseExpression(conditional->leftExpression);
+                releaseExpression(conditional->rightExpression);
+                break;
+			case VARIABLE_COMPARISON_COND:
+                releaseVariableCall(conditional->leftExpressionVar);
+                releaseVariableCall(conditional->rightExpressionVar);
+                break;
+			case VARIABLE_AND_CONST_COMPARISON_COND:
+                releaseVariableCall(conditional->expressionVar);
+                releaseVariableCall(conditional->exp);
+                break;
+			case OBJECT_COMPARISON_COND:
+                releaseObject(conditional->leftObject);
+                releaseObject(conditional->rightObject);
+                break;
+			case VARIABLE_OBJECT_COMPARISON_COND:
+                releaseVariableCall(conditional->variableLeftObj);
+                releaseVariableCall(conditional->variableRightObj);
 				break;
-			case LOGIC_NOT: //or FACTOR tienen el mismo value de enum revisar
-				releaseFactor(condtional->factor);
-				break;
+			case VARIABLE_AND_OBJECT_COMPARISON_COND:
+                releaseVariableCall(conditional->variableObj);
+                releaseObject(conditional->obj);
+                break;
+            case EXPRESSION_COND:
+                releaseExpression(conditional->expression);
+                break;
+            case VARIABLE_COND:
+                releaseVariableCall(conditional->variable);
+                break;
+            case OBJECT_COND:
+                releaseObject(conditional->object);
 		}
 		free(condtional);
 	}
-
-	
 }
 
 void releaseSentence(Sentence * sentence){
@@ -155,4 +183,7 @@ void releaseDepth(Depth * depth){
 	}
 }
 
+void releaseObject(Object * object) {
+	logDebugging(_logger, "Executing destructor: %s", __FUNCTION__);
 
+}

@@ -251,13 +251,23 @@ struct Conditional {
         };
         struct {
             VariableCall * expressionVar;
-            Factor * exp;
+            Expression * exp;
             ComparisonCond comprCond;
         };
 		struct {
 			Conditional * leftCond;
 			Conditional * rightCond;
             BooleanCond booleanCond;
+		};
+		struct {
+			Coditional * cond;
+			VariableCall * condVar;
+            BooleanCond boolConditon;
+		};
+		struct {
+			VariableCall * leftCondVar;
+			VariableCall * rightCondVar;
+            BooleanCond boolCond;
 		};
         Object * object;
         VariableCall * variable;
@@ -428,5 +438,6 @@ void releaseList(List * list);
 void releaseTuple(Tuple * tuple);
 void releaseFunctionDefinition(FunctionDefinition * functionDefinition);
 void releaseClassDefinition(ClassDefinition * classDefinition);
+void releaseObject(Object * object);
 
 #endif
