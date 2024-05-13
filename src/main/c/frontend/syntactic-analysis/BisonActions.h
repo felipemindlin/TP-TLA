@@ -29,12 +29,14 @@ Expression * ArithmeticExpressionSemanticAction(Expression * leftExpression, Exp
 Expression * FactorExpressionSemanticAction(Factor * factor);
 Factor * ConstantFactorSemanticAction(Constant * constant);
 Factor * ExpressionFactorSemanticAction(Expression * expression);
-Program * ExpressionProgramSemanticAction(CompilerState * compilerState, Expression * expression);
+Program * GeneralProgramSemanticAction(CompilerState * compilerState, Depth * depth, Sentence * sentence, Program * nextProgram);
+Program * FinishedProgramSemanticAction(CompilerState * compilerState);
 Conditional * ConditionalEvalSemanticAction(Conditional * leftCond, Conditional * rightCond, CondType type);
 Object * ObjectSemanticAction(const char * className);
 
-Sentence * FunctionCallSentenceSemanticAction(FunctionCall * functionCall, SentenceType type);
-Sentence * FunctionDefinitionSentenceSemanticAction(const char * functionName, Parameters * parameters, SentenceType type);
+Sentence * ExpressionSentenceSemanticAction(Expression * exp);
+Sentence * VariableSentenceSemanticAction(Variable * var);
+Sentence * BlockSentenceSemanticAction(Block * blk);
 
 MethodCall * VariableMethodCallSemanticAction(VariableCall * variableCall, FunctionCall * functionCall);
 MethodCall * ObjectMethodCallSemanticAction(Object * object, FunctionCall * functionCall);

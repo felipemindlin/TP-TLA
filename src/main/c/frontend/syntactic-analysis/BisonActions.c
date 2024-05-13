@@ -155,10 +155,12 @@ Factor * ExpressionFactorSemanticAction(Expression * expression) {
 	return factor;
 }
 
-Program * ExpressionProgramSemanticAction(CompilerState * compilerState, Expression * expression) {
+Program * GeneralProgramSemanticAction(CompilerState * compilerState, Depth * depth, Sentence * sentence, Program * nextProg) {
 	_logSyntacticAnalyzerAction(__FUNCTION__);
 	Program * program = calloc(1, sizeof(Program));
-	program->expression = expression;
+	program->depth = depth;
+	program->program = program;
+	program->sentence = sentence;
 	compilerState->abstractSyntaxtTree = program;
 	if (0 < flexCurrentContext()) {
 		logError(_logger, "The final context is not the default (0): %d", flexCurrentContext());
@@ -170,33 +172,33 @@ Program * ExpressionProgramSemanticAction(CompilerState * compilerState, Express
 	return program;
 }
 
-Sentence * FunctionCallSentenceSemanticAction(FunctionCall * callee, SentenceType type) {
-	if (expectedDepth != currentDepth) {
-		logError(_logger, "Expected depth (%d) is different from current depth (%d).", expectedDepth, currentDepth);
-		return NULL;
-	} else {
-		currentDepth = 0;
-		expectedDepth = (expectedDepth == 0)? 0 : expectedDepth - 1;
-	}
+Program * FinishedProgramSemanticAction(CompilerState * compilerState) {
+	Program * program = calloc(1, sizeof(Program));
+	
+	compilerState->abstractSyntaxtTree = true;
+}
+
+Sentence * ExpressionSentenceSemanticAction(Expression * exp) {
 	_logSyntacticAnalyzerAction(__FUNCTION__);
 	Sentence * sentence = calloc(1, sizeof(Sentence));
-	sentence->functionCall = callee;
-	sentence->type = type;
+	sentence->expression = exp;
+	sentence->type = EXPRESSION_SENTENCE;
 	return sentence;
 }
 
-Sentence * FunctionDefinitionSentenceSemanticAction(const char * function, Parameters * parameters, SentenceType type) {
-	if (expectedDepth != currentDepth) {
-		logError(_logger, "Expected depth (%d) is different from current depth (%d).", expectedDepth, currentDepth);
-	} else {
-		currentDepth = 0;
-	}
+Sentence * VariableSentenceSemanticAction(Variable * var) {
 	_logSyntacticAnalyzerAction(__FUNCTION__);
-	expectedDepth++;
 	Sentence * sentence = calloc(1, sizeof(Sentence));
-	sentence->type = type;
-	sentence->functionName = function;
-	sentence->parameters = parameters;
+	sentence->variable = var;
+	sentence->type = VARIABLE_SENTENCE;
+	return sentence;
+}
+
+Sentence * BlockSentenceSemanticAction(Block * blk) {
+	_logSyntacticAnalyzerAction(__FUNCTION__);
+	Sentence * sentence = calloc(1, sizeof(Sentence));
+	sentence->block = blk;
+	sentence->type = BLOCK_SENTENCE;
 	return sentence;
 }
 

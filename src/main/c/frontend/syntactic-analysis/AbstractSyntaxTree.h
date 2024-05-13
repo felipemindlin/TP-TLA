@@ -184,8 +184,9 @@ enum ConstantType {
 };
 
 enum SentenceType {
-	FUNCTION_DEFINITION,
-	FUNCTION_CALL
+	EXPRESSION_SENTENCE,
+    VARIABLE_SENTENCE,
+    BLOCK_SENTENCE
 };
 
 enum ParametersType {
@@ -260,7 +261,7 @@ struct Conditional {
             BooleanCond booleanCond;
 		};
 		struct {
-			Coditional * cond;
+			Conditional * cond;
 			VariableCall * condVar;
             BooleanCond boolConditon;
 		};
@@ -372,11 +373,9 @@ struct Expression {
 
 struct Sentence {
 	union {
-		FunctionCall * functionCall;
-		struct {
-			const char * functionName;
-			Parameters * parameters;
-		};
+		Expression * expression;
+        Variable * variable;
+        Block * block;
 	};
 	SentenceType type;
 };
@@ -404,7 +403,13 @@ struct Parameters {
 };
 
 struct Program {
-	Expression * expression;
+    union {
+        struct {
+            Depth * depth;
+            Sentence * sentence;
+            Program * program;
+        };
+    };
 };
 
 struct Depth {

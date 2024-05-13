@@ -206,8 +206,8 @@
 
 %%
 
-program: expression													{ $$ = ExpressionProgramSemanticAction(currentCompilerState(), $1); }
-	| depth sentence program
+program: depth sentence program											{ $$ = GeneralProgramSemanticAction(currentCompilerState(), $1, $2, $3); }
+	| YYEOF															{ $$ = FinishedProgramSemanticAction(); }												
 	;
 
 block: functionDefinition[blck] COLON NEWLINE_TOKEN TAB program[prog]   { $$ = FunctionDefinitionBlockSemanticAction($blck, $prog); }
@@ -317,8 +317,10 @@ constant: INTEGER													{ $$ = IntegerConstantSemanticAction($1); }
     | FLOAT                                                         { $$ = FloatConstantSemanticAction($1); }
 	;
 
-sentence: DEF IDENTIFIER[id] OPEN_PARENTHESIS parameters[params] CLOSE_PARENTHESIS COLON newline			{ $$ = FunctionDefinitionSentenceSemanticAction($id, $params, FUNCTION_DEFINITION); }
-	| functionCall newline																					{ $$ = FunctionCallSentenceSemanticAction($1, FUNCTION_CALL); }
+sentence: expression												{ $$ = ExpressionSentenceSemanticAction($1) }
+	| variable														{ $$ = VariableSentenceSemanticAction($1) }
+	| block															{ $$ = BlockSentenceSemanticAction($1) }
+	;
 
 variableCall: IDENTIFIER[id]										{ $$ = VariableCallSemanticAction($id); }
 
