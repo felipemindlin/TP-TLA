@@ -47,12 +47,29 @@
  *
  * @see https://www.gnu.org/software/bison/manual/html_node/Destructor-Decl.html
  */
-/*
+
+
 %destructor { releaseConstant($$); } <constant>
 %destructor { releaseExpression($$); } <expression>
-%destructor { releaseFactor($$); } <factor>
+%destructor { releaseSentence($$); } <sentence>
 %destructor { releaseProgram($$); } <program>
-*/
+%destructor { releaseVariable($$); } <variable>
+%destructor { releaseConditional($$); } <conditional>
+%destructor { releaseVariableCall($$); } <variableCall>
+%destructor { releaseMethodCall($$); } <methodCall>
+%destructor { releaseFunctionCall($$); } <functionCall>
+%destructor { releaseParameters($$); } <parameters>
+%destructor { releaseNewline($$); } <newline>
+%destructor { releaseDepth($$); } <depth>
+%destructor { releaseTuple($$); } <tuple>
+%destructor { releaseFunctionDefinition($$); } <functionDefinition>
+%destructor { releaseClassDefinition($$); } <classDefinition>
+%destructor { releaseBlock($$); } <block>
+%destructor { releaseObject($$); } <object>
+
+
+
+
 
 /** Terminals. */
 %token <integer> INTEGER

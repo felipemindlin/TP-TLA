@@ -1,1 +1,4 @@
-1
+def hola():
+    asd()
+    afe()
+    yo()

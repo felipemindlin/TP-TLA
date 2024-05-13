@@ -74,7 +74,6 @@ void releaseConstant(Constant * constant) {
 			case CT_BOOLEAN:
 			case CT_FLOAT:
 			case CT_STRING:
-				free(constant->string);
 				break;
 			case CT_LIST:
 				releaseList(constant->list);
