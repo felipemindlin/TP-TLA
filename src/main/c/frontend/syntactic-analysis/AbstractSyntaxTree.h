@@ -14,9 +14,9 @@ void shutdownAbstractSyntaxTreeModule();
  * This typedefs allows self-referencing types.
  */
 
-typedef enum DepthType DepthType;
 typedef enum ExpressionType ExpressionType;
 typedef enum ConstantType ConstantType;
+typedef enum DepthType DepthType;
 typedef enum DataType DataType;
 typedef enum CondType CondType;
 typedef enum ParametersType ParamType;
@@ -66,11 +66,6 @@ typedef struct ConditionalBlock ConditionalBlock;
 enum DepthType {
 	TAB_DEPTH,
 	END_DEPTH
-};
-
-enum NewlineType {
-	FINAL_NEWLINE,
-	NOT_FINAL_NEWLINE
 };
 
 enum ConstantType {
@@ -125,10 +120,6 @@ enum ExpressionType {
 	LOGIC_OR,
 	LOGIC_NOT,
     COMPARISON_EXPRESSION,
-};
-
-enum DataType {
-	DATA_INT,
 };
 
 enum SentenceType {
@@ -195,17 +186,6 @@ enum BinaryComparatorType {
 	BCT_NMEMBER,
 	BCT_IDENTITY,
 	BCT_NIDENTITY,
-};
-
-enum ComparableValueType {
-	CVT_VARIABLE,
-	CVT_EXPRESSION,
-};
-
-enum LogicValueType {
-	LVT_VARIABLE,
-	LVT_EXP_COMPARISON,
-	LVT_CONSTANT
 };
 
 enum ConditionalType {
@@ -369,10 +349,6 @@ struct Depth {
 	DepthType type;
 };
 
-struct Newline {
-	NewlineType type;
-};
-
 /**
  * Node recursive destructors.
  */
@@ -385,7 +361,6 @@ void releaseVariableCall(VariableCall * variableCall);
 void releaseMethodCall(MethodCall * methodCall);
 void releaseFunctionCall(FunctionCall * functionCall);
 void releaseParameters(Parameters * parameters);
-void releaseNewline(Newline * newline);
 void releaseDepth(Depth * depth);
 void releaseTuple(Tuple * tuple);
 void releaseFunctionDefinition(FunctionDefinition * functionDefinition);
@@ -395,8 +370,7 @@ void releaseWhileBlock(WhileBlock * wblock);
 void releaseForBlock(ForBlock * fblock);
 void releaseConditionalBlock(ConditionalBlock * cblock);
 void releaseObject(Object * Object);
-void releaseClassDefinition(ClassDefinition * classDefinition);
 void releaseFieldGetter(FieldGetter * fieldGetter);
-
+void releaseList(List * list);
 
 #endif

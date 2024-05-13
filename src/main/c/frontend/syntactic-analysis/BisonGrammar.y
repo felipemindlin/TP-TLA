@@ -65,10 +65,11 @@
 %destructor { releaseClassDefinition($$); } <classDefinition>
 %destructor { releaseBlock($$); } <block>
 %destructor { releaseObject($$); } <object>
-
-
-
-
+%destructor { releaseFieldGetter($$); } <fieldGetter>
+%destructor { releaseList($$); } <list>
+%destructor { releaseWhileBlock($$); } <whileBlock>
+%destructor { releaseForBlock($$); } <forBlock>
+%destructor { releaseConditionalBlock($$); } <conditionalBlock>
 
 /** Terminals. */
 %token <integer> INTEGER

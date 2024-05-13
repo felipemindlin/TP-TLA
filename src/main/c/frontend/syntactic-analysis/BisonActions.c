@@ -236,13 +236,6 @@ Depth * DepthSemanticAction(DepthType type) {
 	return depth;
 }
 
-Newline * NewlineSemanticAction(NewlineType type) {
-	_logSyntacticAnalyzerAction(__FUNCTION__);
-	Newline * newline = calloc(1, sizeof(Newline));
-	newline->type = type;
-	return newline;
-}
-
 /** SENTENCE SECTION **/
 Sentence * ExpressionSentenceSemanticAction(Expression * exp) {
 	_logSyntacticAnalyzerAction(__FUNCTION__);

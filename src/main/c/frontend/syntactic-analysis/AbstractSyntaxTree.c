@@ -47,7 +47,7 @@ void releaseList(List * list) {
 }
 
 void releaseTuple(Tuple * tuple){
-	releaseList(tuple);
+	releaseList((List *)tuple);
 }
 
 void releaseMethodCall(MethodCall * methodCall){
@@ -70,10 +70,8 @@ void releaseConstant(Constant * constant) {
 	logDebugging(_logger, "Executing destructor: %s", __FUNCTION__);
 	if (constant != NULL) {
 		switch (constant->type) {
-			case CT_INTEGER:
-			case CT_BOOLEAN:
-			case CT_FLOAT:
 			case CT_STRING:
+                free(constant->string);
 				break;
 			case CT_LIST:
 				releaseList(constant->list);
@@ -196,14 +194,13 @@ void releaseBlock(Block * block){
 				break;
 			case BT_CONDITIONAL:
                 releaseConditionalBlock(block->conditional);
-			// 	releaseConditional()
-			// 	break;
-			// case BT_FOR:
-			// 	releaseVariable(sentence->variable);
-			// 	break;
-			// case BT_WHILE:
-			// 	releaseBlock(sentence->block);
-			// 	break;
+                releaseBlock(block->nextCond);
+                break;
+            case BT_FOR:
+                releaseForBlock(block->forBlock);
+                break;
+            case BT_WHILE:
+                releaseWhileBlock(block->whileBlock);
 		}
 		releaseProgram(block->nextProgram);
 		free(block);
@@ -214,6 +211,21 @@ void releaseConditionalBlock(ConditionalBlock * cblock) {
     if(cblock != NULL){
         releaseExpression(cblock->expression);
         free(cblock);
+    }
+}
+
+void releaseWhileBlock(WhileBlock * wblock) {
+    if(wblock != NULL) {
+        releaseExpression(wblock->expression);
+        free(wblock);
+    }
+}
+
+void releaseForBlock(ForBlock * fblock) {
+    if(fblock != NULL) {
+        releaseExpression(fblock->left);
+        releaseExpression(fblock->right);
+        free(fblock);
     }
 }
 
@@ -259,13 +271,6 @@ void releaseParameters(Parameters * parameters){
 		releaseExpression(parameters->leftExpression);
 		releaseParameters(parameters->rightParameters);
 		free(parameters);
-	}
-}
-
-void releaseNewline(Newline * newline){
-	logDebugging(_logger, "Executing destructor: %s", __FUNCTION__);
-	if (newline != NULL) {
-		free(newline);
 	}
 }
 
