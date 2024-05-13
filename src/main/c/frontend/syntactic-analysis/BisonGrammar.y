@@ -40,6 +40,7 @@
 	Newline * newline;
 	BinaryComparator * binaryComparator;
 	WhileBlock * whileBlock;
+    ForBlock * forBlock;
 }
 
 /**
@@ -192,6 +193,7 @@
 %type <newline> newline
 %type <binaryComparator> binaryComparator
 %type <whileBlock> whileBlock
+%type <forBlock> forBlock
 
 /**
  * Precedence and associativity.
@@ -231,11 +233,14 @@ sentence: expression												{ $$ = ExpressionSentenceSemanticAction($1); }
 block: functionDefinition[fdef] COLON NEWLINE_TOKEN TAB program[prog]   { $$ = FunctionDefinitionBlockSemanticAction($fdef, $prog); }
      | classDefinition[cdef] COLON NEWLINE_TOKEN TAB program[prog]      { $$ = ClassDefinitionBlockSemanticAction($cdef, $prog); }
 	 | IF conditional[cond] COLON NEWLINE_TOKEN TAB program[prog]		{ $$ = ConditionalBlockSemanticAction($cond, $prog); }
-	;
+     | WHILE whileBlock[wblock] COLON NEWLINE_TOKEN TAB program[prog]   { $$ = WhileLoopBlockSemanticAction($wblock, $prog); }
+     | forBlock[fdef] COLON NEWLINE_TOKEN TAB program[prog]  { $$ = ForLoopBlockSemanticAction($fdef, $prog); }
+	 ;
+
+forBlock: FOR expression[exp1] IN expression[exp2]                      { $$ = ForBlockSemanticAction($exp1, $exp2); }
 
 whileBlock: WHILE conditional[cond] 									{ $$ = WhileBlockSemanticAction($cond); }
-	|		WHILE OPEN_PARENTHESIS conditional[cond] CLOSE_PARENTHESIS	{ $$ = WhileBlockSemanticAction($cond); }
-	;
+	      ;
 
 functionDefinition: DEF IDENTIFIER[id] OPEN_PARENTHESIS parameters[params] CLOSE_PARENTHESIS                                { $$ = GenericFunctionDefinitionSemanticAction($id, $params); }
                   | DEF IDENTIFIER[id] OPEN_PARENTHESIS parameters[params] CLOSE_PARENTHESIS RETURNS object[retObj]         { $$ = ObjectFunctionDefinitionSemanticAction($id, $params, $retObj); }
@@ -261,10 +266,10 @@ expression: expression[left] ADD expression[right]					{ $$ = ArithmeticExpressi
 	| expression[left] BITWISE_RSHIFT expression[right]				{ $$ = ArithmeticExpressionSemanticAction($left, $right, BIT_ARITHMETIC_RIGHT_SHIFT); }
     | constant                                                      { $$ = ConstantExpressionSemanticAction($1); }
     | variableCall                                                  { $$ = VariableCallExpressionSemanticAction($1); }
+    | functionCall                                                  { $$ = FunctionCallExpressionSemanticAction($1); }
 	;
 
 variable: IDENTIFIER[id] ASSIGN expression[expr]                    { $$ = ExpressionVariableSemanticAction($id, $expr);}
-        | IDENTIFIER[id] ASSIGN functionCall[fcall]                 { $$ = FunctionCallVariableSemanticAction($id, $fcall); }
         | IDENTIFIER[id] ASSIGN methodCall[method]                  { $$ = MethodCallVariableSemanticAction($id, $method); }
         | IDENTIFIER[id] ASSIGN fieldGetter[field]                  { $$ = FieldGetterVariableSemanticAction($id, $field); }
         | IDENTIFIER[id] ASSIGN object[obj]                         { $$ = ObjectVariableSemanticAction($id, $obj); }

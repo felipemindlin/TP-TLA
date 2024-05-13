@@ -57,6 +57,7 @@ typedef struct Newline Newline;
 typedef struct BinaryComparator BinaryComparator;
 typedef struct ComparableValue ComparableValue;
 typedef struct LogicValue LogicValue;
+typedef struct ForBlock ForBlock;
 
 /**
  * Node types for the Abstract Syntax Tree (AST).
@@ -114,6 +115,7 @@ enum ExpressionType {
 	BIT_ARITHMETIC_LEFT_SHIFT,
 	BIT_ARITHMETIC_RIGHT_SHIFT,
     VARIABLE_CALL_EXPRESSION,
+    FUNCTION_CALL_EXPRESSION,
     CONSTANT_EXPRESSION
 };
 
@@ -258,6 +260,7 @@ struct Expression {
 	union {
         Constant * constant;
         VariableCall * variableCall;
+        FunctionCall * functionCall;
 		struct {
 			Expression * leftExpression;
 			Expression * rightExpression;
@@ -297,8 +300,8 @@ struct Block {
         FunctionDefinition * functionDefinition;
         ClassDefinition * classDefinition;
         Conditional * conditional;
-        // For * forBlock;
-        // While * whileBlock;
+        ForBlock * forBlock;
+        WhileBlock * whileBlock;
     };
     Program * nextProgram;
     BlockType type;
@@ -306,6 +309,11 @@ struct Block {
 
 struct WhileBlock {
 	Conditional * condition;
+};
+
+struct ForBlock {
+    Expression * left;
+    Expression * right;
 };
 
 struct FunctionDefinition {

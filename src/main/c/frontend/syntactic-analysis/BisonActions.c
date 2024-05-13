@@ -119,6 +119,14 @@ Expression * VariableCallExpressionSemanticAction(VariableCall * var) {
 	return expression;
 }
 
+Expression * FunctionCallExpressionSemanticAction(FunctionCall * fcall) {
+	_logSyntacticAnalyzerAction(__FUNCTION__);
+	Expression * expression = calloc(1, sizeof(Expression));
+	expression->functionCall = fcall;
+	expression->type = FUNCTION_CALL_EXPRESSION;
+	return expression;
+}
+
 Program * GeneralProgramSemanticAction(CompilerState * compilerState, Depth * dp, Sentence * sentence, Program * nprog) {
 	_logSyntacticAnalyzerAction(__FUNCTION__);
 	Program * program = calloc(1, sizeof(Program));
@@ -235,6 +243,24 @@ Block * ConditionalBlockSemanticAction(Conditional * cond, Program * nextProg) {
 	return block;
 }
 
+Block * WhileLoopBlockSemanticAction(WhileBlock * wblock, Program * nextProg) {
+	_logSyntacticAnalyzerAction(__FUNCTION__);
+	Block * block = calloc(1, sizeof(Block));
+	block->type = BT_WHILE;
+	block->whileBlock = wblock;
+	block->nextProgram = nextProg;
+	return block;
+}
+
+Block * ForLoopBlockSemanticAction(ForBlock * fblock, Program * nextProg) {
+	_logSyntacticAnalyzerAction(__FUNCTION__);
+	Block * block = calloc(1, sizeof(Block));
+	block->type = BT_FOR;
+	block->forBlock = fblock;
+	block->nextProgram = nextProg;
+	return block;
+}
+
 /** WHILE BLOCK SECTION **/
 WhileBlock * WhileBlockSemanticAction(Conditional * cond) {
 	_logSyntacticAnalyzerAction(__FUNCTION__);
@@ -243,7 +269,14 @@ WhileBlock * WhileBlockSemanticAction(Conditional * cond) {
 	return whileBlock;
 }
 
-
+/** FOR BLOCK SECTION **/
+ForBlock * ForBlockSemanticAction(Expression * left, Expression * right) {
+	_logSyntacticAnalyzerAction(__FUNCTION__);
+	ForBlock * forBlock = calloc(1, sizeof(ForBlock));
+    forBlock->left = left;
+    forBlock->right = right;
+	return forBlock;
+}
 
 /** FUNCTION DEFINITION SECTION **/
 FunctionDefinition * GenericFunctionDefinitionSemanticAction(char * restrict id, Parameters * params) {

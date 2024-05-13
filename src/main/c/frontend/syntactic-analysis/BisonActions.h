@@ -30,6 +30,7 @@ Constant * TupleConstantSemanticAction(Tuple * tpl);
 Expression * ArithmeticExpressionSemanticAction(Expression * leftExpression, Expression * rightExpression, ExpressionType type);
 Expression * ConstantExpressionSemanticAction(Constant * constant);
 Expression * VariableCallExpressionSemanticAction(VariableCall * var);
+Expression * FunctionCallExpressionSemanticAction(FunctionCall * fcall);
 
 Program * GeneralProgramSemanticAction(CompilerState * compilerState, Depth * dp, Sentence * sentence, Program * nprog);
 Program * FinishedProgramSemanticAction(CompilerState * compilerState);
@@ -50,9 +51,14 @@ Sentence * BlockSentenceSemanticAction(Block * block);
 Block * FunctionDefinitionBlockSemanticAction(FunctionDefinition * fdef, Program * nextProg);
 Block * ClassDefinitionBlockSemanticAction(ClassDefinition * cdef, Program * nextProg);
 Block * ConditionalBlockSemanticAction(Conditional * cond, Program * nextProg);
+Block * WhileLoopBlockSemanticAction(WhileBlock * wblock, Program * nextProg);
+Block * ForLoopBlockSemanticAction(ForBlock * fblock, Program * nextProg);
 
 /** WHILE BLOCK SECTION **/
 WhileBlock * WhileBlockSemanticAction(Conditional * cond);
+
+/** FOR BLOCK SECTION **/
+ForBlock * ForBlockSemanticAction(Expression * left, Expression * right);
 
 /** FUNCTION DEFINITION SECTION **/
 FunctionDefinition * GenericFunctionDefinitionSemanticAction(char * restrict id, Parameters * params);
@@ -67,7 +73,6 @@ ClassDefinition * TupleClassDefinitionSemanticAction(char * restrict id, Tuple *
 
 /** VARIABLE SECTION **/
 Variable * ExpressionVariableSemanticAction(char * restrict id, Expression * expr);
-Variable * FunctionCallVariableSemanticAction(char * restrict id, FunctionCall * functionCall);
 Variable * MethodCallVariableSemanticAction(char * restrict id, MethodCall * methodCall);
 Variable * FieldGetterVariableSemanticAction(char * restrict id, FieldGetter * fieldGetter);
 Variable * ObjectVariableSemanticAction(char * restrict id, Object * obj);
