@@ -353,9 +353,12 @@ void releaseFunctionCall(FunctionCall * functionCall);
 void releaseParameters(Parameters * parameters);
 void releaseNewline(Newline * newline);
 void releaseDepth(Depth * depth);
-
-
-
+void releaseTuple(Tuple * tuple);
+void releaseFunctionDefinition(FunctionDefinition * functionDefinition);
+void releaseClassDefinition(ClassDefinition * classDefinition);
+void releaesBlock(Block * block);
+void releaseObject(Object * Object);
+void releaseClassDefinition(ClassDefinition * classDefinition);
 
 
 #endif

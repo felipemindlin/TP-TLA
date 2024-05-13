@@ -8,10 +8,13 @@
 #include "shared/Environment.h"
 #include "shared/Logger.h"
 #include "shared/String.h"
-
+#include "frontend/lexical-analysis/LexicalAnalyzerContext.h"
 /**
  * The main entry-point of the entire application.
  */
+
+extern LexicalAnalyzerContext * oldLexicalAnalyzerContext;
+
 const int main(const int count, const char ** arguments) {
 	Logger * logger = createLogger("EntryPoint");
 	initializeFlexActionsModule();
@@ -63,5 +66,6 @@ const int main(const int count, const char ** arguments) {
 	shutdownFlexActionsModule();
 	logDebugging(logger, "Compilation is done.");
 	destroyLogger(logger);
+	destroyLexicalAnalyzerContext(oldLexicalAnalyzerContext);
 	return compilationStatus;
 }
