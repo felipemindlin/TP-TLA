@@ -200,6 +200,42 @@ Sentence * FunctionDefinitionSentenceSemanticAction(const char * function, Param
 	return sentence;
 }
 
+MethodCall * VariableMethodCallSemanticAction(VariableCall * variable, FunctionCall * method) {
+	_logSyntacticAnalyzerAction(__FUNCTION__);
+	MethodCall * methodCall = calloc(1, sizeof(MethodCall));
+	methodCall->variableCall = variable;
+	methodCall->functionCall = method;
+	methodCall->type = VARIABLE_TRIGGER;
+	return methodCall;
+}
+
+MethodCall * ObjectMethodCallSemanticAction(Object * obj, FunctionCall * method) {
+	_logSyntacticAnalyzerAction(__FUNCTION__);
+	MethodCall * methodCall = calloc(1, sizeof(MethodCall));
+	methodCall->object = obj;
+	methodCall->functionCall = method;
+	methodCall->type = OBJECT_TRIGGER;
+	return methodCall;
+}
+
+FieldGetter * VariableFieldGetterSemanticAction(VariableCall * variable, VariableCall * field) {
+	_logSyntacticAnalyzerAction(__FUNCTION__);
+	FieldGetter * fieldGetter = calloc(1, sizeof(FieldGetter));
+	fieldGetter->variableCall = variable;
+	fieldGetter->field = field;
+	fieldGetter->type = FG_VARIABLE_OWNER;
+	return fieldGetter;
+}
+
+FieldGetter * ObjectFieldGetterSemanticAction(Object * obj, VariableCall * field) {
+	_logSyntacticAnalyzerAction(__FUNCTION__);
+	FieldGetter * fieldGetter = calloc(1, sizeof(FieldGetter));
+	fieldGetter->object = obj;
+	fieldGetter->field = field;
+	fieldGetter->type = FG_OBJECT_OWNER;
+	return fieldGetter;
+}
+
 List * ListSemanticAction(Parameters * elements) {
 	_logSyntacticAnalyzerAction(__FUNCTION__);
     List * list = calloc(1, sizeof(List));

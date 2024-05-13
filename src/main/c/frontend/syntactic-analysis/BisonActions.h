@@ -36,6 +36,11 @@ Object * ObjectSemanticAction(const char * className);
 Sentence * FunctionCallSentenceSemanticAction(FunctionCall * functionCall, SentenceType type);
 Sentence * FunctionDefinitionSentenceSemanticAction(const char * functionName, Parameters * parameters, SentenceType type);
 
+MethodCall * VariableMethodCallSemanticAction(VariableCall * variableCall, FunctionCall * functionCall);
+MethodCall * ObjectMethodCallSemanticAction(Object * object, FunctionCall * functionCall);
+FieldGetter * VariableFieldGetterSemanticAction(VariableCall * variableCall, VariableCall * fieldName);
+FieldGetter * ObjectFieldGetterSemanticAction(Object * object, VariableCall * fieldName);
+
 List * ListSemanticAction(Parameters * parameters);
 Tuple * TupleSemanticAction(Parameters * parameters);
 

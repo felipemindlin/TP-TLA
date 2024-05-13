@@ -34,6 +34,8 @@
 	ClassDefinition * classDefinition;
 	FunctionCall * functionCall;
 	VariableCall * variableCall;
+	MethodCall * methodCall;
+	FieldGetter * fieldGetter;
 	Sentence * sentence;
 	Depth * depth;
 
@@ -173,7 +175,8 @@
 %type <sentence> sentence
 %type <depth> depth
 %type <newline> newline
-
+%type <methodCall> methodCall
+%type <fieldGetter> fieldGetter
 %type <list> empty_list
 %type <list> typed_list
 %type <tuple> empty_tuple
@@ -344,12 +347,12 @@ object: BUILTIN_IDENTIFIER                                          { $$ = Built
       | list                                                        { $$ = TupleObjectSemanticAction($1); }
       ;
 
-methodCall: object[obj] DOT functionCall[func]                      { $$ = ObjectMethodCallSemanticAction($obj, $func, OBJECT_TRIGGER); }
-          | variableCall[var] DOT functionCall[func]                { $$ = VariableMethodCallSemanticAction($var, $func, VARIABLE_TRIGGER); }
+methodCall: object[obj] DOT functionCall[func]                      { $$ = ObjectMethodCallSemanticAction($obj, $func); }
+          | variableCall[var] DOT functionCall[func]                { $$ = VariableMethodCallSemanticAction($var, $func); }
           ;
 
 fieldGetter: object[obj] DOT variableCall[field]                    { $$ = ObjectFieldGetterSemanticAction($obj, $field); }
-          | variableCall[var] DOT variableCall[field]               { $$ = VariableFieldGetterSemanticAction($obj, $field)}
+          | variableCall[var] DOT variableCall[field]               { $$ = VariableFieldGetterSemanticAction($var, $field)}
           ;
 
 
@@ -361,7 +364,7 @@ parameters: %empty												    { $$ = ParametersSemanticAction(NULL, NULL, EM
 variable: IDENTIFIER[id] ASSIGN expression[fact]                    { $$ = ExpressionVariableSemanticAction($id, $fact);}
         | IDENTIFIER[id] ASSIGN functionCall[fcall]                 { $$ = FunctionCallVariableSemanticAction($id, $fcall); }
         | IDENTIFIER[id] ASSIGN methodCall[method]                  { $$ = MethodCallVariableSemanticAction($id, $method); }
-        | IDENTIFIER[id] ASSIGN fieldGetter[field]                  { $$ = FieldGetterVariableSemanticAction($id, $method); }
+        | IDENTIFIER[id] ASSIGN fieldGetter[field]                  { $$ = FieldGetterVariableSemanticAction($id, $field); }
         | IDENTIFIER[id] ASSIGN object[obj]                         { $$ = ObjectVariableSemanticAction($id, $obj); }
         | IDENTIFIER[id] ASSIGN variableCall[var]                   { $$ = VariableCallVariableSemanticAction($id, $var); }
 

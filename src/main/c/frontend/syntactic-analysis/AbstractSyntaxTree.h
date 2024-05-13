@@ -30,6 +30,7 @@ typedef enum ObjectCond ObjectCond;
 typedef enum ForType ForType;
 typedef enum Which Which;
 typedef enum MethodCallType MethodCallType;
+typedef enum FieldGetterType FieldGetterType;
 
 /* Every Block will be of the following types */
 typedef struct Block Block;
@@ -50,6 +51,7 @@ typedef struct Program Program;
 typedef struct Parameters Parameters;
 typedef struct FunctionDefinition FunctionDefinition;
 typedef struct MethodCall MethodCall;
+typedef struct FieldGetter FieldGetter;
 typedef struct FunctionCall FunctionCall;
 typedef struct VariableCall VariableCall;
 typedef struct Sentence Sentence;
@@ -122,6 +124,11 @@ enum CondType { // Non arithmetic
 enum MethodCallType {
     OBJECT_TRIGGER,
     VARIABLE_TRIGGER,
+};
+
+enum FieldGetterType {
+    FG_OBJECT_OWNER,
+    FG_VARIABLE_OWNER,
 };
 
 enum ForType {
@@ -215,9 +222,18 @@ struct MethodCall {
     MethodCallType type;
 };
 
+struct FieldGetter {
+    union {
+        Object * object;
+        VariableCall * variableCall;
+    };
+    VariableCall * field;
+    FieldGetterType type;
+};
+
 struct ClassDefinition {
     char * className;
-    Class * parent;
+    ClassDefinition * parent;
     Variable ** fields;
 };
 
