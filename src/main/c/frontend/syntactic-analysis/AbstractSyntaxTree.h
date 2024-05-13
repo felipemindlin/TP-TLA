@@ -33,11 +33,11 @@ typedef enum ClassDefinitionType ClassDefinitionType;
 typedef enum BinaryComparatorType BinaryComparatorType;
 typedef enum ComparableValueType ComparableValueType;
 typedef enum LogicValueType LogicValueType;
+typedef enum ConditionalType ConditionalType;
 
 typedef struct Variable Variable;
 typedef struct Constant Constant;
 typedef struct Expression Expression;
-typedef struct Conditional Conditional;
 typedef struct Program Program;
 typedef struct Parameters Parameters;
 typedef struct FunctionCall FunctionCall;
@@ -58,6 +58,7 @@ typedef struct BinaryComparator BinaryComparator;
 typedef struct ComparableValue ComparableValue;
 typedef struct LogicValue LogicValue;
 typedef struct ForBlock ForBlock;
+typedef struct ConditionalBlock ConditionalBlock;
 
 /**
  * Node types for the Abstract Syntax Tree (AST).
@@ -118,14 +119,11 @@ enum ExpressionType {
     FUNCTION_CALL_EXPRESSION,
     METHOD_CALL_EXPRESSION,
     FIELD_GETTER_EXPRESSION,
-    CONSTANT_EXPRESSION
-};
-
-enum CondType { // Non arithmetic
+    CONDITIONAL_EXPRESSION,
+    CONSTANT_EXPRESSION,
 	LOGIC_AND,
 	LOGIC_OR,
 	LOGIC_NOT,
-	EXPRESSION_VALUE,
     COMPARISON_EXPRESSION,
 };
 
@@ -210,6 +208,12 @@ enum LogicValueType {
 	LVT_CONSTANT
 };
 
+enum ConditionalType {
+    CB_IF,
+    CB_ELIF,
+    CB_ELSE,
+};
+
 struct Constant {
 	union{
         int integer;
@@ -254,25 +258,14 @@ struct Expression {
 			Expression * leftExpression;
 			Expression * rightExpression;
 		};
-	};
-	ExpressionType type;
-};
-
-struct Conditional {
-	union {
-		struct {
-			Conditional * leftCond;
-			Conditional * rightCond;
-		};
 		struct {
 			Expression * leftCompExpression;
 			Expression * rightCompExpression;
-			BinaryComparator * binaryComparator;
+            BinaryComparatorType compType;
 		};
-		Expression * expression;
-		Conditional * notConditional;
+        Expression * notExpression;
 	};
-	CondType type;
+	ExpressionType type;
 };
 
 struct Sentence {
@@ -288,7 +281,10 @@ struct Block {
     union {
         FunctionDefinition * functionDefinition;
         ClassDefinition * classDefinition;
-        Conditional * conditional;
+        struct {
+            ConditionalBlock * conditional;
+            Block * nextCond;
+        };
         ForBlock * forBlock;
         WhileBlock * whileBlock;
     };
@@ -296,8 +292,13 @@ struct Block {
     BlockType type;
 };
 
+struct ConditionalBlock {
+    Expression * expression;
+    ConditionalType type;
+};
+
 struct WhileBlock {
-	Conditional * condition;
+	Expression * expression;
 };
 
 struct ForBlock {
@@ -372,32 +373,6 @@ struct Newline {
 	NewlineType type;
 };
 
-struct BinaryComparator {
-	BinaryComparatorType type;
-};
-
-struct ComparableValue {
-	union {
-		VariableCall * variable;
-		Expression * expression;
-	};
-	ComparableValueType type;
-};
-
-struct LogicValue {
-	union {
-		struct {
-			ComparableValue * leftValue;
-			ComparableValue * rightValue;
-			BinaryComparator * binaryComparator;
-		};
-		Conditional * conditional;
-		VariableCall * variable;
-		Expression * expression;
-	};
-	LogicValueType type;
-};
-
 /**
  * Node recursive destructors.
  */
@@ -405,7 +380,6 @@ void releaseConstant(Constant * constant);
 void releaseExpression(Expression * expression);
 void releaseProgram(Program * program);
 void releaseVariable(Variable * variable);
-void releaseConditional(Conditional * condtional);
 void releaseSentence(Sentence * sentence);
 void releaseVariableCall(VariableCall * variableCall);
 void releaseMethodCall(MethodCall * methodCall);
@@ -417,9 +391,11 @@ void releaseTuple(Tuple * tuple);
 void releaseFunctionDefinition(FunctionDefinition * functionDefinition);
 void releaseClassDefinition(ClassDefinition * classDefinition);
 void releaseBlock(Block * block);
+void releaseWhileBlock(WhileBlock * wblock);
+void releaseForBlock(ForBlock * fblock);
+void releaseConditionalBlock(ConditionalBlock * cblock);
 void releaseObject(Object * Object);
 void releaseClassDefinition(ClassDefinition * classDefinition);
-void releaseBinaryComparator(BinaryComparator * binaryComparator);
 void releaseFieldGetter(FieldGetter * fieldGetter);
 
 

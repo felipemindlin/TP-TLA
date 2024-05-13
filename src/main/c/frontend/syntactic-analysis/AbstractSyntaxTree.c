@@ -93,6 +93,8 @@ void releaseExpression(Expression * expression) {
 			case DIVISION:
 			case MULTIPLICATION:
 			case SUBTRACTION:
+            case LOGIC_OR:
+            case LOGIC_AND:
 				releaseExpression(expression->leftExpression);
 				releaseExpression(expression->rightExpression);
 				break;
@@ -107,6 +109,13 @@ void releaseExpression(Expression * expression) {
                 break;
             case FIELD_GETTER_EXPRESSION:
                 releaseFieldGetter(expression->fieldGetter);
+                break;
+            case LOGIC_NOT:
+                releaseExpression(expression->notExpression);
+                break;
+            case COMPARISON_EXPRESSION:
+                releaseExpression(expression->leftCompExpression);
+                releaseExpression(expression->rightCompExpression);
                 break;
             case FUNCTION_CALL_EXPRESSION:
                 releaseFunctionCall(expression->functionCall);
@@ -148,34 +157,6 @@ void releaseVariable(Variable * variable){
 	}
 }
 
-void releaseConditional(Conditional * conditional){
-	logDebugging(_logger, "Executing destructor: %s", __FUNCTION__);
-	if (conditional != NULL) {
-		switch (conditional->type) {
-			case LOGIC_AND:
-            case LOGIC_OR:
-                releaseConditional(conditional->leftCond);
-                releaseConditional(conditional->rightCond);
-				break;
-			case LOGIC_NOT: //or FACTOR tienen el mismo value de enum revisar
-                releaseConditional(conditional->notConditional);
-				break;
-	        case EXPRESSION_VALUE:
-                releaseExpression(conditional->expression);
-                break;
-            case COMPARISON_EXPRESSION:
-                releaseExpression(conditional->leftCompExpression);
-                releaseExpression(conditional->rightCompExpression);
-                releaseBinaryComparator(conditional->binaryComparator);
-		}
-		free(conditional);
-	}
-}
-
-void releaseBinaryComparator(BinaryComparator * binaryComparator) {
-    free(binaryComparator);
-}
-
 void releaseFunctionDefinition(FunctionDefinition * functionDefinition){
 	logDebugging(_logger, "Executing destructor: %s", __FUNCTION__);
 	if (functionDefinition != NULL) {
@@ -213,7 +194,8 @@ void releaseBlock(Block * block){
 			case BT_CLASS_DEFINITION:
 				releaseClassDefinition(block->classDefinition);
 				break;
-			// case BT_CONDITIONAL:
+			case BT_CONDITIONAL:
+                releaseConditionalBlock(block->conditional);
 			// 	releaseConditional()
 			// 	break;
 			// case BT_FOR:
@@ -226,6 +208,13 @@ void releaseBlock(Block * block){
 		releaseProgram(block->nextProgram);
 		free(block);
 	}
+}
+
+void releaseConditionalBlock(ConditionalBlock * cblock) {
+    if(cblock != NULL){
+        releaseExpression(cblock->expression);
+        free(cblock);
+    }
 }
 
 void releaseSentence(Sentence * sentence){

@@ -33,6 +33,10 @@ Expression * VariableCallExpressionSemanticAction(VariableCall * var);
 Expression * FunctionCallExpressionSemanticAction(FunctionCall * fcall);
 Expression * MethodCallExpressionSemanticAction(MethodCall * methodCall);
 Expression * FieldGetterExpressionSemanticAction(FieldGetter * fieldGetter);
+Expression * LogicalOrExpressionSemanticAction(Expression * left, Expression * right);
+Expression * LogicalAndExpressionSemanticAction(Expression * left, Expression * right);
+Expression * LogicalNotExpressionSemanticAction(Expression * notExp);
+Expression * ExpressionComparisonSemanticAction(BinaryComparatorType compType, Expression * left, Expression * right);
 
 Program * GeneralProgramSemanticAction(CompilerState * compilerState, Depth * dp, Sentence * sentence, Program * nprog);
 Program * FinishedProgramSemanticAction(CompilerState * compilerState);
@@ -52,12 +56,15 @@ Sentence * BlockSentenceSemanticAction(Block * block);
 /** BLOCK SECTION **/
 Block * FunctionDefinitionBlockSemanticAction(FunctionDefinition * fdef, Program * nextProg);
 Block * ClassDefinitionBlockSemanticAction(ClassDefinition * cdef, Program * nextProg);
-Block * ConditionalBlockSemanticAction(Conditional * cond, Program * nextProg);
+Block * ConditionalBlockSemanticAction(ConditionalBlock * cond, Program * nextProg, Block * nextConditinoal);
 Block * WhileLoopBlockSemanticAction(WhileBlock * wblock, Program * nextProg);
 Block * ForLoopBlockSemanticAction(ForBlock * fblock, Program * nextProg);
 
+/** CONDITIONAL SECTION **/
+ConditionalBlock * ConditionalSemanticAction(ConditionalType type, Expression * exp);
+
 /** WHILE BLOCK SECTION **/
-WhileBlock * WhileBlockSemanticAction(Conditional * cond);
+WhileBlock * WhileBlockSemanticAction(Expression * cond);
 
 /** FOR BLOCK SECTION **/
 ForBlock * ForBlockSemanticAction(Expression * left, Expression * right);
@@ -102,9 +109,4 @@ BinaryComparator * BinaryComparatorSemanticAction(BinaryComparatorType type);
 ComparableValue * VariableComparableValueSemanticAction(VariableCall * var, ComparableValueType type);
 ComparableValue * ExpressionComparableValueSemanticAction(Expression * expr, ComparableValueType type);
 
-/** CONDITIONAL SECTION **/
-Conditional * BinaryConditionalSemanticAction(CondType type, Conditional * leftCond, Conditional * rightCond);
-Conditional * UnaryLogicOperatorConditionalSemanticAction(Conditional * cond);
-Conditional * ExpressionConditionalSemanticAction(Expression * exp);
-Conditional * ExpressionComparisonConditionalSemanticAction(BinaryComparator * bcomp, Expression * left, Expression * right);
 #endif

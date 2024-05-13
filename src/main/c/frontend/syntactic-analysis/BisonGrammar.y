@@ -21,7 +21,6 @@
 
 	Constant * constant;
 	Expression * expression;
-	Conditional * conditional;
 	Program * program;
 	Variable * variable;
 	Parameters * parameters;
@@ -38,9 +37,9 @@
     ClassDefinition * classDefinition;
 	Depth * depth;
 	Newline * newline;
-	BinaryComparator * binaryComparator;
 	WhileBlock * whileBlock;
     ForBlock * forBlock;
+    ConditionalBlock * conditionalBlock;
 }
 
 /**
@@ -57,7 +56,6 @@
 %destructor { releaseSentence($$); } <sentence>
 %destructor { releaseProgram($$); } <program>
 %destructor { releaseVariable($$); } <variable>
-%destructor { releaseConditional($$); } <conditional>
 %destructor { releaseVariableCall($$); } <variableCall>
 %destructor { releaseMethodCall($$); } <methodCall>
 %destructor { releaseFunctionCall($$); } <functionCall>
@@ -174,7 +172,6 @@
 /** Non-terminals. */
 %type <constant> constant
 %type <variable> variable
-%type <conditional> conditional
 %type <expression> expression
 %type <program> program
 %type <parameters> parameters
@@ -187,13 +184,16 @@
 %type <variableCall> variableCall
 %type <sentence> sentence
 %type <block> block
+%type <block> nextCondBlock
 %type <functionDefinition> functionDefinition
 %type <classDefinition> classDefinition
 %type <depth> depth
 %type <newline> newline
-%type <binaryComparator> binaryComparator
 %type <whileBlock> whileBlock
 %type <forBlock> forBlock
+%type <conditionalBlock> ifBlock
+%type <conditionalBlock> elifBlock
+%type <conditionalBlock> elseBlock
 
 /**
  * Precedence and associativity.
@@ -201,13 +201,17 @@
  * @see https://www.gnu.org/software/bison/manual/html_node/Precedence.html
  * @also see https://www.geeksforgeeks.org/precedence-and-associativity-of-operators-in-python/ for Python
  */
+%right INTEGER
+%right FLOAT
+%right BOOLEAN
+%right STRING
 %precedence COMMA
 %precedence IDENTIFIER
 %right LOGICAL_OR
 %right LOGICAL_AND
 %right LOGICAL_NOT
 %right ASSIGN_WALRUS
-%left  IN NOT_IN IS IS_NOT COMPARISON_LT COMPARISON_LTE COMPARISON_GT COMPARISON_GTE COMPARISON_EQ COMPARISON_NEQ
+%right IN NOT_IN IS IS_NOT COMPARISON_LT COMPARISON_LTE COMPARISON_GT COMPARISON_GTE COMPARISON_EQ COMPARISON_NEQ
 %left  BITWISE_OR
 %left  BITWISE_XOR
 %left  BITWISE_AND
@@ -218,6 +222,7 @@
 %right NEWLINE_TOKEN
 %right EXP
 %right DOT
+%right IF ELIF ELSE
 %right OPEN_BRACE CLOSE_BRACE
 %right OPEN_PARENTHESIS CLOSE_PARENTHESIS
 %%
@@ -230,16 +235,26 @@ sentence: expression												{ $$ = ExpressionSentenceSemanticAction($1); }
 	| variable														{ $$ = VariableSentenceSemanticAction($1); }
     | block                                                         { $$ = BlockSentenceSemanticAction($1); }
 
-block: functionDefinition[fdef] COLON NEWLINE_TOKEN TAB program[prog]   { $$ = FunctionDefinitionBlockSemanticAction($fdef, $prog); }
-     | classDefinition[cdef] COLON NEWLINE_TOKEN TAB program[prog]      { $$ = ClassDefinitionBlockSemanticAction($cdef, $prog); }
-	 | IF conditional[cond] COLON NEWLINE_TOKEN TAB program[prog]		{ $$ = ConditionalBlockSemanticAction($cond, $prog); }
-     | WHILE whileBlock[wblock] COLON NEWLINE_TOKEN TAB program[prog]   { $$ = WhileLoopBlockSemanticAction($wblock, $prog); }
-     | forBlock[fdef] COLON NEWLINE_TOKEN TAB program[prog]  { $$ = ForLoopBlockSemanticAction($fdef, $prog); }
+block: functionDefinition[fdef] COLON NEWLINE_TOKEN TAB program[prog]               { $$ = FunctionDefinitionBlockSemanticAction($fdef, $prog); }
+     | classDefinition[cdef] COLON NEWLINE_TOKEN TAB program[prog]                  { $$ = ClassDefinitionBlockSemanticAction($cdef, $prog); }
+	 | ifBlock[cblock] COLON NEWLINE_TOKEN TAB program[prog] nextCondBlock[next]    { $$ = ConditionalBlockSemanticAction($cblock, $prog, $next); }
+     | whileBlock[wblock] COLON NEWLINE_TOKEN TAB program[prog]                     { $$ = WhileLoopBlockSemanticAction($wblock, $prog); }
+     | forBlock[fblock] COLON NEWLINE_TOKEN TAB program[prog]                       { $$ = ForLoopBlockSemanticAction($fblock, $prog); }
 	 ;
+
+nextCondBlock: %empty
+             | elifBlock[elif] COLON NEWLINE_TOKEN TAB program[prog] nextCondBlock[next]    { $$ = ConditionalBlockSemanticAction($elif, $prog, $next); }
+             | elseBlock[els] COLON NEWLINE_TOKEN TAB program[prog]                         { $$ = ConditionalBlockSemanticAction($els, $prog, NULL); }
+
+ifBlock: IF expression[exp]                                             { $$ = ConditionalSemanticAction(CB_IF, $exp); }
+
+elifBlock: ELIF expression[exp]                                         { $$ = ConditionalSemanticAction(CB_ELIF, $exp); }
+
+elseBlock: ELSE expression[exp]                                         { $$ = ConditionalSemanticAction(CB_ELSE, $exp); }
 
 forBlock: FOR expression[exp1] IN expression[exp2]                      { $$ = ForBlockSemanticAction($exp1, $exp2); }
 
-whileBlock: WHILE conditional[cond] 									{ $$ = WhileBlockSemanticAction($cond); }
+whileBlock: WHILE expression[cond] 									    { $$ = WhileBlockSemanticAction($cond); }
 	      ;
 
 functionDefinition: DEF IDENTIFIER[id] OPEN_PARENTHESIS parameters[params] CLOSE_PARENTHESIS                                { $$ = GenericFunctionDefinitionSemanticAction($id, $params); }
@@ -269,29 +284,23 @@ expression: expression[left] ADD expression[right]					{ $$ = ArithmeticExpressi
     | functionCall                                                  { $$ = FunctionCallExpressionSemanticAction($1); }
     | methodCall[method]                                            { $$ = MethodCallExpressionSemanticAction($method); }
     | fieldGetter[field]                                            { $$ = FieldGetterExpressionSemanticAction($field); }
+    | expression[left] LOGICAL_AND expression[right]                { $$ = LogicalAndExpressionSemanticAction($left, $right); }
+    | expression[left] LOGICAL_OR expression[right]                 { $$ = LogicalOrExpressionSemanticAction($left, $right); }
+    | LOGICAL_NOT expression[exp]                                   { $$ = LogicalNotExpressionSemanticAction($exp); }
+    | expression[left] COMPARISON_EQ expression[right]	            { $$ = ExpressionComparisonSemanticAction(BCT_EQU, $left, $right); }
+    | expression[left] COMPARISON_NEQ expression[right]	            { $$ = ExpressionComparisonSemanticAction(BCT_NEQ, $left, $right); }
+    | expression[left] COMPARISON_GT expression[right]	            { $$ = ExpressionComparisonSemanticAction(BCT_GT, $left, $right); }
+    | expression[left] COMPARISON_GTE expression[right]	            { $$ = ExpressionComparisonSemanticAction(BCT_GTE, $left, $right); }
+    | expression[left] COMPARISON_LT expression[right]	            { $$ = ExpressionComparisonSemanticAction(BCT_LT, $left, $right); }
+    | expression[left] COMPARISON_LTE expression[right]	            { $$ = ExpressionComparisonSemanticAction(BCT_LTE, $left, $right); }
+    | expression[left] IN expression[right]	                        { $$ = ExpressionComparisonSemanticAction(BCT_MEMBER, $left, $right); }
+    | expression[left] NOT_IN expression[right]	                    { $$ = ExpressionComparisonSemanticAction(BCT_NMEMBER, $left, $right); }
+    | expression[left] IS expression[right]	                        { $$ = ExpressionComparisonSemanticAction(BCT_IDENTITY, $left, $right); }
+    | expression[left] IS_NOT expression[right]	                    { $$ = ExpressionComparisonSemanticAction(BCT_NIDENTITY, $left, $right); }
 	;
 
 variable: IDENTIFIER[id] ASSIGN expression[expr]                    { $$ = ExpressionVariableSemanticAction($id, $expr);}
 		;
-
-conditional: conditional[left] LOGICAL_AND conditional[right]		    { $$ = BinaryConditionalSemanticAction(LOGIC_AND, $left, $right); }
-           | conditional[left] LOGICAL_OR conditional[right]		    { $$ = BinaryConditionalSemanticAction(LOGIC_OR, $left, $right); }
-           | LOGICAL_NOT conditional[val]							    { $$ = UnaryLogicOperatorConditionalSemanticAction($val); }
-           | expression[left] binaryComparator[op] expression[right]	{ $$ = ExpressionComparisonConditionalSemanticAction($op, $left, $right); }
-           | expression                                                 { $$ = ExpressionConditionalSemanticAction($1); }
-           ;
-
-binaryComparator: COMPARISON_EQ								{ $$ = BinaryComparatorSemanticAction(BCT_EQU); }
-	| COMPARISON_NEQ										{ $$ = BinaryComparatorSemanticAction(BCT_NEQ); }
-	| COMPARISON_GT											{ $$ = BinaryComparatorSemanticAction(BCT_GT); }
-	| COMPARISON_GTE										{ $$ = BinaryComparatorSemanticAction(BCT_GTE); }
-	| COMPARISON_LT											{ $$ = BinaryComparatorSemanticAction(BCT_LT); }
-	| COMPARISON_LTE										{ $$ = BinaryComparatorSemanticAction(BCT_LTE); }
-	| IN													{ $$ = BinaryComparatorSemanticAction(BCT_MEMBER); }
-	| NOT_IN												{ $$ = BinaryComparatorSemanticAction(BCT_NMEMBER); }
-	| IS													{ $$ = BinaryComparatorSemanticAction(BCT_IDENTITY); }
-	| IS_NOT												{ $$ = BinaryComparatorSemanticAction(BCT_NIDENTITY); }
-	;
 
 constant: INTEGER													{ $$ = IntegerConstantSemanticAction($1); }
 	    | BOOLEAN													{ $$ = BooleanConstantSemanticAction($1); }

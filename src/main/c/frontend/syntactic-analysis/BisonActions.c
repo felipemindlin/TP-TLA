@@ -143,6 +143,43 @@ Expression * FieldGetterExpressionSemanticAction(FieldGetter * fieldGetter) {
 	return expression;
 }
 
+Expression * LogicalOrExpressionSemanticAction(Expression * left, Expression * right) {
+	_logSyntacticAnalyzerAction(__FUNCTION__);
+	Expression * expression = calloc(1, sizeof(Expression));
+	expression->leftExpression = left;
+    expression->rightExpression = right;
+	expression->type = LOGIC_OR;
+	return expression;
+
+}
+
+Expression * LogicalAndExpressionSemanticAction(Expression * left, Expression * right) {
+	_logSyntacticAnalyzerAction(__FUNCTION__);
+	Expression * expression = calloc(1, sizeof(Expression));
+	expression->leftExpression = left;
+    expression->rightExpression = right;
+	expression->type = LOGIC_AND;
+	return expression;
+}
+
+Expression * LogicalNotExpressionSemanticAction(Expression * notExp) {
+	_logSyntacticAnalyzerAction(__FUNCTION__);
+	Expression * expression = calloc(1, sizeof(Expression));
+	expression->notExpression = notExp;
+	expression->type = LOGIC_NOT;
+	return expression;
+}
+
+Expression * ExpressionComparisonSemanticAction(BinaryComparatorType compType, Expression * left, Expression * right) {
+	_logSyntacticAnalyzerAction(__FUNCTION__);
+	Expression * expression = calloc(1, sizeof(Expression));
+    expression->leftCompExpression = left;
+    expression->rightCompExpression = right;
+    expression->compType = compType;
+    expression->type = COMPARISON_EXPRESSION;
+    return expression;
+}
+
 Program * GeneralProgramSemanticAction(CompilerState * compilerState, Depth * dp, Sentence * sentence, Program * nprog) {
 	_logSyntacticAnalyzerAction(__FUNCTION__);
 	Program * program = calloc(1, sizeof(Program));
@@ -250,12 +287,13 @@ Block * ClassDefinitionBlockSemanticAction(ClassDefinition * cdef, Program * nex
     return block;
 }
 
-Block * ConditionalBlockSemanticAction(Conditional * cond, Program * nextProg) {
+Block * ConditionalBlockSemanticAction(ConditionalBlock * cond, Program * nextProg, Block * nextConditional) {
 	_logSyntacticAnalyzerAction(__FUNCTION__);
 	Block * block = calloc(1, sizeof(Block));
 	block->type = BT_CONDITIONAL;
 	block->conditional = cond;
 	block->nextProgram = nextProg;
+    block->nextCond = nextConditional;
 	return block;
 }
 
@@ -277,11 +315,20 @@ Block * ForLoopBlockSemanticAction(ForBlock * fblock, Program * nextProg) {
 	return block;
 }
 
+/** CONDITIONAL BLOCK SECTION **/
+ConditionalBlock * ConditionalSemanticAction(ConditionalType type, Expression * exp) {
+	_logSyntacticAnalyzerAction(__FUNCTION__);
+	ConditionalBlock * conditionalBlock = calloc(1, sizeof(ConditionalBlock));
+    conditionalBlock->expression = exp;
+    conditionalBlock->type = type;
+	return conditionalBlock;
+}
+
 /** WHILE BLOCK SECTION **/
-WhileBlock * WhileBlockSemanticAction(Conditional * cond) {
+WhileBlock * WhileBlockSemanticAction(Expression * exp) {
 	_logSyntacticAnalyzerAction(__FUNCTION__);
 	WhileBlock * whileBlock = calloc(1, sizeof(WhileBlock));
-	whileBlock->condition = cond;
+	whileBlock->expression = exp;
 	return whileBlock;
 }
 
@@ -366,7 +413,7 @@ ClassDefinition * TupleClassDefinitionSemanticAction(char * restrict id, Tuple *
 /** VARIABLE SECTION **/
 Variable * ExpressionVariableSemanticAction(char * restrict id, Expression * expr) {
 	_logSyntacticAnalyzerAction(__FUNCTION__);
-	Variable * variable = calloc(1, sizeof(Variable));
+    Variable * variable = calloc(1, sizeof(Variable));
 	variable->expression = expr;
 	variable->identifier = id;
 	return variable;
@@ -461,65 +508,4 @@ Tuple * TypedTupleSemanticAction(Object * obj) {
 	tuple->objectType = obj;
 	tuple->type = LT_TYPED_LIST;
 	return tuple;
-}
-
-/** BINARY COMPARATOR SECTION **/
-BinaryComparator * BinaryComparatorSemanticAction(BinaryComparatorType type) {
-	_logSyntacticAnalyzerAction(__FUNCTION__);
-	BinaryComparator * binaryComparator = calloc(1, sizeof(BinaryComparator));
-	binaryComparator->type = type;
-	return binaryComparator;
-}
-
-/** COMPARABLE VALUE SECTION **/
-ComparableValue * VariableComparableValueSemanticAction(VariableCall * var, ComparableValueType type) {
-	_logSyntacticAnalyzerAction(__FUNCTION__);
-	ComparableValue * comparableValue = calloc(1, sizeof(ComparableValue));
-	comparableValue->variable = var;
-	comparableValue->type = type;
-	return comparableValue;
-}
-
-ComparableValue * ExpressionComparableValueSemanticAction(Expression * expr, ComparableValueType type) {
-	_logSyntacticAnalyzerAction(__FUNCTION__);
-	ComparableValue * comparableValue = calloc(1, sizeof(ComparableValue));
-	comparableValue->expression = expr;
-	comparableValue->type = type;
-	return comparableValue;
-}
-
-/** CONDITIONAL SECTION **/
-Conditional * BinaryConditionalSemanticAction(CondType type, Conditional * leftCond, Conditional * rightCond) {
-	_logSyntacticAnalyzerAction(__FUNCTION__);
-    Conditional * conditional = calloc(1, sizeof(Conditional));
-    conditional->type = type;
-    conditional->leftCond = leftCond;
-    conditional->rightCond = rightCond;
-    return conditional;
-}
-
-Conditional * UnaryLogicOperatorConditionalSemanticAction(Conditional * cond) {
-	_logSyntacticAnalyzerAction(__FUNCTION__);
-    Conditional * conditional = calloc(1, sizeof(Conditional));
-    conditional->type = LOGIC_NOT;
-    conditional->notConditional = cond;
-    return conditional;
-}
-
-Conditional * ExpressionConditionalSemanticAction(Expression * exp) {
-	_logSyntacticAnalyzerAction(__FUNCTION__);
-    Conditional * conditional = calloc(1, sizeof(Conditional));
-    conditional->type = EXPRESSION_VALUE;
-    conditional->expression = exp;
-    return conditional;
-}
-
-Conditional * ExpressionComparisonConditionalSemanticAction(BinaryComparator * bcomp, Expression * left, Expression * right) {
-	_logSyntacticAnalyzerAction(__FUNCTION__);
-	Conditional * conditional = calloc(1, sizeof(Conditional));
-	conditional->type = COMPARISON_EXPRESSION;
-    conditional->leftCompExpression = left;
-    conditional->rightCompExpression = right;
-    conditional->binaryComparator = bcomp;
-    return conditional;
 }
