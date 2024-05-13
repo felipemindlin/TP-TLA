@@ -34,26 +34,13 @@ void releaseExpression(Expression * expression) {
 				releaseExpression(expression->leftExpression);
 				releaseExpression(expression->rightExpression);
 				break;
-			case FACTOR:
-				releaseFactor(expression->factor);
+			case IN_PARENTHESIS_EXPRESSION:
+				releaseExpression(expression->expression);
 				break;
+            case CONSTANT_EXPRESSION:
+                releaseConstant(expression->constant);
 		}
 		free(expression);
-	}
-}
-
-void releaseFactor(Factor * factor) {
-	logDebugging(_logger, "Executing destructor: %s", __FUNCTION__);
-	if (factor != NULL) {
-		switch (factor->type) {
-			case CONSTANT:
-				releaseConstant(factor->constant);
-				break;
-			case EXPRESSION:
-				releaseExpression(factor->expression);
-				break;
-		}
-		free(factor);
 	}
 }
 
@@ -91,13 +78,12 @@ void releaseConditional(Conditional * condtional){
 				releaseConditional(condtional->rightCond);
 				break;
 			case LOGIC_NOT: //or FACTOR tienen el mismo value de enum revisar
-				releaseFactor(condtional->factor);
 				break;
 		}
 		free(condtional);
 	}
 
-	
+
 }
 
 void releaseSentence(Sentence * sentence){

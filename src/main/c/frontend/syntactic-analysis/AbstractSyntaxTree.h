@@ -16,7 +16,7 @@ void shutdownAbstractSyntaxTreeModule();
 
 typedef enum DepthType DepthType;
 typedef enum ExpressionType ExpressionType;
-typedef enum FactorType FactorType;
+typedef enum ConstantType ConstantType;
 typedef enum DataType DataType;
 typedef enum CondType CondType;
 typedef enum ParametersType ParamType;
@@ -34,7 +34,6 @@ typedef struct Variable Variable;
 typedef struct Constant Constant;
 typedef struct Expression Expression;
 typedef struct Conditional Conditional;
-typedef struct Factor Factor;
 typedef struct Program Program;
 typedef struct Parameters Parameters;
 typedef struct FunctionCall FunctionCall;
@@ -59,6 +58,14 @@ enum DepthType {
 enum NewlineType {
 	FINAL_NEWLINE,
 	NOT_FINAL_NEWLINE
+};
+
+enum ConstantType {
+    CT_INTEGER,
+    CT_BOOLEAN,
+    CT_STRING,
+    CT_LIST,
+    CT_TUPLE,
 };
 
 enum ExpressionType {
@@ -94,6 +101,8 @@ enum ExpressionType {
 	BIT_ARITHMETIC_NOT,
 	BIT_ARITHMETIC_LEFT_SHIFT,
 	BIT_ARITHMETIC_RIGHT_SHIFT,
+    IN_PARENTHESIS_EXPRESSION,
+    CONSTANT_EXPRESSION
 };
 
 enum CondType { // Non arithmetic
@@ -106,12 +115,6 @@ enum CondType { // Non arithmetic
 	GREATER_THAN_OR_EQUALS_COMPARISON,
 	LESS_THAN_COMPARISON,
 	LESS_THAN_OR_EQUALS_COMPARISON,
-};
-
-
-enum FactorType {
-	CONSTANT,
-	EXPRESSION
 };
 
 enum DataType {
@@ -130,6 +133,8 @@ enum VariableType {
 	VT_METHODCALL_VARIABLE,
 	VT_FIELDGETTER_VARIABLE,
 	VT_OBJECT_VARIABLE,
+	VT_LIST_VARIABLE,
+	VT_TUPLE_VARIABLE,
 	VT_VARIABLECALL_VARIABLE
 };
 
@@ -160,8 +165,15 @@ enum ParametersType {
 	NOT_FINAL
 };
 
-struct Constant { 
-	int value;
+struct Constant {
+	union{
+        int integer;
+        boolean boolean;
+        char * string;
+        List * list;
+        Tuple * tuple;
+    };
+    ConstantType type;
 };
 
 
@@ -172,6 +184,8 @@ struct Variable {
 		MethodCall * methodCall;
 		FieldGetter * fieldGetter;
 		Object * object;
+        List * list;
+        Tuple * tuple;
 		// VariableCall * variableCall;
 	};
 	char * identifier;
@@ -195,17 +209,10 @@ struct List {
     ListType type;
 };
 
-struct Factor { 
+struct Expression {
 	union {
-		Constant * constant;
 		Expression * expression;
-	};
-	FactorType type;
-};
-
-struct Expression { 
-	union {
-		Factor * factor;
+        Constant * constant;
 		struct {
 			Expression * leftExpression;
 			Expression * rightExpression;
@@ -216,7 +223,6 @@ struct Expression {
 
 struct Conditional {
 	union {
-		Factor * factor;
 		struct {
 			Conditional * leftCond;
 			Conditional * rightCond;
@@ -288,7 +294,6 @@ struct Newline {
  */
 void releaseConstant(Constant * constant);
 void releaseExpression(Expression * expression);
-void releaseFactor(Factor * factor);
 void releaseProgram(Program * program);
 void releaseVariable(Variable * variable);
 void releaseConditional(Conditional * condtional);

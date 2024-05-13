@@ -18,14 +18,18 @@ void shutdownBisonActionsModule();
  * Bison semantic actions.
  */
 
+/** CONSTANT SECTION**/
 Constant * IntegerConstantSemanticAction(const int value);
-Constant * BooleanConstantSemanticAction(const int value);
+Constant * BooleanConstantSemanticAction(const boolean value);
+Constant * ListConstantSemanticAction(List * lst);
+Constant * TupleConstantSemanticAction(Tuple * tpl);
+
+/** EXPRESSION SECTION **/
 Expression * ArithmeticExpressionSemanticAction(Expression * leftExpression, Expression * rightExpression, ExpressionType type);
-Expression * FactorExpressionSemanticAction(Factor * factor);
-Factor * ConstantFactorSemanticAction(Constant * constant);
-Factor * ExpressionFactorSemanticAction(Expression * expression);
+Expression * ConstantExpressionSemanticAction(Constant * constant);
+
 Program * GeneralProgramSemanticAction(CompilerState * compilerState, Depth * dp, Sentence * sentence, Program * nprog);
-Program * FinishedProgramSemanticAction(CompilerState * compilerState); 
+Program * FinishedProgramSemanticAction(CompilerState * compilerState);
 Conditional * ConditionalEvalSemanticAction(Conditional * leftCond, Conditional * rightCond, CondType type);
 
 VariableCall * VariableCallSemanticAction(const char * variableName);
@@ -56,23 +60,11 @@ FieldGetter * VariableFieldGetterSemanticAction(VariableCall *, VariableCall *);
 Object * ObjectSemanticAction(char * restrict id, ObjectType type);
 
 /** LIST SECTION **/
-List * EmptyListSemanticAction();
 List * ParametrizedListSemanticAction(Parameters * params);
 List * TypedListSemanticAction(Object * obj);
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+/** TUPLE SECTION **/
+Tuple * ParametrizedTupleSemanticAction(Parameters * params);
+Tuple * TypedTupleSemanticAction(Object * obj);
 
 #endif

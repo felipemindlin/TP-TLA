@@ -20,7 +20,6 @@
 	Constant * constant;
 	Expression * expression;
 	Conditional * conditional;
-	Factor * factor;
 	Program * program;
 	Variable * variable;
 	Parameters * parameters;
@@ -151,7 +150,6 @@
 %type <variable> variable
 %type <conditional> conditional
 %type <expression> expression
-%type <factor> factor
 %type <program> program
 %type <parameters> parameters
 %type <functionCall> functionCall
@@ -171,6 +169,7 @@
  * @see https://www.gnu.org/software/bison/manual/html_node/Precedence.html
  * @also see https://www.geeksforgeeks.org/precedence-and-associativity-of-operators-in-python/ for Python
  */
+%precedence COMMA
 %precedence IDENTIFIER
 %right ASSIGN_WALRUS
 %left  LOGICAL_OR
@@ -186,6 +185,7 @@
 %right BITWISE_NOT
 %right EXP
 %right DOT
+%right OPEN_BRACE CLOSE_BRACE
 %right OPEN_PARENTHESIS CLOSE_PARENTHESIS
 
 %%
@@ -210,23 +210,21 @@ expression: expression[left] ADD expression[right]					{ $$ = ArithmeticExpressi
 	| expression[left] BITWISE_XOR expression[right]				{ $$ = ArithmeticExpressionSemanticAction($left, $right, BIT_ARITHMETIC_XOR); }
 	| expression[left] BITWISE_LSHIFT expression[right]				{ $$ = ArithmeticExpressionSemanticAction($left, $right, BIT_ARITHMETIC_LEFT_SHIFT); }
 	| expression[left] BITWISE_RSHIFT expression[right]				{ $$ = ArithmeticExpressionSemanticAction($left, $right, BIT_ARITHMETIC_RIGHT_SHIFT); }
-	| factor														{ $$ = FactorExpressionSemanticAction($1); }
-	;
-
-factor: OPEN_PARENTHESIS expression CLOSE_PARENTHESIS				{ $$ = ExpressionFactorSemanticAction($2); }
-	| constant														{ $$ = ConstantFactorSemanticAction($1); }
+    | constant                                                      { $$ = ConstantExpressionSemanticAction($1); }
 	;
 
 constant: INTEGER													{ $$ = IntegerConstantSemanticAction($1); }
-	| BOOLEAN														{ $$ = BooleanConstantSemanticAction($1); }
-	;
+	    | BOOLEAN													{ $$ = BooleanConstantSemanticAction($1); }
+        | list                                                      { $$ = ListConstantSemanticAction($1); }
+        | tuple                                                     { $$ = TupleConstantSemanticAction($1); }
+	    ;
 
 sentence: expression												{ $$ = ExpressionSentenceSemanticAction($1); }
 	| variable														{ $$ = VariableSentenceSemanticAction($1); }
 
 variable: IDENTIFIER[id] ASSIGN expression[expr]                    { $$ = ExpressionVariableSemanticAction($id, $expr);}
         | IDENTIFIER[id] ASSIGN functionCall[fcall]                 { $$ = FunctionCallVariableSemanticAction($id, $fcall); }
-        | IDENTIFIER[id] ASSIGN methodCall[method]                  { $$ = MethodCallVariableSemanticAction($id, $method); }	
+        | IDENTIFIER[id] ASSIGN methodCall[method]                  { $$ = MethodCallVariableSemanticAction($id, $method); }
         | IDENTIFIER[id] ASSIGN fieldGetter[field]                  { $$ = FieldGetterVariableSemanticAction($id, $field); }
         | IDENTIFIER[id] ASSIGN object[obj]                         { $$ = ObjectVariableSemanticAction($id, $obj); }
 		;
@@ -241,17 +239,21 @@ object: BUILTIN_IDENTIFIER  										{ $$ = ObjectSemanticAction($1, OT_BUILTIN
 	| IDENTIFIER 													{ $$ = ObjectSemanticAction($1, OT_OBJECT); }
 	;
 
-list: OPEN_PARENTHESIS CLOSE_PARENTHESIS							{ $$ = EmptyListSemanticAction(); }
-    | OPEN_PARENTHESIS parameters[params] CLOSE_PARENTHESIS			{ $$ = ParametrizedListSemanticAction($params); }
-    | OPEN_PARENTHESIS object[type] CLOSE_PARENTHESIS				{ $$ = TypedListSemanticAction($type); } 
+list: OPEN_BRACE parameters[params] CLOSE_BRACE			            { $$ = ParametrizedListSemanticAction($params); }
+    | OPEN_BRACE object[type] CLOSE_BRACE           				{ $$ = TypedListSemanticAction($type); }
+    ;
 
-variableCall: IDENTIFIER 											{ $$ = VariableCallSemanticAction($1); }			
+tuple: OPEN_PARENTHESIS parameters[params] CLOSE_PARENTHESIS         { $$ =  ParametrizedTupleSemanticAction($params); }
+     | OPEN_PARENTHESIS object[type] CLOSE_PARENTHESIS               { $$ =  TypedTupleSemanticAction($type); }
+     ;
+
+variableCall: IDENTIFIER 											{ $$ = VariableCallSemanticAction($1); }
 
 functionCall: IDENTIFIER[id] OPEN_PARENTHESIS parameters[params] CLOSE_PARENTHESIS 	{ $$ = FunctionCallSemanticAction($id, $params); }
 	;
 
 parameters: %empty													{ $$ = ParametersSemanticAction(NULL, NULL, EMPTY); }
-	| 	expression[left] COMMA parameters[right]				    { $$ = ParametersSemanticAction($left, $right, NOT_FINAL); }							
+	| 	expression[left] COMMA parameters[right]				    { $$ = ParametersSemanticAction($left, $right, NOT_FINAL); }
 	|   expression[left]											{ $$ = ParametersSemanticAction($left, NULL, FINAL); }
 
 depth: %empty														{ $$ = DepthSemanticAction(END_DEPTH); }

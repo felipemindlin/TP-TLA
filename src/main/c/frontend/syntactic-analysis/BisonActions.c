@@ -35,20 +35,40 @@ static void _logSyntacticAnalyzerAction(const char * functionName) {
 
 /* PUBLIC FUNCTIONS */
 
+/** CONSTANT SECTION **/
 Constant * IntegerConstantSemanticAction(const int value) {
 	_logSyntacticAnalyzerAction(__FUNCTION__);
 	Constant * constant = calloc(1, sizeof(Constant));
-	constant->value = value;
+	constant->integer = value;
+    constant->type = CT_INTEGER;
 	return constant;
 }
 
-Constant * BooleanConstantSemanticAction(const int value) {
+Constant * BooleanConstantSemanticAction(const boolean value) {
 	_logSyntacticAnalyzerAction(__FUNCTION__);
 	Constant * constant = calloc(1, sizeof(Constant));
-	constant->value = value;
+	constant->boolean = value;
+    constant->type = CT_BOOLEAN;
 	return constant;
 }
 
+Constant * ListConstantSemanticAction(List * lst) {
+	_logSyntacticAnalyzerAction(__FUNCTION__);
+	Constant * constant = calloc(1, sizeof(Constant));
+	constant->list = lst;
+    constant->type = CT_LIST;
+	return constant;
+}
+
+Constant * TupleConstantSemanticAction(Tuple * tpl) {
+	_logSyntacticAnalyzerAction(__FUNCTION__);
+	Constant * constant = calloc(1, sizeof(Constant));
+	constant->tuple = tpl;
+    constant->type = CT_TUPLE;
+	return constant;
+}
+
+/** EXPRESSION SECTION **/
 Expression * ArithmeticExpressionSemanticAction(Expression * leftExpression, Expression * rightExpression, ExpressionType type) {
 	_logSyntacticAnalyzerAction(__FUNCTION__);
 	Expression * expression = calloc(1, sizeof(Expression));
@@ -67,28 +87,12 @@ Expression * BitArithmeticExpressionSemanticAction(Expression * leftExpression, 
 	return expression;
 }
 
-Expression * FactorExpressionSemanticAction(Factor * factor) {
+Expression * ConstantExpressionSemanticAction(Constant * constant) {
 	_logSyntacticAnalyzerAction(__FUNCTION__);
 	Expression * expression = calloc(1, sizeof(Expression));
-	expression->factor = factor;
-	expression->type = FACTOR;
+	expression->constant = constant;
+	expression->type = CONSTANT_EXPRESSION;
 	return expression;
-}
-
-Factor * ConstantFactorSemanticAction(Constant * constant) {
-	_logSyntacticAnalyzerAction(__FUNCTION__);
-	Factor * factor = calloc(1, sizeof(Factor));
-	factor->constant = constant;
-	factor->type = CONSTANT;
-	return factor;
-}
-
-Factor * ExpressionFactorSemanticAction(Expression * expression) {
-	_logSyntacticAnalyzerAction(__FUNCTION__);
-	Factor * factor = calloc(1, sizeof(Factor));
-	factor->expression = expression;
-	factor->type = EXPRESSION;
-	return factor;
 }
 
 Program * GeneralProgramSemanticAction(CompilerState * compilerState, Depth * dp, Sentence * sentence, Program * nprog) {
@@ -129,7 +133,7 @@ VariableCall * VariableCallSemanticAction(const char * variable) {
 	return variableCall;
 }
 
-Parameters * ParametersSemanticAction(Expression * leftExpression, Parameters * followingParameters, 
+Parameters * ParametersSemanticAction(Expression * leftExpression, Parameters * followingParameters,
 									ParamType type) {
 	_logSyntacticAnalyzerAction(__FUNCTION__);
 	Parameters * parameters = calloc(1, sizeof(Parameters));
@@ -217,6 +221,24 @@ Variable * ObjectVariableSemanticAction(char * restrict id, Object * obj) {
 	return variable;
 }
 
+Variable * ListVariableSemanticAction(char * restrict id, List * lst) {
+	_logSyntacticAnalyzerAction(__FUNCTION__);
+	Variable * variable = calloc(1, sizeof(Variable));
+	variable->list = lst;
+	variable->identifier = id;
+	variable->type = VT_LIST_VARIABLE;
+	return variable;
+}
+
+Variable * TupleVariableSemanticAction(char * restrict id, Tuple * tpl) {
+	_logSyntacticAnalyzerAction(__FUNCTION__);
+	Variable * variable = calloc(1, sizeof(Variable));
+	variable->tuple = tpl;
+	variable->identifier = id;
+	variable->type = VT_TUPLE_VARIABLE;
+	return variable;
+}
+
 /** METHOD CALL SECTION **/
 MethodCall * VariableMethodCallSemanticAction(VariableCall * var, FunctionCall * method) {
 	_logSyntacticAnalyzerAction(__FUNCTION__);
@@ -247,13 +269,6 @@ Object * ObjectSemanticAction(char * restrict id, ObjectType type) {
 }
 
 /** LIST SECTION **/
-List * EmptyListSemanticAction() {
-	_logSyntacticAnalyzerAction(__FUNCTION__);
-	List * list = calloc(1, sizeof(List));
-	list->type = LT_EMPTY_LIST;
-	return list;
-}
-
 List * TypedListSemanticAction(Object * obj) {
 	_logSyntacticAnalyzerAction(__FUNCTION__);
 	List * list = calloc(1, sizeof(List));
@@ -266,6 +281,33 @@ List * ParametrizedListSemanticAction(Parameters * params) {
 	_logSyntacticAnalyzerAction(__FUNCTION__);
 	List * list = calloc(1, sizeof(List));
 	list->elements = params;
-	list->type = LT_PARAMETRIZED_LIST;
+    if(params != NULL) {
+	    list->type = LT_PARAMETRIZED_LIST;
+    }
+    else {
+	    list->type = LT_EMPTY_LIST;
+    }
 	return list;
+}
+
+/** TUPLE SECTION **/
+Tuple * ParametrizedTupleSemanticAction(Parameters * params) {
+	_logSyntacticAnalyzerAction(__FUNCTION__);
+	Tuple * tuple = calloc(1, sizeof(List));
+	tuple->elements = params;
+    if(params != NULL) {
+	    tuple->type = LT_PARAMETRIZED_LIST;
+    }
+    else {
+	    tuple->type = LT_EMPTY_LIST;
+    }
+	return tuple;
+}
+
+Tuple * TypedTupleSemanticAction(Object * obj) {
+	_logSyntacticAnalyzerAction(__FUNCTION__);
+	Tuple * tuple = calloc(1, sizeof(List));
+	tuple->objectType = obj;
+	tuple->type = LT_TYPED_LIST;
+	return tuple;
 }
