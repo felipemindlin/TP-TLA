@@ -39,9 +39,6 @@
 	Depth * depth;
 	Newline * newline;
 	BinaryComparator * binaryComparator;
-	BinaryLogicOperator * binaryLogicOperator;
-	ComparableValue * comparableValue;
-	LogicValue * logicValue;
 	WhileBlock * whileBlock;
 }
 
@@ -194,9 +191,6 @@
 %type <depth> depth
 %type <newline> newline
 %type <binaryComparator> binaryComparator
-%type <binaryLogicOperator> binaryLogicOperator
-%type <comparableValue> comparableValue
-%type <logicValue> logicValue
 %type <whileBlock> whileBlock
 
 /**
@@ -207,10 +201,10 @@
  */
 %precedence COMMA
 %precedence IDENTIFIER
+%right LOGICAL_OR
+%right LOGICAL_AND
+%right LOGICAL_NOT
 %right ASSIGN_WALRUS
-%left  LOGICAL_OR
-%left  LOGICAL_AND
-%left  LOGICAL_NOT
 %left  IN NOT_IN IS IS_NOT COMPARISON_LT COMPARISON_LTE COMPARISON_GT COMPARISON_GTE COMPARISON_EQ COMPARISON_NEQ
 %left  BITWISE_OR
 %left  BITWISE_XOR
@@ -219,6 +213,7 @@
 %left  ADD SUB
 %left  MUL DIV FLOOR_DIV MOD
 %right BITWISE_NOT
+%right NEWLINE_TOKEN
 %right EXP
 %right DOT
 %right OPEN_BRACE CLOSE_BRACE
@@ -275,11 +270,12 @@ variable: IDENTIFIER[id] ASSIGN expression[expr]                    { $$ = Expre
         | IDENTIFIER[id] ASSIGN object[obj]                         { $$ = ObjectVariableSemanticAction($id, $obj); }
 		;
 
-conditional: comparableValue[left] binaryComparator[op] comparableValue[right]										{ $$ = BinaryComparatorConditionalSemanticAction($op, $left, $right); }
-	| 		 logicValue[left] binaryLogicOperator[op] logicValue[right]												{ $$ = BinaryLogicOperatorConditionalSemanticAction($op, $left, $right); }
-	|        LOGICAL_NOT logicValue[val]																			{ $$ = UnaryLogicOperatorConditionalSemanticAction($val); }         
-	| 		 logicValue
-	;
+conditional: conditional[left] LOGICAL_AND conditional[right]		    { $$ = BinaryConditionalSemanticAction(LOGIC_AND, $left, $right); }
+           | conditional[left] LOGICAL_OR conditional[right]		    { $$ = BinaryConditionalSemanticAction(LOGIC_OR, $left, $right); }
+           | LOGICAL_NOT conditional[val]							    { $$ = UnaryLogicOperatorConditionalSemanticAction($val); }
+           | expression[left] binaryComparator[op] expression[right]	{ $$ = ExpressionComparisonConditionalSemanticAction($op, $left, $right); }
+           | expression                                                 { $$ = ExpressionConditionalSemanticAction($1); }
+           ;
 
 binaryComparator: COMPARISON_EQ								{ $$ = BinaryComparatorSemanticAction(BCT_EQU); }
 	| COMPARISON_NEQ										{ $$ = BinaryComparatorSemanticAction(BCT_NEQ); }
@@ -292,18 +288,6 @@ binaryComparator: COMPARISON_EQ								{ $$ = BinaryComparatorSemanticAction(BCT
 	| IS													{ $$ = BinaryComparatorSemanticAction(BCT_IDENTITY); }
 	| IS_NOT												{ $$ = BinaryComparatorSemanticAction(BCT_NIDENTITY); }
 	;
-
-binaryLogicOperator: LOGICAL_AND							{ $$ = BinaryLogicOperatorSemanticAction(BLOT_AND); }
-	| LOGICAL_OR											{ $$ = BinaryLogicOperatorSemanticAction(BLOT_OR); }
-	;
-
-comparableValue: expression[expr]										{ $$ = ExpressionComparableValueSemanticAction($expr, CVT_EXPRESSION); }
-	;	
-
-logicValue: variableCall											{ $$ = VariableLogicValueSemanticAction($1); }
-	| BOOLEAN														{ $$ = BooleanLogicValueSemanticAction(); }
-	| OPEN_PARENTHESIS conditional[cond] CLOSE_PARENTHESIS			{ $$ = ConditionalLogicValueSemanticAction($cond); }
-	;			
 
 constant: INTEGER													{ $$ = IntegerConstantSemanticAction($1); }
 	    | BOOLEAN													{ $$ = BooleanConstantSemanticAction($1); }

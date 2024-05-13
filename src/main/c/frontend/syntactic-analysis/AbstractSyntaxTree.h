@@ -31,7 +31,6 @@ typedef enum BlockType BlockType;
 typedef enum FunctionDefinitionType FunctionDefinitionType;
 typedef enum ClassDefinitionType ClassDefinitionType;
 typedef enum BinaryComparatorType BinaryComparatorType;
-typedef enum BinaryLogicOperatorType BlotType;
 typedef enum ComparableValueType ComparableValueType;
 typedef enum LogicValueType LogicValueType;
 
@@ -56,7 +55,6 @@ typedef struct ClassDefinition ClassDefinition;
 typedef struct Depth Depth;
 typedef struct Newline Newline;
 typedef struct BinaryComparator BinaryComparator;
-typedef struct BinaryLogicOperator BinaryLogicOperator;
 typedef struct ComparableValue ComparableValue;
 typedef struct LogicValue LogicValue;
 
@@ -123,13 +121,8 @@ enum CondType { // Non arithmetic
 	LOGIC_AND,
 	LOGIC_OR,
 	LOGIC_NOT,
-	CONDT_BINCOMP,
-	CONDT_BINLOGIC,
-	CONDT_UNLOGIC,
-	CONDT_ATOMIC,
-	CONDT_RECBINLOGIC,
-	CONDT_VAR,
-	CONDT_BOOL
+	EXPRESSION_VALUE,
+    COMPARISON_EXPRESSION,
 };
 
 enum DataType {
@@ -210,11 +203,6 @@ enum BinaryComparatorType {
 	BCT_NIDENTITY,
 };
 
-enum BinaryLogicOperatorType {
-	BLOT_AND,
-	BLOT_OR,
-};
-
 enum ComparableValueType {
 	CVT_VARIABLE,
 	CVT_EXPRESSION,
@@ -222,8 +210,8 @@ enum ComparableValueType {
 
 enum LogicValueType {
 	LVT_VARIABLE,
-	LVT_CONDITIONAL,
-	LVT_BOOLEAN
+	LVT_EXP_COMPARISON,
+	LVT_CONSTANT
 };
 
 struct Constant {
@@ -285,17 +273,12 @@ struct Conditional {
 			Conditional * rightCond;
 		};
 		struct {
-			ComparableValue * leftValue;
-			ComparableValue * rightValue;
+			Expression * leftCompExpression;
+			Expression * rightCompExpression;
 			BinaryComparator * binaryComparator;
 		};
-		struct {
-			LogicValue * leftLogic;
-			LogicValue * rightLogic;
-			BinaryLogicOperator * binaryLogicOperator;
-		};
-		LogicValue * loneLogic;
-		VariableCall * variable;
+		Expression * expression;
+		Conditional * notConditional;
 	};
 	CondType type;
 };
@@ -396,10 +379,6 @@ struct BinaryComparator {
 	BinaryComparatorType type;
 };
 
-struct BinaryLogicOperator {
-	BlotType type;
-};
-
 struct ComparableValue {
 	union {
 		VariableCall * variable;
@@ -410,6 +389,11 @@ struct ComparableValue {
 
 struct LogicValue {
 	union {
+		struct {
+			ComparableValue * leftValue;
+			ComparableValue * rightValue;
+			BinaryComparator * binaryComparator;
+		};
 		Conditional * conditional;
 		VariableCall * variable;
 		Expression * expression;
@@ -438,6 +422,7 @@ void releaseClassDefinition(ClassDefinition * classDefinition);
 void releaseBlock(Block * block);
 void releaseObject(Object * Object);
 void releaseClassDefinition(ClassDefinition * classDefinition);
+void releaseBinaryComparator(BinaryComparator * binaryComparator);
 
 
 #endif

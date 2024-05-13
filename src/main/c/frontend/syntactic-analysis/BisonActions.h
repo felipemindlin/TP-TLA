@@ -34,8 +34,6 @@ Expression * VariableCallExpressionSemanticAction(VariableCall * var);
 Program * GeneralProgramSemanticAction(CompilerState * compilerState, Depth * dp, Sentence * sentence, Program * nprog);
 Program * FinishedProgramSemanticAction(CompilerState * compilerState);
 
-
-
 VariableCall * VariableCallSemanticAction(const char * variableName);
 FunctionCall * FunctionCallSemanticAction(const char * functionName, Parameters * parameters);
 Parameters * ParametersSemanticAction(Expression * leftExpression, Parameters * nextParameters, ParamType type);
@@ -97,24 +95,13 @@ Tuple * TypedTupleSemanticAction(Object * obj);
 /** BINARY COMPARATOR SECTION **/
 BinaryComparator * BinaryComparatorSemanticAction(BinaryComparatorType type);
 
-/** BINARY LOGIC OPERATOR SECTION **/
-BinaryLogicOperator * BinaryLogicOperatorSemanticAction(BlotType type);
-
 /** COMPARABLE VALUE SECTION **/
 ComparableValue * VariableComparableValueSemanticAction(VariableCall * var, ComparableValueType type);
 ComparableValue * ExpressionComparableValueSemanticAction(Expression * expr, ComparableValueType type);
 
-/** LOGIC VALUE SECTION **/
-LogicValue * BooleanLogicValueSemanticAction();
-LogicValue * ConditionalLogicValueSemanticAction(Conditional * cond);
-LogicValue * VariableLogicValueSemanticAction(VariableCall * var);
-
 /** CONDITIONAL SECTION **/
-Conditional * AtomicLogicValueConditionalSemanticAction(LogicValue * logVal);
-Conditional * BinaryComparatorConditionalSemanticAction(BinaryComparator * binComp, ComparableValue * leftComp, ComparableValue * rightComp);
-Conditional * BinaryLogicOperatorConditionalSemanticAction(BinaryLogicOperator * binLogOp, LogicValue * leftLogVal, LogicValue * rightLogVal);
-Conditional * UnaryLogicOperatorConditionalSemanticAction(LogicValue * logVal);
-Conditional * RecursiveBinaryLogicOperatorConditionalSemanticAction(BinaryLogicOperator * binLogOp, Conditional * leftCond, Conditional * rightCond);  
-Conditional * VariableConditionalSemanticAction(VariableCall * var);
-Conditional * BooleanConditionalSemanticAction();
+Conditional * BinaryConditionalSemanticAction(CondType type, Conditional * leftCond, Conditional * rightCond);
+Conditional * UnaryLogicOperatorConditionalSemanticAction(Conditional * cond);
+Conditional * ExpressionConditionalSemanticAction(Expression * exp);
+Conditional * ExpressionComparisonConditionalSemanticAction(BinaryComparator * bcomp, Expression * left, Expression * right);
 #endif

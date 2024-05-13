@@ -459,14 +459,6 @@ BinaryComparator * BinaryComparatorSemanticAction(BinaryComparatorType type) {
 	return binaryComparator;
 }
 
-/** BINARY LOGIC OPERATOR SECTION **/
-BinaryLogicOperator * BinaryLogicOperatorSemanticAction(BlotType type) {
-	_logSyntacticAnalyzerAction(__FUNCTION__);
-	BinaryLogicOperator * binaryLogicOperator = calloc(1, sizeof(BinaryLogicOperator));
-	binaryLogicOperator->type = type;
-	return binaryLogicOperator;
-}
-
 /** COMPARABLE VALUE SECTION **/
 ComparableValue * VariableComparableValueSemanticAction(VariableCall * var, ComparableValueType type) {
 	_logSyntacticAnalyzerAction(__FUNCTION__);
@@ -484,88 +476,38 @@ ComparableValue * ExpressionComparableValueSemanticAction(Expression * expr, Com
 	return comparableValue;
 }
 
-/** LOGIC VALUE SECTION **/
-LogicValue * BooleanLogicValueSemanticAction() {
-	_logSyntacticAnalyzerAction(__FUNCTION__);
-	LogicValue * logicValue = calloc(1, sizeof(LogicValue));
-	logicValue->type = LVT_BOOLEAN;
-	return logicValue;
-}
-
-LogicValue * ConditionalLogicValueSemanticAction(Conditional * cond) {
-	_logSyntacticAnalyzerAction(__FUNCTION__);
-	LogicValue * logicValue = calloc(1, sizeof(LogicValue));
-	logicValue->conditional = cond;
-	logicValue->type = LVT_CONDITIONAL;
-	return logicValue;
-}
-
-LogicValue * VariableLogicValueSemanticAction(VariableCall * var) {
-	_logSyntacticAnalyzerAction(__FUNCTION__);
-	LogicValue * logicValue = calloc(1, sizeof(LogicValue));
-	logicValue->variable = var;
-	logicValue->type = LVT_VARIABLE;
-	return logicValue;
-}
-
 /** CONDITIONAL SECTION **/
-Conditional * BinaryComparatorConditionalSemanticAction(BinaryComparator * binComp, ComparableValue * leftComp, ComparableValue * rightComp) {
+Conditional * BinaryConditionalSemanticAction(CondType type, Conditional * leftCond, Conditional * rightCond) {
 	_logSyntacticAnalyzerAction(__FUNCTION__);
-	Conditional * conditional = calloc(1, sizeof(Conditional));
-	conditional->binaryComparator = binComp;
-	conditional->leftValue = leftComp;
-	conditional->rightValue = rightComp;
-	conditional->type = CONDT_BINCOMP;
-	return conditional;
+    Conditional * conditional = calloc(1, sizeof(Conditional));
+    conditional->type = type;
+    conditional->leftCond = leftCond;
+    conditional->rightCond = rightCond;
+    return conditional;
 }
 
-Conditional * BinaryLogicOperatorConditionalSemanticAction(BinaryLogicOperator * binLogOp, LogicValue * leftLogVal, LogicValue * rightLogVal) {
+Conditional * UnaryLogicOperatorConditionalSemanticAction(Conditional * cond) {
 	_logSyntacticAnalyzerAction(__FUNCTION__);
-	Conditional * conditional = calloc(1, sizeof(Conditional));
-	conditional->binaryLogicOperator = binLogOp;
-	conditional->leftLogic = leftLogVal;
-	conditional->rightLogic = rightLogVal;
-	conditional->type = CONDT_BINLOGIC;
-	return conditional;
+    Conditional * conditional = calloc(1, sizeof(Conditional));
+    conditional->type = LOGIC_NOT;
+    conditional->notConditional = cond;
+    return conditional;
 }
 
-Conditional * UnaryLogicOperatorConditionalSemanticAction(LogicValue * logVal) {
+Conditional * ExpressionConditionalSemanticAction(Expression * exp) {
 	_logSyntacticAnalyzerAction(__FUNCTION__);
-	Conditional * conditional = calloc(1, sizeof(Conditional));
-	conditional->loneLogic = logVal;
-	conditional->type = CONDT_UNLOGIC;
-	return conditional;
+    Conditional * conditional = calloc(1, sizeof(Conditional));
+    conditional->type = EXPRESSION_VALUE;
+    conditional->expression = exp;
+    return conditional;
 }
 
-Conditional * AtomicLogicValueConditionalSemanticAction(LogicValue * logVal) {
+Conditional * ExpressionComparisonConditionalSemanticAction(BinaryComparator * bcomp, Expression * left, Expression * right) {
 	_logSyntacticAnalyzerAction(__FUNCTION__);
 	Conditional * conditional = calloc(1, sizeof(Conditional));
-	conditional->loneLogic = logVal;
-	conditional->type = CONDT_ATOMIC;
-	return conditional;
-}	
-
-Conditional * RecursiveBinaryLogicOperatorConditionalSemanticAction(BinaryLogicOperator * binLogOp, Conditional * leftCond, Conditional * rightCond) {
-	_logSyntacticAnalyzerAction(__FUNCTION__);
-	Conditional * conditional = calloc(1, sizeof(Conditional));
-	conditional->binaryLogicOperator = binLogOp;
-	conditional->leftCond = leftCond;
-	conditional->rightCond = rightCond;
-	conditional->type = CONDT_RECBINLOGIC;
-	return conditional;
-} 
-
-Conditional * VariableConditionalSemanticAction(VariableCall * var) {
-	_logSyntacticAnalyzerAction(__FUNCTION__);
-	Conditional * conditional = calloc(1, sizeof(Conditional));
-	conditional->variable = var;
-	conditional->type = CONDT_VAR;
-	return conditional;
-}
-
-Conditional * BooleanConditionalSemanticAction() {
-	_logSyntacticAnalyzerAction(__FUNCTION__);
-	Conditional * conditional = calloc(1, sizeof(Conditional));
-	conditional->type = CONDT_BOOL;
-	return conditional;
+	conditional->type = COMPARISON_EXPRESSION;
+    conditional->leftCompExpression = left;
+    conditional->rightCompExpression = right;
+    conditional->binaryComparator = bcomp;
+    return conditional;
 }

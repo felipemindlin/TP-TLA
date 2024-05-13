@@ -126,7 +126,6 @@ void releaseFieldGetter(FieldGetter * fieldGetter) {
 			case FG_VARIABLE_OWNER:
 				releaseVariableCall(fieldGetter->variableCall);
 				break;
-			
 	}
 	free(fieldGetter);
 	}
@@ -157,20 +156,32 @@ void releaseVariable(Variable * variable){
 
 }
 
-void releaseConditional(Conditional * condtional){
+void releaseConditional(Conditional * conditional){
 	logDebugging(_logger, "Executing destructor: %s", __FUNCTION__);
-	if (condtional != NULL) {
-		switch (condtional->type) {
-			case CONDT_BINCOMP:
-				// releaseBinaryComparator(condtional->binaryComparator);
-				// releaseComparableValue(condtional->leftValue);
-				// releaseComparableValue(condtional->rightValue);
+	if (conditional != NULL) {
+		switch (conditional->type) {
+			case LOGIC_AND:
+            case LOGIC_OR:
+                releaseConditional(conditional->leftCond);
+                releaseConditional(conditional->rightCond);
 				break;
 			case LOGIC_NOT: //or FACTOR tienen el mismo value de enum revisar
+                releaseConditional(conditional->notConditional);
 				break;
+	        case EXPRESSION_VALUE:
+                releaseExpression(conditional->expression);
+                break;
+            case COMPARISON_EXPRESSION:
+                releaseExpression(conditional->leftCompExpression);
+                releaseExpression(conditional->rightCompExpression);
+                releaseBinaryComparator(conditional->binaryComparator);
 		}
-		free(condtional);
+		free(conditional);
 	}
+}
+
+void releaseBinaryComparator(BinaryComparator * binaryComparator) {
+    free(binaryComparator);
 }
 
 void releaseFunctionDefinition(FunctionDefinition * functionDefinition){
