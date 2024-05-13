@@ -226,6 +226,7 @@
 %%
 
 program:  depth sentence program							{ $$ = GeneralProgramSemanticAction(currentCompilerState(), $1, $2, $3); }
+	| depth NEWLINE_TOKEN program						    { $$ = GeneralProgramSemanticAction(currentCompilerState(), $1, NULL, $3); }	
 	| YYEOF				                                    { $$ = FinishedProgramSemanticAction(currentCompilerState()); }
 	;
 
@@ -319,8 +320,8 @@ fieldGetter: variableCall[var] DOT variableCall[field]				{ $$ = VariableFieldGe
 object: BUILTIN_IDENTIFIER  										{ $$ = ObjectSemanticAction($1, OT_BUILTIN); }
 	;
 
-list: OPEN_BRACE parameters[params] CLOSE_BRACE			            { $$ = ParametrizedListSemanticAction($params); }
-    | OPEN_BRACE object[type] CLOSE_BRACE           				{ $$ = TypedListSemanticAction($type); }
+list: OPEN_BRACKET parameters[params] CLOSE_BRACKET			            { $$ = ParametrizedListSemanticAction($params); }
+    | OPEN_BRACKET object[type] CLOSE_BRACKET		    				{ $$ = TypedListSemanticAction($type); }
     ;
 
 tuple: OPEN_PARENTHESIS parameters[params] CLOSE_PARENTHESIS         { $$ =  ParametrizedTupleSemanticAction($params); }

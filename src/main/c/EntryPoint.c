@@ -37,6 +37,14 @@ const int main(const int count, const char ** arguments) {
 	};
 	const SyntacticAnalysisStatus syntacticAnalysisStatus = parse(&compilerState);
 	CompilationStatus compilationStatus = SUCCEED;
+	if (syntacticAnalysisStatus == ACCEPT) {
+		Program * program = compilerState.abstractSyntaxtTree;
+		logDebugging(logger, "Releasing AST resources...");
+		releaseProgram(program);
+	} else {
+		logError(logger, "The syntactic-analysis phase rejects the input program.");
+		compilationStatus = FAILED;
+	}
 	// if (syntacticAnalysisStatus == ACCEPT) {
 	// 	logDebugging(logger, "Computing expression value...");
 	// 	Program * program = compilerState.abstractSyntaxtTree;
