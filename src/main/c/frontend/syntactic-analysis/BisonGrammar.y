@@ -25,6 +25,11 @@
 	Variable * variable;
 	Parameters * parameters;
 	FunctionCall * functionCall;
+	MethodCall * methodCall;
+	FieldGetter * fieldGetter;
+	Object * object;
+	Tuple * tuple;
+	List * list;
 	VariableCall * variableCall;
 	Sentence * sentence;
 	Depth * depth;
@@ -49,7 +54,9 @@
 %token <integer> INTEGER
 %token <fp_number> FLOAT
 %token <boolean> BOOLEAN
+
 %token <var_name> IDENTIFIER
+%token <var_name> BUILTIN_IDENTIFIER
 
 %token <token> NONE
 
@@ -64,6 +71,7 @@
 %token <token> CLOSE_BRACKET
 %token <token> OPEN_BRACE
 %token <token> CLOSE_BRACE
+%token <token> DOT
 
 %token <token> ADD
 %token <token> SUB
@@ -122,7 +130,20 @@
 %token <token> CONTINUE
 
 %token <token> DEF
+%token <token> RETURNS
+%token <token> CLASS
 
+%token <token> RAISE_KEYWORD_TOKEN
+%token <token> TRY_KEYWORD_TOKEN
+%token <token> EXCEPT_KEYWORD_TOKEN
+%token <token> FINALLY_KEYWORD_TOKEN
+%token <token> RETURN_KEYWORD_TOKEN
+%token <token> PASS_KEYWORD_TOKEN
+%token <token> YIELD_KEYWORD_TOKEN
+%token <token> MATCH_KEYWORD_TOKEN
+%token <token> CASE_KEYWORD_TOKEN
+%token <token> TYPE_KEYWORD_TOKEN
+%token <token> ASSERT_KEYWORD_TOKEN
 %token <token> UNKNOWN
 
 /** Non-terminals. */
@@ -134,6 +155,11 @@
 %type <program> program
 %type <parameters> parameters
 %type <functionCall> functionCall
+%type <methodCall> methodCall
+%type <fieldGetter> fieldGetter
+%type <object> object
+%type <tuple> tuple
+%type <list> list
 %type <variableCall> variableCall
 %type <sentence> sentence
 %type <depth> depth
@@ -145,6 +171,7 @@
  * @see https://www.gnu.org/software/bison/manual/html_node/Precedence.html
  * @also see https://www.geeksforgeeks.org/precedence-and-associativity-of-operators-in-python/ for Python
  */
+%precedence IDENTIFIER
 %right ASSIGN_WALRUS
 %left  LOGICAL_OR
 %left  LOGICAL_AND
@@ -158,12 +185,13 @@
 %left  MUL DIV FLOOR_DIV MOD
 %right BITWISE_NOT
 %right EXP
-
+%right DOT
+%right OPEN_PARENTHESIS CLOSE_PARENTHESIS
 
 %%
 
-program: expression													{ $$ = ExpressionProgramSemanticAction(currentCompilerState(), $1); }
-	| depth sentence program							 
+program:  depth sentence program							{ $$ = GeneralProgramSemanticAction(currentCompilerState(), $1, $2, $3); }
+	| YYEOF				                                    { $$ = FinishedProgramSemanticAction(currentCompilerState()); }
 	;
 
 conditional: constant[left] LOGICAL_AND constant[right]		{ $$ = ConditionalEvalSemanticAction($left, $right, LOGIC_AND); }
@@ -193,8 +221,29 @@ constant: INTEGER													{ $$ = IntegerConstantSemanticAction($1); }
 	| BOOLEAN														{ $$ = BooleanConstantSemanticAction($1); }
 	;
 
-sentence: DEF IDENTIFIER[id] OPEN_PARENTHESIS parameters[params] CLOSE_PARENTHESIS COLON newline				{ $$ = FunctionDefinitionSentenceSemanticAction($id, $params, FUNCTION_DEFINITION); }
-	| functionCall newline																					{ $$ = FunctionCallSentenceSemanticAction($1, FUNCTION_CALL); }
+sentence: expression												{ $$ = ExpressionSentenceSemanticAction($1); }
+	| variable														{ $$ = VariableSentenceSemanticAction($1); }
+
+variable: IDENTIFIER[id] ASSIGN expression[expr]                    { $$ = ExpressionVariableSemanticAction($id, $expr);}
+        | IDENTIFIER[id] ASSIGN functionCall[fcall]                 { $$ = FunctionCallVariableSemanticAction($id, $fcall); }
+        | IDENTIFIER[id] ASSIGN methodCall[method]                  { $$ = MethodCallVariableSemanticAction($id, $method); }	
+        | IDENTIFIER[id] ASSIGN fieldGetter[field]                  { $$ = FieldGetterVariableSemanticAction($id, $field); }
+        | IDENTIFIER[id] ASSIGN object[obj]                         { $$ = ObjectVariableSemanticAction($id, $obj); }
+		;
+
+methodCall: variableCall[var] DOT functionCall[func]				{ $$ = VariableMethodCallSemanticAction($var, $func); }
+	;
+
+fieldGetter: variableCall[var] DOT variableCall[field]				{ $$ = VariableFieldGetterSemanticAction($var, $field); }
+	;
+
+object: BUILTIN_IDENTIFIER  										{ $$ = ObjectSemanticAction($1, OT_BUILTIN); }
+	| IDENTIFIER 													{ $$ = ObjectSemanticAction($1, OT_OBJECT); }
+	;
+
+list: OPEN_PARENTHESIS CLOSE_PARENTHESIS							{ $$ = EmptyListSemanticAction(); }
+    | OPEN_PARENTHESIS parameters[params] CLOSE_PARENTHESIS			{ $$ = ParametrizedListSemanticAction($params); }
+    | OPEN_PARENTHESIS object[type] CLOSE_PARENTHESIS				{ $$ = TypedListSemanticAction($type); } 
 
 variableCall: IDENTIFIER 											{ $$ = VariableCallSemanticAction($1); }			
 

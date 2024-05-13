@@ -60,7 +60,9 @@ void releaseFactor(Factor * factor) {
 void releaseProgram(Program * program) {
 	logDebugging(_logger, "Executing destructor: %s", __FUNCTION__);
 	if (program != NULL) {
-		releaseExpression(program->expression);
+		releaseDepth(program->depth);
+		releaseSentence(program->sentence);
+		releaseProgram(program->nextProgram);
 		free(program);
 	}
 }
@@ -102,12 +104,12 @@ void releaseSentence(Sentence * sentence){
 	logDebugging(_logger, "Executing destructor: %s", __FUNCTION__);
 	if (sentence != NULL) {
 		switch (sentence->type) {
-			case FUNCTION_DEFINITION:
+			case EXPRESSION_SENTENCE:
 				// free(sentence->functionName); no es necesario casi seguro que no tiene sentido freear un const char * pero lo dejo para charlar
-				releaseParameters(sentence->parameters);
+				releaseExpression(sentence->expression);
 				break;
-			case FUNCTION_CALL:
-				releaseFunctionCall(sentence->functionCall);
+			case VARIABLE_SENTENCE:
+			case BLOCK_SENTENCE:
 				break;
 		}
 		free(sentence);

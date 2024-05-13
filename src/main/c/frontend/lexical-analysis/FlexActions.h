@@ -41,6 +41,9 @@ Token BraceLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);
 Token DotLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);
 Token ClassLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);
 
+Token IdentityEvaluationLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);
+Token MembershipEvaluationLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);
+
 Token ConditionalLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);
 Token IfLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);
 Token ElifLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);
@@ -50,6 +53,17 @@ Token WhileLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);
 Token BreakLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);
 Token ContinueLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);
 Token ReturnsLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);
+Token ReturnKeywordLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);
+Token PassKeywordLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);
+Token YieldKeywordLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);
+Token RaiseKeywordLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);
+Token TryKeywordLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);
+Token ExceptKeywordLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);
+Token FinallyKeywordLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);
+Token MatchKeywordLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);
+Token CaseKeywordLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);
+Token TypeKeywordLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);
+Token AssertKeywordLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);
 
 Token DefineLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);
 

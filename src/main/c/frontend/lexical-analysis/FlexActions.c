@@ -5,6 +5,8 @@
 static Logger * _logger = NULL;
 static boolean _logIgnoredLexemes = true;
 
+static int isDefinedFunction(char * lexeme);
+
 void initializeFlexActionsModule() {
 	_logIgnoredLexemes = getBooleanOrDefault("LOG_IGNORED_LEXEMES", _logIgnoredLexemes);
 	_logger = createLogger("FlexActions");
@@ -96,7 +98,7 @@ Token UnknownLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext) {
 Token IdentifierLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext) {
 	_logLexicalAnalyzerContext(__FUNCTION__, lexicalAnalyzerContext);
 	lexicalAnalyzerContext->semanticValue->var_name = strdup(lexicalAnalyzerContext->lexeme);
-    if(isDefinedFunction(lexicalAnalyzerContext->lexeme){
+    if (isDefinedFunction(lexicalAnalyzerContext->lexeme)) {
         return BUILTIN_IDENTIFIER;
     }
 	return IDENTIFIER;
@@ -161,9 +163,86 @@ Token ReturnsLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext) {
     return RETURNS;
 }
 
+Token ReturnKeywordLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext) {
+	_logLexicalAnalyzerContext(__FUNCTION__, lexicalAnalyzerContext);
+	return RETURN_KEYWORD_TOKEN;
+}
+
+Token PassKeywordLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext) {
+	_logLexicalAnalyzerContext(__FUNCTION__, lexicalAnalyzerContext);
+	return PASS_KEYWORD_TOKEN;
+}
+
+Token YieldKeywordLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext) {
+	_logLexicalAnalyzerContext(__FUNCTION__, lexicalAnalyzerContext);
+	return YIELD_KEYWORD_TOKEN;
+}
+
+Token RaiseKeywordLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext) {
+	_logLexicalAnalyzerContext(__FUNCTION__, lexicalAnalyzerContext);
+	return RAISE_KEYWORD_TOKEN;
+}
+
+Token TryKeywordLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext) {
+	_logLexicalAnalyzerContext(__FUNCTION__, lexicalAnalyzerContext);
+	return TRY_KEYWORD_TOKEN;
+}
+
+Token ExceptKeywordLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext) {
+	_logLexicalAnalyzerContext(__FUNCTION__, lexicalAnalyzerContext);
+	return EXCEPT_KEYWORD_TOKEN;
+}
+
+Token FinallyKeywordLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext) {
+	_logLexicalAnalyzerContext(__FUNCTION__, lexicalAnalyzerContext);
+	return FINALLY_KEYWORD_TOKEN;
+}
+
+Token MatchKeywordLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext) {
+	_logLexicalAnalyzerContext(__FUNCTION__, lexicalAnalyzerContext);
+	return MATCH_KEYWORD_TOKEN;
+}
+
+Token CaseKeywordLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext) {
+	_logLexicalAnalyzerContext(__FUNCTION__, lexicalAnalyzerContext);
+	return CASE_KEYWORD_TOKEN;
+}
+
+Token TypeKeywordLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext) {
+	_logLexicalAnalyzerContext(__FUNCTION__, lexicalAnalyzerContext);
+	return TYPE_KEYWORD_TOKEN;
+}
+
+Token AssertKeywordLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext) {
+	_logLexicalAnalyzerContext(__FUNCTION__, lexicalAnalyzerContext);
+	return ASSERT_KEYWORD_TOKEN;
+}
+
 Token DotLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext) {
     _logLexicalAnalyzerContext(__FUNCTION__, lexicalAnalyzerContext);
     return DOT;
+}
+
+Token IdentityEvaluationLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext) {
+	_logLexicalAnalyzerContext(__FUNCTION__, lexicalAnalyzerContext);
+	Token token;
+	switch (lexicalAnalyzerContext->length) {
+		case 2: token = IS; 	break;
+		case 6: token = IS_NOT; break;
+	}
+	lexicalAnalyzerContext->semanticValue->token = token;
+	return token;
+}
+
+Token MembershipEvaluationLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext) {
+	_logLexicalAnalyzerContext(__FUNCTION__, lexicalAnalyzerContext);
+	Token token;
+	switch (lexicalAnalyzerContext->lexeme[0]) {
+		case 'i': token = IN; break;
+		case 'n': token = NOT_IN; break;
+	}
+	lexicalAnalyzerContext->semanticValue->token = token;
+	return token;
 }
 
 Token BooleanLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext) {
@@ -374,72 +453,72 @@ Token DefineLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext) {
 }
 
 
-int isDefinedFunction(char * lexeme) {
-return strcmp(lexeme, "abs") == 0
-    || strcmp(lexeme, "aiter") == 0
-    || strcmp(lexeme, "all") == 0
-    || strcmp(lexeme, "anext") == 0
-    || strcmp(lexeme, "any") == 0
-    || strcmp(lexeme, "ascii") == 0
-    || strcmp(lexeme, "bin") == 0
-    || strcmp(lexeme, "bool") == 0
-    || strcmp(lexeme, "breakpoint") == 0
-    || strcmp(lexeme, "bytearray") == 0
-    || strcmp(lexeme, "bytes") == 0
-    || strcmp(lexeme, "callable") == 0
-    || strcmp(lexeme, "classmethod") == 0
-    || strcmp(lexeme, "compile") == 0
-    || strcmp(lexeme, "complex") == 0
-    || strcmp(lexeme, "delattr") == 0
-    || strcmp(lexeme, "dict") == 0
-    || strcmp(lexeme, "dir") == 0
-    || strcmp(lexeme, "divmod") == 0
-    || strcmp(lexeme, "enumerate") == 0
-    || strcmp(lexeme, "eval") == 0
-    || strcmp(lexeme, "exec") == 0
-    || strcmp(lexeme, "filter") == 0
-    || strcmp(lexeme, "float") == 0
-    || strcmp(lexeme, "format") == 0
-    || strcmp(lexeme, "frozenset") == 0
-    || strcmp(lexeme, "getattr") == 0
-    || strcmp(lexeme, "globals") == 0
-    || strcmp(lexeme, "hasattr") == 0
-    || strcmp(lexeme, "hash") == 0
-    || strcmp(lexeme, "help") == 0
-    || strcmp(lexeme, "hex") == 0
-    || strcmp(lexeme, "id") == 0
-    || strcmp(lexeme, "input") == 0
-    || strcmp(lexeme, "int") == 0
-    || strcmp(lexeme, "isinstance") == 0
-    || strcmp(lexeme, "issubclass") == 0
-    || strcmp(lexeme, "iter") == 0
-    || strcmp(lexeme, "len") == 0
-    || strcmp(lexeme, "list") == 0
-    || strcmp(lexeme, "locals") == 0
-    || strcmp(lexeme, "map") == 0
-    || strcmp(lexeme, "memoryview") == 0
-    || strcmp(lexeme, "min") == 0
-    || strcmp(lexeme, "next") == 0
-    || strcmp(lexeme, "object") == 0
-    || strcmp(lexeme, "oct") == 0
-    || strcmp(lexeme, "open") == 0
-    || strcmp(lexeme, "ord") == 0
-    || strcmp(lexeme, "pow") == 0
-    || strcmp(lexeme, "print") == 0
-    || strcmp(lexeme, "range") == 0
-    || strcmp(lexeme, "repr") == 0
-    || strcmp(lexeme, "reversed") == 0
-    || strcmp(lexeme, "round") == 0
-    || strcmp(lexeme, "set") == 0
-    || strcmp(lexeme, "setattr") == 0
-    || strcmp(lexeme, "slice") == 0
-    || strcmp(lexeme, "sorted") == 0
-    || strcmp(lexeme, "staticmethod") == 0
-    || strcmp(lexeme, "str") == 0
-    || strcmp(lexeme, "sum") == 0
-    || strcmp(lexeme, "super") == 0
-    || strcmp(lexeme, "tuple") == 0
-    || strcmp(lexeme, "type") == 0
-    || strcmp(lexeme, "vars") == 0
-    || strcmp(lexeme, "zip") == 0;
+static int isDefinedFunction(char * lexeme) {
+	return strcmp(lexeme, "abs") == 0
+    	|| strcmp(lexeme, "aiter") == 0
+    	|| strcmp(lexeme, "all") == 0
+    	|| strcmp(lexeme, "anext") == 0
+    	|| strcmp(lexeme, "any") == 0
+    	|| strcmp(lexeme, "ascii") == 0
+    	|| strcmp(lexeme, "bin") == 0
+    	|| strcmp(lexeme, "bool") == 0
+    	|| strcmp(lexeme, "breakpoint") == 0
+    	|| strcmp(lexeme, "bytearray") == 0
+    	|| strcmp(lexeme, "bytes") == 0
+    	|| strcmp(lexeme, "callable") == 0
+    	|| strcmp(lexeme, "classmethod") == 0
+    	|| strcmp(lexeme, "compile") == 0
+    	|| strcmp(lexeme, "complex") == 0
+    	|| strcmp(lexeme, "delattr") == 0
+    	|| strcmp(lexeme, "dict") == 0
+    	|| strcmp(lexeme, "dir") == 0
+    	|| strcmp(lexeme, "divmod") == 0
+    	|| strcmp(lexeme, "enumerate") == 0
+    	|| strcmp(lexeme, "eval") == 0
+    	|| strcmp(lexeme, "exec") == 0
+    	|| strcmp(lexeme, "filter") == 0
+    	|| strcmp(lexeme, "float") == 0
+    	|| strcmp(lexeme, "format") == 0
+    	|| strcmp(lexeme, "frozenset") == 0
+    	|| strcmp(lexeme, "getattr") == 0
+    	|| strcmp(lexeme, "globals") == 0
+    	|| strcmp(lexeme, "hasattr") == 0
+    	|| strcmp(lexeme, "hash") == 0
+    	|| strcmp(lexeme, "help") == 0
+    	|| strcmp(lexeme, "hex") == 0
+    	|| strcmp(lexeme, "id") == 0
+    	|| strcmp(lexeme, "input") == 0
+    	|| strcmp(lexeme, "int") == 0
+    	|| strcmp(lexeme, "isinstance") == 0
+    	|| strcmp(lexeme, "issubclass") == 0
+    	|| strcmp(lexeme, "iter") == 0
+    	|| strcmp(lexeme, "len") == 0
+    	|| strcmp(lexeme, "list") == 0
+    	|| strcmp(lexeme, "locals") == 0
+    	|| strcmp(lexeme, "map") == 0
+    	|| strcmp(lexeme, "memoryview") == 0
+    	|| strcmp(lexeme, "min") == 0
+    	|| strcmp(lexeme, "next") == 0
+    	|| strcmp(lexeme, "object") == 0
+    	|| strcmp(lexeme, "oct") == 0
+    	|| strcmp(lexeme, "open") == 0
+    	|| strcmp(lexeme, "ord") == 0
+    	|| strcmp(lexeme, "pow") == 0
+    	|| strcmp(lexeme, "print") == 0
+    	|| strcmp(lexeme, "range") == 0
+    	|| strcmp(lexeme, "repr") == 0
+    	|| strcmp(lexeme, "reversed") == 0
+    	|| strcmp(lexeme, "round") == 0
+    	|| strcmp(lexeme, "set") == 0
+    	|| strcmp(lexeme, "setattr") == 0
+    	|| strcmp(lexeme, "slice") == 0
+    	|| strcmp(lexeme, "sorted") == 0
+    	|| strcmp(lexeme, "staticmethod") == 0
+    	|| strcmp(lexeme, "str") == 0
+    	|| strcmp(lexeme, "sum") == 0
+    	|| strcmp(lexeme, "super") == 0
+    	|| strcmp(lexeme, "tuple") == 0
+    	|| strcmp(lexeme, "type") == 0
+    	|| strcmp(lexeme, "vars") == 0
+    	|| strcmp(lexeme, "zip") == 0;
 }

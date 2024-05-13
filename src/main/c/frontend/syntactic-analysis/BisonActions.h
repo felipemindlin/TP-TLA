@@ -24,16 +24,55 @@ Expression * ArithmeticExpressionSemanticAction(Expression * leftExpression, Exp
 Expression * FactorExpressionSemanticAction(Factor * factor);
 Factor * ConstantFactorSemanticAction(Constant * constant);
 Factor * ExpressionFactorSemanticAction(Expression * expression);
-Program * ExpressionProgramSemanticAction(CompilerState * compilerState, Expression * expression);
+Program * GeneralProgramSemanticAction(CompilerState * compilerState, Depth * dp, Sentence * sentence, Program * nprog);
+Program * FinishedProgramSemanticAction(CompilerState * compilerState); 
 Conditional * ConditionalEvalSemanticAction(Conditional * leftCond, Conditional * rightCond, CondType type);
 
-Sentence * FunctionCallSentenceSemanticAction(FunctionCall * functionCall, SentenceType type);
-Sentence * FunctionDefinitionSentenceSemanticAction(const char * functionName, Parameters * parameters, SentenceType type);
 VariableCall * VariableCallSemanticAction(const char * variableName);
 FunctionCall * FunctionCallSemanticAction(const char * functionName, Parameters * parameters);
 Parameters * ParametersSemanticAction(Expression * leftExpression, Parameters * nextParameters, ParamType type);
 
 Depth * DepthSemanticAction(DepthType type);
 Newline * NewlineSemanticAction(NewlineType type);
+
+/** SENTENCE SECTION **/
+Sentence * ExpressionSentenceSemanticAction(Expression * exp);
+Sentence * VariableSentenceSemanticAction(Variable * var);
+
+/** VARIABLE SECTION **/
+Variable * ExpressionVariableSemanticAction(char * restrict id, Expression * expr);
+Variable * FunctionCallVariableSemanticAction(char * restrict id, FunctionCall * functionCall);
+Variable * MethodCallVariableSemanticAction(char * restrict id, MethodCall * methodCall);
+Variable * FieldGetterVariableSemanticAction(char * restrict id, FieldGetter * fieldGetter);
+Variable * ObjectVariableSemanticAction(char * restrict id, Object * obj);
+
+/** METHOD CALL SECTION **/
+MethodCall * VariableMethodCallSemanticAction(VariableCall *, FunctionCall *);
+
+/** FIELD GETTER SECTION **/
+FieldGetter * VariableFieldGetterSemanticAction(VariableCall *, VariableCall *);
+
+/** OBJECT SECTION **/
+Object * ObjectSemanticAction(char * restrict id, ObjectType type);
+
+/** LIST SECTION **/
+List * EmptyListSemanticAction();
+List * ParametrizedListSemanticAction(Parameters * params);
+List * TypedListSemanticAction(Object * obj);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 #endif

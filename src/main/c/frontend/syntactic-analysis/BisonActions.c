@@ -91,10 +91,12 @@ Factor * ExpressionFactorSemanticAction(Expression * expression) {
 	return factor;
 }
 
-Program * ExpressionProgramSemanticAction(CompilerState * compilerState, Expression * expression) {
+Program * GeneralProgramSemanticAction(CompilerState * compilerState, Depth * dp, Sentence * sentence, Program * nprog) {
 	_logSyntacticAnalyzerAction(__FUNCTION__);
 	Program * program = calloc(1, sizeof(Program));
-	program->expression = expression;
+	program->depth = dp;
+	program->sentence = sentence;
+	program->nextProgram = nprog;
 	compilerState->abstractSyntaxtTree = program;
 	if (0 < flexCurrentContext()) {
 		logError(_logger, "The final context is not the default (0): %d", flexCurrentContext());
@@ -106,34 +108,10 @@ Program * ExpressionProgramSemanticAction(CompilerState * compilerState, Express
 	return program;
 }
 
-Sentence * FunctionCallSentenceSemanticAction(FunctionCall * callee, SentenceType type) {
-	if (expectedDepth != currentDepth) {
-		logError(_logger, "Expected depth (%d) is different from current depth (%d).", expectedDepth, currentDepth);
-		return NULL;
-	} else {
-		currentDepth = 0;
-		expectedDepth = (expectedDepth == 0)? 0 : expectedDepth - 1; 
-	}
+Program * FinishedProgramSemanticAction(CompilerState * compilerState) {
 	_logSyntacticAnalyzerAction(__FUNCTION__);
-	Sentence * sentence = calloc(1, sizeof(Sentence));
-	sentence->functionCall = callee;
-	sentence->type = type;
-	return sentence;
-}
-
-Sentence * FunctionDefinitionSentenceSemanticAction(const char * function, Parameters * parameters, SentenceType type) {
-	if (expectedDepth != currentDepth) {
-		logError(_logger, "Expected depth (%d) is different from current depth (%d).", expectedDepth, currentDepth);
-	} else {
-		currentDepth = 0;
-	}
-	_logSyntacticAnalyzerAction(__FUNCTION__);
-	expectedDepth++;
-	Sentence * sentence = calloc(1, sizeof(Sentence));
-	sentence->type = type;
-	sentence->functionName = function;
-	sentence->parameters = parameters;
-	return sentence;
+	compilerState->succeed = true;
+	return NULL;
 }
 
 FunctionCall * FunctionCallSemanticAction(const char * function, Parameters * parameters) {
@@ -174,4 +152,120 @@ Newline * NewlineSemanticAction(NewlineType type) {
 	Newline * newline = calloc(1, sizeof(Newline));
 	newline->type = type;
 	return newline;
+}
+
+/** SENTENCE SECTION **/
+Sentence * ExpressionSentenceSemanticAction(Expression * exp) {
+	_logSyntacticAnalyzerAction(__FUNCTION__);
+	Sentence * sentence = calloc(1, sizeof(Sentence));
+	sentence->expression = exp;
+	sentence->type = EXPRESSION_SENTENCE;
+	return sentence;
+}
+
+Sentence * VariableSentenceSemanticAction(Variable * var) {
+	_logSyntacticAnalyzerAction(__FUNCTION__);
+	Sentence * sentence = calloc(1, sizeof(Sentence));
+	sentence->variable = var;
+	sentence->type = VARIABLE_SENTENCE;
+	return sentence;
+}
+
+/** VARIABLE SECTION **/
+Variable * ExpressionVariableSemanticAction(char * restrict id, Expression * expr) {
+	_logSyntacticAnalyzerAction(__FUNCTION__);
+	Variable * variable = calloc(1, sizeof(Variable));
+	variable->expression = expr;
+	variable->identifier = id;
+	variable->type = VT_EXPRESSION_VARIABLE;
+	return variable;
+}
+
+Variable * FunctionCallVariableSemanticAction(char * restrict id, FunctionCall * fuckall) {
+	_logSyntacticAnalyzerAction(__FUNCTION__);
+	Variable * variable = calloc(1, sizeof(Variable));
+	variable->functionCall = fuckall;
+	variable->identifier = id;
+	variable->type = VT_FUNCCALL_VARIABLE;
+	return variable;
+}
+
+Variable * MethodCallVariableSemanticAction(char * restrict id, MethodCall * methall) {
+	_logSyntacticAnalyzerAction(__FUNCTION__);
+	Variable * variable = calloc(1, sizeof(Variable));
+	variable->methodCall = methall;
+	variable->identifier = id;
+	variable->type = VT_METHODCALL_VARIABLE;
+	return variable;
+}
+
+Variable * FieldGetterVariableSemanticAction(char * restrict id, FieldGetter * field) {
+	_logSyntacticAnalyzerAction(__FUNCTION__);
+	Variable * variable = calloc(1, sizeof(Variable));
+	variable->fieldGetter = field;
+	variable->identifier = id;
+	variable->type = VT_FIELDGETTER_VARIABLE;
+	return variable;
+}
+
+Variable * ObjectVariableSemanticAction(char * restrict id, Object * obj) {
+	_logSyntacticAnalyzerAction(__FUNCTION__);
+	Variable * variable = calloc(1, sizeof(Variable));
+	variable->object = obj;
+	variable->identifier = id;
+	variable->type = VT_OBJECT_VARIABLE;
+	return variable;
+}
+
+/** METHOD CALL SECTION **/
+MethodCall * VariableMethodCallSemanticAction(VariableCall * var, FunctionCall * method) {
+	_logSyntacticAnalyzerAction(__FUNCTION__);
+	MethodCall * methodCall = calloc(1, sizeof(MethodCall));
+	methodCall->variableCall = var;
+	methodCall->functionCall = method;
+	methodCall->type = MCT_VARIABLE_TRIGGER;
+	return methodCall;
+}
+
+/** FIELD GETTER SECTION **/
+FieldGetter * VariableFieldGetterSemanticAction(VariableCall * var, VariableCall * field) {
+	_logSyntacticAnalyzerAction(__FUNCTION__);
+	FieldGetter * fieldGetter = calloc(1, sizeof(FieldGetter));
+	fieldGetter->variableCall = var;
+	fieldGetter->field = field;
+	fieldGetter->type = FG_VARIABLE_OWNER;
+	return fieldGetter;
+}
+
+/** OBJECT SECTION **/
+Object * ObjectSemanticAction(char * restrict id, ObjectType type) {
+	_logSyntacticAnalyzerAction(__FUNCTION__);
+	Object * object = calloc(1, sizeof(Object));
+	object->className = id;
+	object->type = type;
+	return object;
+}
+
+/** LIST SECTION **/
+List * EmptyListSemanticAction() {
+	_logSyntacticAnalyzerAction(__FUNCTION__);
+	List * list = calloc(1, sizeof(List));
+	list->type = LT_EMPTY_LIST;
+	return list;
+}
+
+List * TypedListSemanticAction(Object * obj) {
+	_logSyntacticAnalyzerAction(__FUNCTION__);
+	List * list = calloc(1, sizeof(List));
+	list->objectType = obj;
+	list->type = LT_TYPED_LIST;
+	return list;
+}
+
+List * ParametrizedListSemanticAction(Parameters * params) {
+	_logSyntacticAnalyzerAction(__FUNCTION__);
+	List * list = calloc(1, sizeof(List));
+	list->elements = params;
+	list->type = LT_PARAMETRIZED_LIST;
+	return list;
 }

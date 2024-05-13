@@ -36,7 +36,7 @@
 "global"                                    { IgnoredLexemeAction(createLexicalAnalyzerContext());/* global keyword */ }
 "nonlocal"                                  { IgnoredLexemeAction(createLexicalAnalyzerContext());/* nonlocal keyword */ }
 
-"assert"                                    { IgnoredLexemeAction(createLexicalAnalyzerContext());/* assert keyword */ }
+"assert"                                    { return AssertKeywordLexemeAction(createLexicalAnalyzerContext());/* assert keyword */ }
 
 "await"                                     { IgnoredLexemeAction(createLexicalAnalyzerContext());/* await keyword */ }
 "async"                                     { IgnoredLexemeAction(createLexicalAnalyzerContext());/* async keyword */ }
@@ -49,11 +49,11 @@
 "del"                                       { IgnoredLexemeAction(createLexicalAnalyzerContext());/* object deletion keyword */ }
 "def"                                       { return DefineLexemeAction(createLexicalAnalyzerContext());/* function definition keyword */ }
 "lambda"                                    { IgnoredLexemeAction(createLexicalAnalyzerContext());/* lambda function definition keyword */ }
-"->"([:space:]*)?[_[:alpha:]][[:alnum:]]*   { return ReturnsLexemeAction(createLexicalAnalyzerContext()); /* function return type keyword */}
+"->"                                        { return ReturnsLexemeAction(createLexicalAnalyzerContext()); /* function return type keyword */}
 
-"return"                                    { IgnoredLexemeAction(createLexicalAnalyzerContext());/* return keyword */ }
-"yield"                                     { IgnoredLexemeAction(createLexicalAnalyzerContext());/* yield keyword */ }
-"pass"                                      { IgnoredLexemeAction(createLexicalAnalyzerContext());/* pass keyword */ }
+"return"                                    { return ReturnKeywordLexemeAction(createLexicalAnalyzerContext());/* return keyword */ }
+"yield"                                     { return YieldKeywordLexemeAction(createLexicalAnalyzerContext());/* yield keyword */ }
+"pass"                                      { return PassKeywordLexemeAction(createLexicalAnalyzerContext());/* pass keyword */ }
 
 "if"                                        { return IfLexemeAction(createLexicalAnalyzerContext());/* if keyword */ }
 "elif"                                      { return ElifLexemeAction(createLexicalAnalyzerContext());/* else if keyword */ }
@@ -63,18 +63,18 @@
 "break"                                     { return BreakLexemeAction(createLexicalAnalyzerContext());/* break keyword */ }
 "continue"                                  { return ContinueLexemeAction(createLexicalAnalyzerContext());/* continue keyword */ }
 
-"raise"                                     { IgnoredLexemeAction(createLexicalAnalyzerContext());/* raise keyword */ }
-"try"                                       { IgnoredLexemeAction(createLexicalAnalyzerContext());/* try keyword */ }
-"except"                                    { IgnoredLexemeAction(createLexicalAnalyzerContext());/* except keyword */ }
-"finally"                                   { IgnoredLexemeAction(createLexicalAnalyzerContext());/* finally keyword */ }
+"raise"                                     { return RaiseKeywordLexemeAction(createLexicalAnalyzerContext());/* raise keyword */ }
+"try"                                       { return TryKeywordLexemeAction(createLexicalAnalyzerContext());/* try keyword */ }
+"except"                                    { return ExceptKeywordLexemeAction(createLexicalAnalyzerContext());/* except keyword */ }
+"finally"                                   { return FinallyKeywordLexemeAction(createLexicalAnalyzerContext());/* finally keyword */ }
 
-"match"                                     { IgnoredLexemeAction(createLexicalAnalyzerContext());/* match keyword - - blocked in match statements */ }
-"case"                                      { IgnoredLexemeAction(createLexicalAnalyzerContext());/* case keyword - blocked in match statements */ }
-"type"                                      { IgnoredLexemeAction(createLexicalAnalyzerContext());/* type keyword - blocked in type statements */ }
+"match"                                     { return MatchKeywordLexemeAction(createLexicalAnalyzerContext());/* match keyword - - blocked in match statements */ }
+"case"                                      { return CaseKeywordLexemeAction(createLexicalAnalyzerContext());/* case keyword - blocked in match statements */ }
+"type"                                      { return TypeKeywordLexemeAction(createLexicalAnalyzerContext());/* type keyword - blocked in type statements */ }
 
 [\n]                                        { return NewlineLexemeAction(createLexicalAnalyzerContext());/* new line */ }
 [ ]{4}                                      { return TabLexemeAction(createLexicalAnalyzerContext());/* tab */}
-"\t"                                        { return TabLexemeAction(createLexicalAnalyzerContext());/* tab */ }
+[\t]                                        { return TabLexemeAction(createLexicalAnalyzerContext());/* tab */ }
 ":"                                         { return ColonLexemeAction(createLexicalAnalyzerContext());/* colon */ }
 ","                                         { return CommaLexemeAction(createLexicalAnalyzerContext());/* comma */ }
 "("                                         { return ParenthesisLexemeAction(createLexicalAnalyzerContext());/* left parenthesis */ }
@@ -119,11 +119,11 @@
 "or"                                        { return ConditionalLexemeAction(createLexicalAnalyzerContext());/* logical OR */ }
 "not"                                       { return ConditionalLexemeAction(createLexicalAnalyzerContext());/* logical NOT */ }
 
-"is"                                        { IgnoredLexemeAction(createLexicalAnalyzerContext());/* identity comparison */ }
-"is not"                                    { IgnoredLexemeAction(createLexicalAnalyzerContext());/* negated identity comparison */ }
+"is"                                        { return IdentityEvaluationLexemeAction(createLexicalAnalyzerContext());/* identity comparison */ }
+"is not"                                    { return IdentityEvaluationLexemeAction(createLexicalAnalyzerContext());/* negated identity comparison */ }
 
-"in"                                        { IgnoredLexemeAction(createLexicalAnalyzerContext());/* membership test */ }
-"not in"                                    { IgnoredLexemeAction(createLexicalAnalyzerContext());/* negated membership test */ }
+"in"                                        { return MembershipEvaluationLexemeAction(createLexicalAnalyzerContext());/* membership test */ }
+"not in"                                    { return MembershipEvaluationLexemeAction(createLexicalAnalyzerContext());/* negated membership test */ }
 
 "^"                                         { return BitwiseOperatorLexemeAction(createLexicalAnalyzerContext());/* bitwise XOR */ }
 "&"                                         { return BitwiseOperatorLexemeAction(createLexicalAnalyzerContext());/* bitwise AND */ }
