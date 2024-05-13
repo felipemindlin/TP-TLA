@@ -1,1 +1,3 @@
-# not implemented
+def class:
+    def clazz:
+        x=7

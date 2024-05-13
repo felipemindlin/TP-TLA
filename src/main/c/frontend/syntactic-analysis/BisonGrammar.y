@@ -38,6 +38,11 @@
     ClassDefinition * classDefinition;
 	Depth * depth;
 	Newline * newline;
+	BinaryComparator * binaryComparator;
+	BinaryLogicOperator * binaryLogicOperator;
+	ComparableValue * comparableValue;
+	LogicValue * logicValue;
+	WhileBlock * whileBlock;
 }
 
 /**
@@ -188,6 +193,11 @@
 %type <classDefinition> classDefinition
 %type <depth> depth
 %type <newline> newline
+%type <binaryComparator> binaryComparator
+%type <binaryLogicOperator> binaryLogicOperator
+%type <comparableValue> comparableValue
+%type <logicValue> logicValue
+%type <whileBlock> whileBlock
 
 /**
  * Precedence and associativity.
@@ -213,7 +223,6 @@
 %right DOT
 %right OPEN_BRACE CLOSE_BRACE
 %right OPEN_PARENTHESIS CLOSE_PARENTHESIS
-
 %%
 
 program:  depth sentence program							{ $$ = GeneralProgramSemanticAction(currentCompilerState(), $1, $2, $3); }
@@ -226,7 +235,12 @@ sentence: expression												{ $$ = ExpressionSentenceSemanticAction($1); }
 
 block: functionDefinition[fdef] COLON NEWLINE_TOKEN TAB program[prog]   { $$ = FunctionDefinitionBlockSemanticAction($fdef, $prog); }
      | classDefinition[cdef] COLON NEWLINE_TOKEN TAB program[prog]      { $$ = ClassDefinitionBlockSemanticAction($cdef, $prog); }
-     ;
+	 | IF conditional[cond] COLON NEWLINE_TOKEN TAB program[prog]		{ $$ = ConditionalBlockSemanticAction($cond, $prog); }
+	;
+
+whileBlock: WHILE conditional[cond] 									{ $$ = WhileBlockSemanticAction($cond); }
+	|		WHILE OPEN_PARENTHESIS conditional[cond] CLOSE_PARENTHESIS	{ $$ = WhileBlockSemanticAction($cond); }
+	;
 
 functionDefinition: DEF IDENTIFIER[id] OPEN_PARENTHESIS parameters[params] CLOSE_PARENTHESIS                                { $$ = GenericFunctionDefinitionSemanticAction($id, $params); }
                   | DEF IDENTIFIER[id] OPEN_PARENTHESIS parameters[params] CLOSE_PARENTHESIS RETURNS object[retObj]         { $$ = ObjectFunctionDefinitionSemanticAction($id, $params, $retObj); }
@@ -261,9 +275,35 @@ variable: IDENTIFIER[id] ASSIGN expression[expr]                    { $$ = Expre
         | IDENTIFIER[id] ASSIGN object[obj]                         { $$ = ObjectVariableSemanticAction($id, $obj); }
 		;
 
-conditional: constant[left] LOGICAL_AND constant[right]		{ $$ = ConditionalEvalSemanticAction($left, $right, LOGIC_AND); }
-	| 		 BOOLEAN[left] LOGICAL_OR BOOLEAN[right]		{ $$ = ConditionalEvalSemanticAction($left, $right, LOGIC_OR); }
+conditional: comparableValue[left] binaryComparator[op] comparableValue[right]										{ $$ = BinaryComparatorConditionalSemanticAction($op, $left, $right); }
+	| 		 logicValue[left] binaryLogicOperator[op] logicValue[right]												{ $$ = BinaryLogicOperatorConditionalSemanticAction($op, $left, $right); }
+	|        LOGICAL_NOT logicValue[val]																			{ $$ = UnaryLogicOperatorConditionalSemanticAction($val); }         
+	| 		 logicValue
 	;
+
+binaryComparator: COMPARISON_EQ								{ $$ = BinaryComparatorSemanticAction(BCT_EQU); }
+	| COMPARISON_NEQ										{ $$ = BinaryComparatorSemanticAction(BCT_NEQ); }
+	| COMPARISON_GT											{ $$ = BinaryComparatorSemanticAction(BCT_GT); }
+	| COMPARISON_GTE										{ $$ = BinaryComparatorSemanticAction(BCT_GTE); }
+	| COMPARISON_LT											{ $$ = BinaryComparatorSemanticAction(BCT_LT); }
+	| COMPARISON_LTE										{ $$ = BinaryComparatorSemanticAction(BCT_LTE); }
+	| IN													{ $$ = BinaryComparatorSemanticAction(BCT_MEMBER); }
+	| NOT_IN												{ $$ = BinaryComparatorSemanticAction(BCT_NMEMBER); }
+	| IS													{ $$ = BinaryComparatorSemanticAction(BCT_IDENTITY); }
+	| IS_NOT												{ $$ = BinaryComparatorSemanticAction(BCT_NIDENTITY); }
+	;
+
+binaryLogicOperator: LOGICAL_AND							{ $$ = BinaryLogicOperatorSemanticAction(BLOT_AND); }
+	| LOGICAL_OR											{ $$ = BinaryLogicOperatorSemanticAction(BLOT_OR); }
+	;
+
+comparableValue: expression[expr]										{ $$ = ExpressionComparableValueSemanticAction($expr, CVT_EXPRESSION); }
+	;	
+
+logicValue: variableCall											{ $$ = VariableLogicValueSemanticAction($1); }
+	| BOOLEAN														{ $$ = BooleanLogicValueSemanticAction(); }
+	| OPEN_PARENTHESIS conditional[cond] CLOSE_PARENTHESIS			{ $$ = ConditionalLogicValueSemanticAction($cond); }
+	;			
 
 constant: INTEGER													{ $$ = IntegerConstantSemanticAction($1); }
 	    | BOOLEAN													{ $$ = BooleanConstantSemanticAction($1); }

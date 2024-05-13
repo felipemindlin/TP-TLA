@@ -1,1 +1,2 @@
-# not implemented
+def class:
+    x=7

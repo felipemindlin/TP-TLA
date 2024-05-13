@@ -33,7 +33,8 @@ Expression * VariableCallExpressionSemanticAction(VariableCall * var);
 
 Program * GeneralProgramSemanticAction(CompilerState * compilerState, Depth * dp, Sentence * sentence, Program * nprog);
 Program * FinishedProgramSemanticAction(CompilerState * compilerState);
-Conditional * ConditionalEvalSemanticAction(Conditional * leftCond, Conditional * rightCond, CondType type);
+
+
 
 VariableCall * VariableCallSemanticAction(const char * variableName);
 FunctionCall * FunctionCallSemanticAction(const char * functionName, Parameters * parameters);
@@ -50,6 +51,10 @@ Sentence * BlockSentenceSemanticAction(Block * block);
 /** BLOCK SECTION **/
 Block * FunctionDefinitionBlockSemanticAction(FunctionDefinition * fdef, Program * nextProg);
 Block * ClassDefinitionBlockSemanticAction(ClassDefinition * cdef, Program * nextProg);
+Block * ConditionalBlockSemanticAction(Conditional * cond, Program * nextProg);
+
+/** WHILE BLOCK SECTION **/
+WhileBlock * WhileBlockSemanticAction(Conditional * cond);
 
 /** FUNCTION DEFINITION SECTION **/
 FunctionDefinition * GenericFunctionDefinitionSemanticAction(char * restrict id, Parameters * params);
@@ -89,4 +94,27 @@ List * TypedListSemanticAction(Object * obj);
 Tuple * ParametrizedTupleSemanticAction(Parameters * params);
 Tuple * TypedTupleSemanticAction(Object * obj);
 
+/** BINARY COMPARATOR SECTION **/
+BinaryComparator * BinaryComparatorSemanticAction(BinaryComparatorType type);
+
+/** BINARY LOGIC OPERATOR SECTION **/
+BinaryLogicOperator * BinaryLogicOperatorSemanticAction(BlotType type);
+
+/** COMPARABLE VALUE SECTION **/
+ComparableValue * VariableComparableValueSemanticAction(VariableCall * var, ComparableValueType type);
+ComparableValue * ExpressionComparableValueSemanticAction(Expression * expr, ComparableValueType type);
+
+/** LOGIC VALUE SECTION **/
+LogicValue * BooleanLogicValueSemanticAction();
+LogicValue * ConditionalLogicValueSemanticAction(Conditional * cond);
+LogicValue * VariableLogicValueSemanticAction(VariableCall * var);
+
+/** CONDITIONAL SECTION **/
+Conditional * AtomicLogicValueConditionalSemanticAction(LogicValue * logVal);
+Conditional * BinaryComparatorConditionalSemanticAction(BinaryComparator * binComp, ComparableValue * leftComp, ComparableValue * rightComp);
+Conditional * BinaryLogicOperatorConditionalSemanticAction(BinaryLogicOperator * binLogOp, LogicValue * leftLogVal, LogicValue * rightLogVal);
+Conditional * UnaryLogicOperatorConditionalSemanticAction(LogicValue * logVal);
+Conditional * RecursiveBinaryLogicOperatorConditionalSemanticAction(BinaryLogicOperator * binLogOp, Conditional * leftCond, Conditional * rightCond);  
+Conditional * VariableConditionalSemanticAction(VariableCall * var);
+Conditional * BooleanConditionalSemanticAction();
 #endif

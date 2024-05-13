@@ -161,16 +161,10 @@ void releaseConditional(Conditional * condtional){
 	logDebugging(_logger, "Executing destructor: %s", __FUNCTION__);
 	if (condtional != NULL) {
 		switch (condtional->type) {
-			case LOGIC_AND:
-			case LOGIC_OR:
-			case EQUALS_COMPARISON:
-			case NOT_EQUALS_COMPARISON:
-			case GREATER_THAN_COMPARISON:
-			case GREATER_THAN_OR_EQUALS_COMPARISON:
-			case LESS_THAN_COMPARISON:
-			case LESS_THAN_OR_EQUALS_COMPARISON:
-				releaseConditional(condtional->leftCond);
-				releaseConditional(condtional->rightCond);
+			case CONDT_BINCOMP:
+				// releaseBinaryComparator(condtional->binaryComparator);
+				// releaseComparableValue(condtional->leftValue);
+				// releaseComparableValue(condtional->rightValue);
 				break;
 			case LOGIC_NOT: //or FACTOR tienen el mismo value de enum revisar
 				break;

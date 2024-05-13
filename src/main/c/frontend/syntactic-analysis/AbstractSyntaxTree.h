@@ -30,7 +30,10 @@ typedef enum ListType ListType;
 typedef enum BlockType BlockType;
 typedef enum FunctionDefinitionType FunctionDefinitionType;
 typedef enum ClassDefinitionType ClassDefinitionType;
-
+typedef enum BinaryComparatorType BinaryComparatorType;
+typedef enum BinaryLogicOperatorType BlotType;
+typedef enum ComparableValueType ComparableValueType;
+typedef enum LogicValueType LogicValueType;
 
 typedef struct Variable Variable;
 typedef struct Constant Constant;
@@ -47,10 +50,15 @@ typedef struct List Tuple;
 typedef struct VariableCall VariableCall;
 typedef struct Sentence Sentence;
 typedef struct Block Block;
+typedef struct WhileBlock WhileBlock;
 typedef struct FunctionDefinition FunctionDefinition;
 typedef struct ClassDefinition ClassDefinition;
 typedef struct Depth Depth;
 typedef struct Newline Newline;
+typedef struct BinaryComparator BinaryComparator;
+typedef struct BinaryLogicOperator BinaryLogicOperator;
+typedef struct ComparableValue ComparableValue;
+typedef struct LogicValue LogicValue;
 
 /**
  * Node types for the Abstract Syntax Tree (AST).
@@ -115,12 +123,13 @@ enum CondType { // Non arithmetic
 	LOGIC_AND,
 	LOGIC_OR,
 	LOGIC_NOT,
-	EQUALS_COMPARISON,
-	NOT_EQUALS_COMPARISON,
-	GREATER_THAN_COMPARISON,
-	GREATER_THAN_OR_EQUALS_COMPARISON,
-	LESS_THAN_COMPARISON,
-	LESS_THAN_OR_EQUALS_COMPARISON,
+	CONDT_BINCOMP,
+	CONDT_BINLOGIC,
+	CONDT_UNLOGIC,
+	CONDT_ATOMIC,
+	CONDT_RECBINLOGIC,
+	CONDT_VAR,
+	CONDT_BOOL
 };
 
 enum DataType {
@@ -188,6 +197,35 @@ enum ParametersType {
 	NOT_FINAL
 };
 
+enum BinaryComparatorType {
+	BCT_EQU,
+	BCT_NEQ,
+	BCT_GT,
+	BCT_GTE,
+	BCT_LT,
+	BCT_LTE,
+	BCT_MEMBER,
+	BCT_NMEMBER,
+	BCT_IDENTITY,
+	BCT_NIDENTITY,
+};
+
+enum BinaryLogicOperatorType {
+	BLOT_AND,
+	BLOT_OR,
+};
+
+enum ComparableValueType {
+	CVT_VARIABLE,
+	CVT_EXPRESSION,
+};
+
+enum LogicValueType {
+	LVT_VARIABLE,
+	LVT_CONDITIONAL,
+	LVT_BOOLEAN
+};
+
 struct Constant {
 	union{
         int integer;
@@ -246,6 +284,18 @@ struct Conditional {
 			Conditional * leftCond;
 			Conditional * rightCond;
 		};
+		struct {
+			ComparableValue * leftValue;
+			ComparableValue * rightValue;
+			BinaryComparator * binaryComparator;
+		};
+		struct {
+			LogicValue * leftLogic;
+			LogicValue * rightLogic;
+			BinaryLogicOperator * binaryLogicOperator;
+		};
+		LogicValue * loneLogic;
+		VariableCall * variable;
 	};
 	CondType type;
 };
@@ -263,12 +313,16 @@ struct Block {
     union {
         FunctionDefinition * functionDefinition;
         ClassDefinition * classDefinition;
-        // Conditional * conditional;
+        Conditional * conditional;
         // For * forBlock;
         // While * whileBlock;
     };
     Program * nextProgram;
     BlockType type;
+};
+
+struct WhileBlock {
+	Conditional * condition;
 };
 
 struct FunctionDefinition {
@@ -336,6 +390,31 @@ struct Depth {
 
 struct Newline {
 	NewlineType type;
+};
+
+struct BinaryComparator {
+	BinaryComparatorType type;
+};
+
+struct BinaryLogicOperator {
+	BlotType type;
+};
+
+struct ComparableValue {
+	union {
+		VariableCall * variable;
+		Expression * expression;
+	};
+	ComparableValueType type;
+};
+
+struct LogicValue {
+	union {
+		Conditional * conditional;
+		VariableCall * variable;
+		Expression * expression;
+	};
+	LogicValueType type;
 };
 
 /**
