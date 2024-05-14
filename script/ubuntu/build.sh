@@ -12,7 +12,7 @@ rm --force "$BASE_PATH/src/main/c/frontend/syntactic-analysis/BisonParser.h"
 
 
 # Set CFLAGS to include -fsanitize
-export CFLAGS="-fsanitize=address,undefined"  
+export CFLAGS="-g2"  
 
 cmake -S . -B build
 cd build
