@@ -16,9 +16,69 @@ void shutdownAbstractSyntaxTreeModule() {
 
 /** PUBLIC FUNCTIONS */
 
+void releaseObject(Object * object) {
+	logDebugging(_logger, "Executing destructor: %s", __FUNCTION__);
+	if (object != NULL) {
+		free(object->className);
+		free(object);
+	}
+}
+
+void releaseClassDefinition(ClassDefinition * classDefinition) {
+	logDebugging(_logger, "Executing destructor: %s", __FUNCTION__);
+	if (classDefinition != NULL) {
+		releaseTuple(classDefinition->tuple);
+		free(classDefinition->className);
+		free(classDefinition);
+	}
+}
+
+void releaseList(List * list) {
+	logDebugging(_logger, "Executing destructor: %s", __FUNCTION__);
+	if (list != NULL) {
+		switch (list->type) {
+			case LT_TYPED_LIST:
+				releaseObject(list->objectType);
+			case LT_PARAMETRIZED_LIST:
+				releaseParameters(list->elements);
+		}
+		free(list);
+	}
+}
+
+void releaseTuple(Tuple * tuple){
+	releaseList((List *)tuple);
+}
+
+void releaseMethodCall(MethodCall * methodCall){
+	logDebugging(_logger, "Executing destructor: %s", __FUNCTION__);
+	if (methodCall != NULL) {
+		switch (methodCall->type) {
+			case MCT_VARIABLE_TRIGGER:
+				releaseVariableCall(methodCall->variableCall);
+				break;
+			case MCT_CONSTANT_TRIGGER:
+				releaseConstant(methodCall->constant);
+				break;
+		}
+		releaseFunctionCall(methodCall->functionCall);
+		free(methodCall);
+	}
+}
+
 void releaseConstant(Constant * constant) {
 	logDebugging(_logger, "Executing destructor: %s", __FUNCTION__);
 	if (constant != NULL) {
+		switch (constant->type) {
+			case CT_STRING:
+                free(constant->string);
+				break;
+			case CT_LIST:
+				releaseList(constant->list);
+				break;
+            case CT_TUPLE:
+                releaseTuple(constant->tuple);
+		}
 		free(constant);
 	}
 }
@@ -31,111 +91,156 @@ void releaseExpression(Expression * expression) {
 			case DIVISION:
 			case MULTIPLICATION:
 			case SUBTRACTION:
+            case LOGIC_OR:
+            case LOGIC_AND:
 				releaseExpression(expression->leftExpression);
 				releaseExpression(expression->rightExpression);
 				break;
-			case FACTOR:
-				releaseFactor(expression->factor);
+			case VARIABLE_CALL_EXPRESSION:
+				releaseVariableCall(expression->variableCall);
 				break;
+            case CONSTANT_EXPRESSION:
+                releaseConstant(expression->constant);
+                break;
+            case METHOD_CALL_EXPRESSION:
+                releaseMethodCall(expression->methodCall);
+                break;
+            case FIELD_GETTER_EXPRESSION:
+                releaseFieldGetter(expression->fieldGetter);
+                break;
+            case LOGIC_NOT:
+                releaseExpression(expression->notExpression);
+                break;
+            case COMPARISON_EXPRESSION:
+                releaseExpression(expression->leftCompExpression);
+                releaseExpression(expression->rightCompExpression);
+                break;
+            case FUNCTION_CALL_EXPRESSION:
+                releaseFunctionCall(expression->functionCall);
 		}
 		free(expression);
-	}
-}
-
-void releaseFactor(Factor * factor) {
-	logDebugging(_logger, "Executing destructor: %s", __FUNCTION__);
-	if (factor != NULL) {
-		switch (factor->type) {
-			case CONSTANT:
-				releaseConstant(factor->constant);
-				break;
-			case EXPRESSION:
-				releaseExpression(factor->expression);
-				break;
-		}
-		free(factor);
 	}
 }
 
 void releaseProgram(Program * program) {
 	logDebugging(_logger, "Executing destructor: %s", __FUNCTION__);
 	if (program != NULL) {
-		releaseExpression(program->expression);
+		releaseDepth(program->depth);
+		releaseSentence(program->sentence);
+		releaseProgram(program->nextProgram);
 		free(program);
+	}
+}
+
+void releaseFieldGetter(FieldGetter * fieldGetter) {
+	logDebugging(_logger, "Executing destructor: %s", __FUNCTION__);
+	if (fieldGetter != NULL) {
+		switch (fieldGetter->type) {
+			case FG_CONSTANT_OWNER:
+				releaseConstant(fieldGetter->constant);
+				break;
+			case FG_VARIABLE_OWNER:
+				releaseVariableCall(fieldGetter->variableCall);
+				break;
+	}
+	free(fieldGetter);
 	}
 }
 
 void releaseVariable(Variable * variable){
 	logDebugging(_logger, "Executing destructor: %s", __FUNCTION__);
 	if (variable != NULL) {
+		releaseExpression(variable->expression);
 		free(variable);
 	}
-
 }
 
-void releaseConditional(Conditional * conditional){
+void releaseFunctionDefinition(FunctionDefinition * functionDefinition){
 	logDebugging(_logger, "Executing destructor: %s", __FUNCTION__);
-	if (conditional != NULL) {
-		switch (conditional->type) {
-			case BOOLEAN_COND:
-                releaseConditional(conditional->leftCond);
-                releaseConditional(conditional->rightCond);
-                break;
-			case VARIABLE_AND_BOOLEAN_COND:
-                releaseConditional(conditional->cond);
-                releaseVariableCall(conditional->condVar);
-                break;
-			case VARIABLE_BOOLEAN_COND:
-                releaseVariableCall(conditional->leftCondVar);
-                releaseVariableCall(conditional->rightCondVar);
-                break;
-			case COMPARISON_COND:
-                releaseExpression(conditional->leftExpression);
-                releaseExpression(conditional->rightExpression);
-                break;
-			case VARIABLE_COMPARISON_COND:
-                releaseVariableCall(conditional->leftExpressionVar);
-                releaseVariableCall(conditional->rightExpressionVar);
-                break;
-			case VARIABLE_AND_CONST_COMPARISON_COND:
-                releaseVariableCall(conditional->expressionVar);
-                releaseVariableCall(conditional->exp);
-                break;
-			case OBJECT_COMPARISON_COND:
-                releaseObject(conditional->leftObject);
-                releaseObject(conditional->rightObject);
-                break;
-			case VARIABLE_OBJECT_COMPARISON_COND:
-                releaseVariableCall(conditional->variableLeftObj);
-                releaseVariableCall(conditional->variableRightObj);
+	if (functionDefinition != NULL) {
+		switch (functionDefinition->type) {
+			case FD_GENERIC:
 				break;
-			case VARIABLE_AND_OBJECT_COMPARISON_COND:
-                releaseVariableCall(conditional->variableObj);
-                releaseObject(conditional->obj);
-                break;
-            case EXPRESSION_COND:
-                releaseExpression(conditional->expression);
-                break;
-            case VARIABLE_COND:
-                releaseVariableCall(conditional->variable);
-                break;
-            case OBJECT_COND:
-                releaseObject(conditional->object);
+			case FD_OBJECT_TYPE:
+				releaseObject(functionDefinition->objectType);
+				break;
+			case FD_VARIABLE_CALL_TYPE:
+				releaseVariableCall(functionDefinition->returnVariableType);
+				break;
+			case FD_LIST_TYPE:
+				releaseList(functionDefinition->listReturnType);
+				break;
+			case FD_TUPLE_TYPE:
+				releaseTuple(functionDefinition->tupleReturnType);
+				break;
 		}
-		free(condtional);
+		releaseParameters(functionDefinition->parameters);
+		free(functionDefinition->functionName);
+		free(functionDefinition);
 	}
+}
+
+
+void releaseBlock(Block * block){
+	logDebugging(_logger, "Executing destructor: %s", __FUNCTION__);
+	if (block != NULL) {
+		switch (block->type) {
+			case BT_FUNCTION_DEFINITION:
+				// free(sentence->functionName); no es necesario casi seguro que no tiene sentido freear un const char * pero lo dejo para charlar
+				releaseFunctionDefinition(block->functionDefinition);
+				break;
+			case BT_CLASS_DEFINITION:
+				releaseClassDefinition(block->classDefinition);
+				break;
+			case BT_CONDITIONAL:
+                releaseConditionalBlock(block->conditional);
+                releaseBlock(block->nextCond);
+                break;
+            case BT_FOR:
+                releaseForBlock(block->forBlock);
+                break;
+            case BT_WHILE:
+                releaseWhileBlock(block->whileBlock);
+		}
+		releaseProgram(block->nextProgram);
+		free(block);
+	}
+}
+
+void releaseConditionalBlock(ConditionalBlock * cblock) {
+    if(cblock != NULL){
+        releaseExpression(cblock->expression);
+        free(cblock);
+    }
+}
+
+void releaseWhileBlock(WhileBlock * wblock) {
+    if(wblock != NULL) {
+        releaseExpression(wblock->expression);
+        free(wblock);
+    }
+}
+
+void releaseForBlock(ForBlock * fblock) {
+    if(fblock != NULL) {
+        releaseExpression(fblock->left);
+        releaseExpression(fblock->right);
+        free(fblock);
+    }
 }
 
 void releaseSentence(Sentence * sentence){
 	logDebugging(_logger, "Executing destructor: %s", __FUNCTION__);
 	if (sentence != NULL) {
 		switch (sentence->type) {
-			case FUNCTION_DEFINITION:
+			case EXPRESSION_SENTENCE:
 				// free(sentence->functionName); no es necesario casi seguro que no tiene sentido freear un const char * pero lo dejo para charlar
-				releaseParameters(sentence->parameters);
+				releaseExpression(sentence->expression);
 				break;
-			case FUNCTION_CALL:
-				releaseFunctionCall(sentence->functionCall);
+			case VARIABLE_SENTENCE:
+				releaseVariable(sentence->variable);
+			case BLOCK_SENTENCE:
+				releaseBlock(sentence->block);
 				break;
 		}
 		free(sentence);
@@ -169,13 +274,6 @@ void releaseParameters(Parameters * parameters){
 	}
 }
 
-void releaseNewline(Newline * newline){
-	logDebugging(_logger, "Executing destructor: %s", __FUNCTION__);
-	if (newline != NULL) {
-		free(newline);
-	}
-}
-
 void releaseDepth(Depth * depth){
 	logDebugging(_logger, "Executing destructor: %s", __FUNCTION__);
 	if (depth != NULL) {
@@ -183,7 +281,4 @@ void releaseDepth(Depth * depth){
 	}
 }
 
-void releaseObject(Object * object) {
-	logDebugging(_logger, "Executing destructor: %s", __FUNCTION__);
 
-}

@@ -14,49 +14,51 @@ void shutdownAbstractSyntaxTreeModule();
  * This typedefs allows self-referencing types.
  */
 
-typedef enum DepthType DepthType;
 typedef enum ExpressionType ExpressionType;
-typedef enum FactorType FactorType;
 typedef enum ConstantType ConstantType;
+typedef enum DepthType DepthType;
 typedef enum DataType DataType;
 typedef enum CondType CondType;
 typedef enum ParametersType ParamType;
 typedef enum SentenceType SentenceType;
 typedef enum NewlineType NewlineType;
-typedef enum BlockType BlockType;
-typedef enum ComparisonCond ComparisonCond;
-typedef enum BooleanCond BooleanCond;
-typedef enum ObjectCond ObjectCond;
-typedef enum ForType ForType;
-typedef enum Which Which;
+typedef enum VariableType VariableType;
 typedef enum MethodCallType MethodCallType;
 typedef enum FieldGetterType FieldGetterType;
-
-/* Every Block will be of the following types */
-typedef struct Block Block;
-typedef struct FunctionDefinition FunctionDefinition;
-typedef struct ClassDefinition ClassDefinition;
-typedef struct Conditional Conditional;
-typedef struct While While;
-typedef struct For For;
+typedef enum ObjectType ObjectType;
+typedef enum ListType ListType;
+typedef enum BlockType BlockType;
+typedef enum FunctionDefinitionType FunctionDefinitionType;
+typedef enum ClassDefinitionType ClassDefinitionType;
+typedef enum BinaryComparatorType BinaryComparatorType;
+typedef enum ComparableValueType ComparableValueType;
+typedef enum LogicValueType LogicValueType;
+typedef enum ConditionalType ConditionalType;
 
 typedef struct Variable Variable;
 typedef struct Constant Constant;
+typedef struct Expression Expression;
+typedef struct Program Program;
+typedef struct Parameters Parameters;
+typedef struct FunctionCall FunctionCall;
+typedef struct MethodCall MethodCall;
+typedef struct FieldGetter FieldGetter;
 typedef struct Object Object;
 typedef struct List List;
 typedef struct List Tuple;
-typedef struct Expression Expression;
-typedef struct Factor Factor;
-typedef struct Program Program;
-typedef struct Parameters Parameters;
-typedef struct FunctionDefinition FunctionDefinition;
-typedef struct MethodCall MethodCall;
-typedef struct FieldGetter FieldGetter;
-typedef struct FunctionCall FunctionCall;
 typedef struct VariableCall VariableCall;
 typedef struct Sentence Sentence;
+typedef struct Block Block;
+typedef struct WhileBlock WhileBlock;
+typedef struct FunctionDefinition FunctionDefinition;
+typedef struct ClassDefinition ClassDefinition;
 typedef struct Depth Depth;
 typedef struct Newline Newline;
+typedef struct BinaryComparator BinaryComparator;
+typedef struct ComparableValue ComparableValue;
+typedef struct LogicValue LogicValue;
+typedef struct ForBlock ForBlock;
+typedef struct ConditionalBlock ConditionalBlock;
 
 /**
  * Node types for the Abstract Syntax Tree (AST).
@@ -66,9 +68,13 @@ enum DepthType {
 	END_DEPTH
 };
 
-enum NewlineType {
-	FINAL_NEWLINE,
-	NOT_FINAL_NEWLINE
+enum ConstantType {
+    CT_INTEGER,
+    CT_BOOLEAN,
+    CT_FLOAT,
+    CT_STRING,
+    CT_LIST,
+    CT_TUPLE,
 };
 
 enum ExpressionType {
@@ -104,89 +110,63 @@ enum ExpressionType {
 	BIT_ARITHMETIC_NOT,
 	BIT_ARITHMETIC_LEFT_SHIFT,
 	BIT_ARITHMETIC_RIGHT_SHIFT,
-};
-
-enum CondType { // Non arithmetic
-    BOOLEAN_COND,
-    VARIABLE_AND_BOOLEAN_COND,
-    VARIABLE_BOOLEAN_COND,
-    COMPARISON_COND,
-    VARIABLE_COMPARISON_COND,
-    VARIABLE_AND_CONST_COMPARISON_COND,
-    OBJECT_COMPARISON_COND,
-    VARIABLE_OBJECT_COMPARISON_COND,
-    VARIABLE_AND_OBJECT_COMPARISON_COND,
-    EXPRESSION_COND,
-    VARIABLE_COND,
-    OBJECT_COND,
-};
-
-enum MethodCallType {
-    OBJECT_TRIGGER,
-    VARIABLE_TRIGGER,
-};
-
-enum FieldGetterType {
-    FG_OBJECT_OWNER,
-    FG_VARIABLE_OWNER,
-};
-
-enum ForType {
-    FOR_FACTOR,
-    FOR_FACTOR_AND_VARIABLE,
-    FOR_VARIABLE,
-};
-
-enum Which {
-    VARIABLE_ON_THE_LEFT,
-    FACTOR_ON_THE_LEFT,
-};
-
-enum BooleanCond {
+    VARIABLE_CALL_EXPRESSION,
+    FUNCTION_CALL_EXPRESSION,
+    METHOD_CALL_EXPRESSION,
+    FIELD_GETTER_EXPRESSION,
+    CONDITIONAL_EXPRESSION,
+    CONSTANT_EXPRESSION,
 	LOGIC_AND,
 	LOGIC_OR,
 	LOGIC_NOT,
-};
-
-enum ComparisonCond {
-	EQUALS_COMPARISON,
-	NOT_EQUALS_COMPARISON,
-	GREATER_THAN_COMPARISON,
-	GREATER_THAN_OR_EQUALS_COMPARISON,
-	LESS_THAN_COMPARISON,
-	LESS_THAN_OR_EQUALS_COMPARISON,
-    IN_COMPARISON,
-    NOT_IN_COMPARISON,
-};
-
-enum ObjectCond {
-    IS_COND,
-    IS_NOT_COND,
-};
-
-enum FactorType {
-	CONSTANT,
-	EXPRESSION
-};
-
-enum DataType {
-    DATA_OBJECT,
-    DATA_INFERRED,
-};
-
-enum ConstantType {
-	CONSTANT_INT,
-    CONSTANT_FLOAT,
-    CONSTANT_STRING,
-    CONSTANT_BOOLEAN,
-    CONSTANT_LIST,
-    CONSTANT_TUPLE,
+    COMPARISON_EXPRESSION,
 };
 
 enum SentenceType {
 	EXPRESSION_SENTENCE,
     VARIABLE_SENTENCE,
-    BLOCK_SENTENCE
+    BLOCK_SENTENCE,
+};
+
+enum BlockType {
+    BT_FUNCTION_DEFINITION,
+    BT_CLASS_DEFINITION,
+    BT_CONDITIONAL,
+    BT_FOR,
+    BT_WHILE,
+};
+
+enum FunctionDefinitionType {
+    FD_GENERIC,
+    FD_OBJECT_TYPE,
+    FD_VARIABLE_CALL_TYPE,
+    FD_LIST_TYPE,
+    FD_TUPLE_TYPE
+};
+
+enum ClassDefinitionType {
+    CDT_TUPLE_INHERITANCE,
+    CDT_NOT_INHERITS,
+};
+
+enum MethodCallType {
+    MCT_VARIABLE_TRIGGER,
+    MCT_CONSTANT_TRIGGER,
+};
+
+enum FieldGetterType {
+    FG_CONSTANT_OWNER,
+    FG_VARIABLE_OWNER,
+};
+
+enum ObjectType {
+  OT_BUILTIN,
+};
+
+enum ListType {
+  LT_EMPTY_LIST,
+  LT_TYPED_LIST,
+  LT_PARAMETRIZED_LIST
 };
 
 enum ParametersType {
@@ -195,141 +175,30 @@ enum ParametersType {
 	NOT_FINAL
 };
 
-enum BlockType {
-    FUNC_DEF,
-    CLASS_DEF,
-    CONDITIONAL,
-    WHILE_BLOCK,
-    FOR_BLOCK,
+enum BinaryComparatorType {
+	BCT_EQU,
+	BCT_NEQ,
+	BCT_GT,
+	BCT_GTE,
+	BCT_LT,
+	BCT_LTE,
+	BCT_MEMBER,
+	BCT_NMEMBER,
+	BCT_IDENTITY,
+	BCT_NIDENTITY,
 };
 
-struct Object {
-    char * className;
+enum ConditionalType {
+    CB_IF,
+    CB_ELIF,
+    CB_ELSE,
 };
 
-struct FunctionDefinition {
-	const char * functionName;
-	Parameters * functionArguments;
-    DataType returnType;
-    Object * objectReturnType;
-};
-
-struct MethodCall {
-    union {
-        Object * object;
-        VariableCall * variableCall;
-    };
-    FunctionCall * functionCall;
-    MethodCallType type;
-};
-
-struct FieldGetter {
-    union {
-        Object * object;
-        VariableCall * variableCall;
-    };
-    VariableCall * field;
-    FieldGetterType type;
-};
-
-struct ClassDefinition {
-    char * className;
-    ClassDefinition * parent;
-    Variable ** fields;
-};
-
-struct Conditional {
-	union {
-		struct {
-            Expression * leftExpression;
-            Expression * rightExpression;
-            ComparisonCond comparisonCond;
-        };
-        struct {
-            VariableCall * leftExpressionVar;
-            VariableCall * rightExpressionVar;
-            ComparisonCond comprCondition;
-        };
-        struct {
-            VariableCall * expressionVar;
-            Expression * exp;
-            ComparisonCond comprCond;
-        };
-		struct {
-			Conditional * leftCond;
-			Conditional * rightCond;
-            BooleanCond booleanCond;
-		};
-		struct {
-			Conditional * cond;
-			VariableCall * condVar;
-            BooleanCond boolConditon;
-		};
-		struct {
-			VariableCall * leftCondVar;
-			VariableCall * rightCondVar;
-            BooleanCond boolCond;
-		};
-        Object * object;
-        VariableCall * variable;
-        struct {
-            Object * leftObject;
-            Object * rightObject;
-            ObjectCond objectCond;
-        };
-        struct{
-            VariableCall * variableLeftObj;
-            VariableCall * variableRightObj;
-            ObjectCond objCondition;
-        };
-        struct {
-            VariableCall * variableObj;
-            Object * obj;
-            ObjectCond objCond;
-        };
-        Expression * expression;
-	};
-	CondType type;
-};
-
-struct While {
-    Conditional * conditional;
-};
-
-struct For {
-    union {
-        struct {
-            Factor * left;
-            Factor * right;
-        };
-        struct {
-            VariableCall * leftVar;
-            VariableCall * rightVar;
-        };
-        struct {
-            VariableCall * var;
-            Factor * fact;
-            Which which;
-        };
-    };
-    ForType type;
-};
-
-struct Block {
-    union {
-        FunctionDefinition * functionDefinition;
-        ClassDefinition * classDefinition;
-        Conditional * conditional;
-        While * whileBlock;
-        For * forBlock;
-    };
-    BlockType type;
-};
 struct Constant {
 	union{
         int integer;
-        int boolean;
-        float decimal;
+        boolean boolean;
+        double decimal;
         char * string;
         List * list;
         Tuple * tuple;
@@ -339,34 +208,42 @@ struct Constant {
 
 
 struct Variable {
-	union {
-        int integer;
-        float decimal;
-        int boolean;
-        char * string;
-        List * list;
-        Tuple * tuple;
-        Object * object;
-    };
-    char * identifier;
-	DataType type;
+	Expression * expression;
+	char * identifier;
 };
 
-struct Factor {
+struct Object {
+  union {
+    char * className;
+  };
+  ObjectType type;
+};
+
+struct List {
 	union {
-		Constant * constant;
-		Expression * expression;
+		Parameters * elements;
+   	 	Object * objectType;
 	};
-	FactorType type;
+    ListType type;
 };
 
 struct Expression {
 	union {
-		Factor * factor;
+        Constant * constant;
+        VariableCall * variableCall;
+        FunctionCall * functionCall;
+        MethodCall * methodCall;
+        FieldGetter * fieldGetter;
 		struct {
 			Expression * leftExpression;
 			Expression * rightExpression;
 		};
+		struct {
+			Expression * leftCompExpression;
+			Expression * rightCompExpression;
+            BinaryComparatorType compType;
+		};
+        Expression * notExpression;
 	};
 	ExpressionType type;
 };
@@ -380,6 +257,53 @@ struct Sentence {
 	SentenceType type;
 };
 
+struct Block {
+    union {
+        FunctionDefinition * functionDefinition;
+        ClassDefinition * classDefinition;
+        struct {
+            ConditionalBlock * conditional;
+            Block * nextCond;
+        };
+        ForBlock * forBlock;
+        WhileBlock * whileBlock;
+    };
+    Program * nextProgram;
+    BlockType type;
+};
+
+struct ConditionalBlock {
+    Expression * expression;
+    ConditionalType type;
+};
+
+struct WhileBlock {
+	Expression * expression;
+};
+
+struct ForBlock {
+    Expression * left;
+    Expression * right;
+};
+
+struct FunctionDefinition {
+    union {
+        Object * objectType;
+        VariableCall * returnVariableType;
+        List * listReturnType;
+        Tuple * tupleReturnType;
+    };
+    Parameters * parameters;
+    char * functionName;
+    FunctionDefinitionType type;
+};
+
+struct ClassDefinition {
+    Tuple * tuple;
+    char * className;
+    ClassDefinitionType type;
+};
+
 struct VariableCall {
 	const char * variableName;
 };
@@ -389,9 +313,22 @@ struct FunctionCall {
 	Parameters * functionArguments;
 };
 
-struct List {
-    Parameters * elements;
-    Object * objectType;
+struct MethodCall {
+	union {
+        VariableCall * variableCall;
+        Constant * constant;
+    };
+    FunctionCall * functionCall;
+    MethodCallType type;
+};
+
+struct FieldGetter {
+    union {
+        VariableCall * variableCall;
+        Constant * constant;
+    };
+    VariableCall * field;
+    FieldGetterType type;
 };
 
 struct Parameters {
@@ -403,21 +340,13 @@ struct Parameters {
 };
 
 struct Program {
-    union {
-        struct {
-            Depth * depth;
-            Sentence * sentence;
-            Program * program;
-        };
-    };
+	Depth * depth;
+	Sentence * sentence;
+	Program * nextProgram;
 };
 
 struct Depth {
 	DepthType type;
-};
-
-struct Newline {
-	NewlineType type;
 };
 
 /**
@@ -425,24 +354,23 @@ struct Newline {
  */
 void releaseConstant(Constant * constant);
 void releaseExpression(Expression * expression);
-void releaseFactor(Factor * factor);
 void releaseProgram(Program * program);
 void releaseVariable(Variable * variable);
-void releaseConditional(Conditional * condtional);
 void releaseSentence(Sentence * sentence);
 void releaseVariableCall(VariableCall * variableCall);
+void releaseMethodCall(MethodCall * methodCall);
 void releaseFunctionCall(FunctionCall * functionCall);
 void releaseParameters(Parameters * parameters);
-void releaseNewline(Newline * newline);
 void releaseDepth(Depth * depth);
-
-void releaseConditional(Conditional * conditional);
-void releaseWhile(While * whileBlock);
-void releaseFor(For * forBlock);
-void releaseList(List * list);
 void releaseTuple(Tuple * tuple);
 void releaseFunctionDefinition(FunctionDefinition * functionDefinition);
 void releaseClassDefinition(ClassDefinition * classDefinition);
-void releaseObject(Object * object);
+void releaseBlock(Block * block);
+void releaseWhileBlock(WhileBlock * wblock);
+void releaseForBlock(ForBlock * fblock);
+void releaseConditionalBlock(ConditionalBlock * cblock);
+void releaseObject(Object * Object);
+void releaseFieldGetter(FieldGetter * fieldGetter);
+void releaseList(List * list);
 
 #endif

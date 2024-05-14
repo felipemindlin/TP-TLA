@@ -1,1 +1,2 @@
-# not implemented
+class classy: 
+    x=7

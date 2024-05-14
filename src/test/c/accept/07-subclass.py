@@ -1,1 +1,3 @@
-# not implemented
+class clazz:
+    class clazzz:
+        x=7

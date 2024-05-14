@@ -13,34 +13,32 @@
 	double fp_number;
 	boolean boolean;
     char * string;
+
 	char * var_name;
 	Token token;
 
 	/** Non-terminals. */
+
 	Constant * constant;
 	Expression * expression;
-    List * list;
-    List * tuple;
-    Block * block;
-	Conditional * conditional;
-	Factor * factor;
-    While * while_block;
-    For * for_block;
 	Program * program;
 	Variable * variable;
-    Object * object;
 	Parameters * parameters;
-	FunctionDefinition * functionDefinition;
-	ClassDefinition * classDefinition;
 	FunctionCall * functionCall;
-	VariableCall * variableCall;
 	MethodCall * methodCall;
 	FieldGetter * fieldGetter;
+	Object * object;
+	Tuple * tuple;
+	List * list;
+	VariableCall * variableCall;
 	Sentence * sentence;
+    Block * block;
+    FunctionDefinition * functionDefinition;
+    ClassDefinition * classDefinition;
 	Depth * depth;
-
-	Newline * newline;
-
+	WhileBlock * whileBlock;
+    ForBlock * forBlock;
+    ConditionalBlock * conditionalBlock;
 }
 
 /**
@@ -50,12 +48,28 @@
  *
  * @see https://www.gnu.org/software/bison/manual/html_node/Destructor-Decl.html
  */
-/*
+
+
 %destructor { releaseConstant($$); } <constant>
 %destructor { releaseExpression($$); } <expression>
-%destructor { releaseFactor($$); } <factor>
+%destructor { releaseSentence($$); } <sentence>
 %destructor { releaseProgram($$); } <program>
-*/
+%destructor { releaseVariable($$); } <variable>
+%destructor { releaseVariableCall($$); } <variableCall>
+%destructor { releaseMethodCall($$); } <methodCall>
+%destructor { releaseFunctionCall($$); } <functionCall>
+%destructor { releaseParameters($$); } <parameters>
+%destructor { releaseDepth($$); } <depth>
+%destructor { releaseTuple($$); } <tuple>
+%destructor { releaseFunctionDefinition($$); } <functionDefinition>
+%destructor { releaseClassDefinition($$); } <classDefinition>
+%destructor { releaseBlock($$); } <block>
+%destructor { releaseObject($$); } <object>
+%destructor { releaseFieldGetter($$); } <fieldGetter>
+%destructor { releaseList($$); } <list>
+%destructor { releaseWhileBlock($$); } <whileBlock>
+%destructor { releaseForBlock($$); } <forBlock>
+%destructor { releaseConditionalBlock($$); } <conditionalBlock>
 
 /** Terminals. */
 %token <integer> INTEGER
@@ -155,33 +169,29 @@
 %token <token> UNKNOWN
 
 /** Non-terminals. */
-%type <object> object
 %type <constant> constant
 %type <variable> variable
-%type <list> list;
-%type <tuple> tuple;
-%type <conditional> conditional
-%type <block> block
-%type <for_block> for_block
-%type <while_block> while_block
 %type <expression> expression
-%type <factor> factor
 %type <program> program
 %type <parameters> parameters
-%type <functionDefinition> functionDefinition
-%type <classDefinition> classDefinition
 %type <functionCall> functionCall
-%type <variableCall> variableCall
-%type <sentence> sentence
-%type <depth> depth
-%type <newline> newline
 %type <methodCall> methodCall
 %type <fieldGetter> fieldGetter
-%type <list> empty_list
-%type <list> typed_list
-%type <tuple> empty_tuple
-%type <tuple> typed_tuple
-
+%type <object> object
+%type <tuple> tuple
+%type <list> list
+%type <variableCall> variableCall
+%type <sentence> sentence
+%type <block> block
+%type <block> nextCondBlock
+%type <functionDefinition> functionDefinition
+%type <classDefinition> classDefinition
+%type <depth> depth
+%type <whileBlock> whileBlock
+%type <forBlock> forBlock
+%type <conditionalBlock> ifBlock
+%type <conditionalBlock> elifBlock
+%type <conditionalBlock> elseBlock
 
 /**
  * Precedence and associativity.
@@ -189,11 +199,17 @@
  * @see https://www.gnu.org/software/bison/manual/html_node/Precedence.html
  * @also see https://www.geeksforgeeks.org/precedence-and-associativity-of-operators-in-python/ for Python
  */
+%right INTEGER
+%right FLOAT
+%right BOOLEAN
+%right STRING
+%precedence COMMA
+%precedence IDENTIFIER
+%right LOGICAL_OR
+%right LOGICAL_AND
+%right LOGICAL_NOT
 %right ASSIGN_WALRUS
-%left  LOGICAL_OR
-%left  LOGICAL_AND
-%left  LOGICAL_NOT
-%left  IN NOT_IN IS IS_NOT COMPARISON_LT COMPARISON_LTE COMPARISON_GT COMPARISON_GTE COMPARISON_EQ COMPARISON_NEQ
+%right IN NOT_IN IS IS_NOT COMPARISON_LT COMPARISON_LTE COMPARISON_GT COMPARISON_GTE COMPARISON_EQ COMPARISON_NEQ
 %left  BITWISE_OR
 %left  BITWISE_XOR
 %left  BITWISE_AND
@@ -201,91 +217,54 @@
 %left  ADD SUB
 %left  MUL DIV FLOOR_DIV MOD
 %right BITWISE_NOT
+%right NEWLINE_TOKEN
 %right EXP
-
-
+%right DOT
+%right IF ELIF ELSE
+%right OPEN_BRACE CLOSE_BRACE
+%right OPEN_PARENTHESIS CLOSE_PARENTHESIS
 %%
 
-program: depth sentence program											{ $$ = GeneralProgramSemanticAction(currentCompilerState(), $1, $2, $3); }
-	| YYEOF															{ $$ = FinishedProgramSemanticAction(); }												
+program:  depth sentence program							{ $$ = GeneralProgramSemanticAction(currentCompilerState(), $1, $2, $3); }
+	| depth NEWLINE_TOKEN program						    { $$ = GeneralProgramSemanticAction(currentCompilerState(), $1, NULL, $3); }	
+	| YYEOF				                                    { $$ = FinishedProgramSemanticAction(currentCompilerState()); }
 	;
 
-block: functionDefinition[blck] COLON NEWLINE_TOKEN TAB program[prog]   { $$ = FunctionDefinitionBlockSemanticAction($blck, $prog); }
-     | classDefinition[blck] COLON NEWLINE_TOKEN TAB program[prog]      { $$ = ClassDefinitionBlockSemanticAction($blck, $prog); }
-     | conditional[blck] COLON NEWLINE_TOKEN TAB program[prog]          { $$ = ConditionalBlockSemanticAction($blck, $prog); }
-     | while_block[blck] COLON NEWLINE_TOKEN TAB program[prog]          { $$ = ForDefinitionBlockSemanticAction($blck, $prog); }
-     | for_block[blck] COLON NEWLINE_TOKEN TAB program[prog]            { $$ = WhileDefinitionBlockSemanticAction($blck, $prog); }
-     ;
+sentence: expression												{ $$ = ExpressionSentenceSemanticAction($1); }
+	| variable														{ $$ = VariableSentenceSemanticAction($1); }
+    | block                                                         { $$ = BlockSentenceSemanticAction($1); }
 
-functionDefinition: DEF IDENTIFIER[id] OPEN_PARENTHESIS parameters[args] CLOSE_PARENTHESIS                              		{ $$ = FunctionDefinitionSemanticAction($id, $args, DATA_INFERRED, NULL); }
-                  | DEF IDENTIFIER[id] OPEN_PARENTHESIS parameters[args] CLOSE_PARENTHESIS RETURNS object[retObj]   			{ $$ = FunctionDefinitionSemanticAction($id, $args, DATA_OBJECT, $retObj); }
-				  ;
+block: functionDefinition[fdef] COLON NEWLINE_TOKEN TAB program[prog]               { $$ = FunctionDefinitionBlockSemanticAction($fdef, $prog); }
+     | classDefinition[cdef] COLON NEWLINE_TOKEN TAB program[prog]                  { $$ = ClassDefinitionBlockSemanticAction($cdef, $prog); }
+	 | ifBlock[cblock] COLON NEWLINE_TOKEN TAB program[prog] nextCondBlock[next]    { $$ = ConditionalBlockSemanticAction($cblock, $prog, $next); }
+     | whileBlock[wblock] COLON NEWLINE_TOKEN TAB program[prog]                     { $$ = WhileLoopBlockSemanticAction($wblock, $prog); }
+     | forBlock[fblock] COLON NEWLINE_TOKEN TAB program[prog]                       { $$ = ForLoopBlockSemanticAction($fblock, $prog); }
+	 ;
 
-classDefinition: CLASS IDENTIFIER[id]                                                    		{ $$ = ClassDefinitionSemanticAction($id, NULL); }
-               | CLASS IDENTIFIER[id] OPEN_PARENTHESIS object[obj] CLOSE_PARENTHESIS	        { $$ = ClassDefintionSemanticAction($id, $obj); }
+nextCondBlock: %empty                                                                       { $$ = ConditionalBlockSemanticAction(NULL, NULL, NULL); }
+             | elifBlock[elif] COLON NEWLINE_TOKEN TAB program[prog] nextCondBlock[next]    { $$ = ConditionalBlockSemanticAction($elif, $prog, $next); }
+             | elseBlock[els] COLON NEWLINE_TOKEN TAB program[prog]                         { $$ = ConditionalBlockSemanticAction($els, $prog, NULL); }
+
+ifBlock: IF expression[exp]                                             { $$ = ConditionalSemanticAction(CB_IF, $exp); }
+
+elifBlock: ELIF expression[exp]                                         { $$ = ConditionalSemanticAction(CB_ELIF, $exp); }
+
+elseBlock: ELSE expression[exp]                                         { $$ = ConditionalSemanticAction(CB_ELSE, $exp); }
+
+forBlock: FOR expression[exp1] IN expression[exp2]                      { $$ = ForBlockSemanticAction($exp1, $exp2); }
+
+whileBlock: WHILE expression[cond] 									    { $$ = WhileBlockSemanticAction($cond); }
+	      ;
+
+functionDefinition: DEF IDENTIFIER[id] OPEN_PARENTHESIS parameters[params] CLOSE_PARENTHESIS                                { $$ = GenericFunctionDefinitionSemanticAction($id, $params); }
+                  | DEF IDENTIFIER[id] OPEN_PARENTHESIS parameters[params] CLOSE_PARENTHESIS RETURNS object[retObj]         { $$ = ObjectFunctionDefinitionSemanticAction($id, $params, $retObj); }
+                  | DEF IDENTIFIER[id] OPEN_PARENTHESIS parameters[params] CLOSE_PARENTHESIS RETURNS variableCall[retVar]   { $$ = VariableCallFunctionDefinitionSemanticAction($id, $params, $retVar); }
+                  | DEF IDENTIFIER[id] OPEN_PARENTHESIS parameters[params] CLOSE_PARENTHESIS RETURNS tuple[tupleVar]        { $$ = TupleFunctionDefinitionSemanticAction($id, $params, $tupleVar); }
+                  | DEF IDENTIFIER[id] OPEN_PARENTHESIS parameters[params] CLOSE_PARENTHESIS RETURNS list[listVar]          { $$ = ListFunctionDefinitionSemanticAction($id, $params, $listVar); }
+
+classDefinition: CLASS IDENTIFIER[id]                               { $$ = ClassDefinitionSemanticAction($id); }
+               | CLASS IDENTIFIER[id] tuple[tpl]                    { $$ = TupleClassDefinitionSemanticAction($id, $tpl); }
                ;
-
-conditional: conditional[left] LOGICAL_AND conditional[right]       { $$ = ConditionalBooleanSemanticAction($left, $right, LOGIC_AND); }
-	| conditional[left] LOGICAL_OR conditional[right]	            { $$ = ConditionalBooleanSemanticAction($left, $right, LOGIC_OR); }
-    | LOGICAL_NOT conditional[cond]                                 { $$ = ConditionalBooleanSemanticAction($cond, NULL, LOGIC_NOT); }
-    | variableCall[left] LOGICAL_AND variableCall[right]            { $$ = ConditionalBooleanVariableSemanticAction($left, $right, LOGIC_AND); }
-	| variableCall[left] LOGICAL_OR variableCall[right]	            { $$ = ConditionalBooleanVariableSemanticAction($left, $right, LOGIC_OR); }
-    | LOGICAL_NOT variableCall[cond]                                { $$ = ConditionalBooleanVariableSemanticAction($cond, NULL, LOGIC_NOT); }
-    | conditional[left] LOGICAL_AND variableCall[right]             { $$ = ConditionalBooleanAndVariableSemanticAction($right, $left, LOGIC_AND); }
-	| conditional[left] LOGICAL_OR variableCall[right]	            { $$ = ConditionalBooleanSemanticAction($right, $left, LOGIC_OR); }
-    | variableCall[left] LOGICAL_AND conditional[right]             { $$ = ConditionalBooleanAndVariableSemanticAction($left, $right, LOGIC_AND); }
-	| variableCall[left] LOGICAL_OR conditional[right]	            { $$ = ConditionalBooleanSemanticAction($left, $right, LOGIC_OR); }
-    | expression[left] COMPARISON_EQ expression[right]              { $$ = ConditionalExpressionSemanticAction($left, $right, EQUALS_COMPARISON); }
-    | expression[left] COMPARISON_NEQ expression[right]             { $$ = ConditionalExpressionSemanticAction($left, $right, NOT_EQUALS_COMPARISON); }
-    | expression[left] COMPARISON_GT expression[right]              { $$ = ConditionalExpressionSemanticAction($left, $right, GREATER_THAN_COMPARISON); }
-    | expression[left] COMPARISON_GTE expression[right]             { $$ = ConditionalExpressionSemanticAction($left, $right, GREATER_THAN_OR_EQUALS_COMPARISON); }
-    | expression[left] COMPARISON_LT expression[right]              { $$ = ConditionalExpressionSemanticAction($left, $right, LESS_THAN_COMPARISON); }
-    | expression[left] COMPARISON_LTE expression[right]             { $$ = ConditionalExpressionSemanticAction($left, $right, LESS_THAN_OR_EQUALS_COMPARISON); }
-    | expression[left] IN expression[right]                         { $$ = ConditionalExpressionSemanticAction($left, $right, IN_COMPARISON); }
-    | expression[left] NOT_IN expression[right]                     { $$ = ConditionalExpressionSemanticAction($left, $right, NOT_IN_COMPARISON); }
-    | variableCall[left] COMPARISON_EQ variableCall[right]          { $$ = ConditionalExpressionVariableSemanticAction($left, $right, EQUALS_COMPARISON); }
-    | variableCall[left] COMPARISON_NEQ variableCall[right]         { $$ = ConditionalExpressionVariableSemanticAction($left, $right, NOT_EQUALS_COMPARISON); }
-    | variableCall[left] COMPARISON_GT variableCall[right]          { $$ = ConditionalExpressionVariableSemanticAction($left, $right, GREATER_THAN_COMPARISON); }
-    | variableCall[left] COMPARISON_GTE variableCall[right]         { $$ = ConditionalExpressionVariableSemanticAction($left, $right, GREATER_THAN_OR_EQUALS_COMPARISON); }
-    | variableCall[left] COMPARISON_LT variableCall[right]          { $$ = ConditionalExpressionVariableSemanticAction($left, $right, LESS_THAN_COMPARISON); }
-    | variableCall[left] COMPARISON_LTE variableCall[right]         { $$ = ConditionalExpressionVariableSemanticAction($left, $right, LESS_THAN_OR_EQUALS_COMPARISON); }
-    | variableCall[left] IN variableCall[right]                     { $$ = ConditionalExpressionVariableSemanticAction($left, $right, IN_COMPARISON); }
-    | variableCall[left] NOT_IN variableCall[right]                 { $$ = ConditionalExpressionVariableSemanticAction($left, $right, NOT_IN_COMPARISON); }
-    | variableCall[left] COMPARISON_EQ expression[right]            { $$ = ConditionalExpressionAndVariableSemanticAction($left, $right, EQUALS_COMPARISON); }
-    | variableCall[left] COMPARISON_NEQ expression[right]           { $$ = ConditionalExpressionAndVariableSemanticAction($left, $right, NOT_EQUALS_COMPARISON); }
-    | variableCall[left] COMPARISON_GT expression[right]            { $$ = ConditionalExpressionAndVariableSemanticAction($left, $right, GREATER_THAN_COMPARISON); }
-    | variableCall[left] COMPARISON_GTE expression[right]           { $$ = ConditionalExpressionAndVariableSemanticAction($left, $right, GREATER_THAN_OR_EQUALS_COMPARISON); }
-    | variableCall[left] COMPARISON_LT expression[right]            { $$ = ConditionalExpressionAndVariableSemanticAction($left, $right, LESS_THAN_COMPARISON); }
-    | variableCall[left] COMPARISON_LTE expression[right]           { $$ = ConditionalExpressionAndVariableSemanticAction($left, $right, LESS_THAN_OR_EQUALS_COMPARISON); }
-    | variableCall[left] IN expression[right]                       { $$ = ConditionalExpressionAndVariableSemanticAction($left, $right, IN_COMPARISON); }
-    | variableCall[left] NOT_IN expression[right]                   { $$ = ConditionalExpressionAndVariableSemanticAction($left, $right, NOT_IN_COMPARISON); }
-    | expression[left] COMPARISON_EQ variableCall[right]            { $$ = ConditionalExpressionAndVariableSemanticAction($right, $left, EQUALS_COMPARISON); }
-    | expression[left] COMPARISON_NEQ variableCall[right]           { $$ = ConditionalExpressionAndVariableSemanticAction($right, $left, NOT_EQUALS_COMPARISON); }
-    | expression[left] COMPARISON_GT variableCall[right]            { $$ = ConditionalExpressionAndVariableSemanticAction($right, $left, GREATER_THAN_COMPARISON); }
-    | expression[left] COMPARISON_GTE variableCall[right]           { $$ = ConditionalExpressionAndVariableSemanticAction($right, $left, GREATER_THAN_OR_EQUALS_COMPARISON); }
-    | expression[left] COMPARISON_LT variableCall[right]            { $$ = ConditionalExpressionAndVariableSemanticAction($right, $left, LESS_THAN_COMPARISON); }
-    | expression[left] COMPARISON_LTE variableCall[right]           { $$ = ConditionalExpressionAndVariableSemanticAction($right, $left, LESS_THAN_OR_EQUALS_COMPARISON); }
-    | expression[left] IN variableCall[right]                       { $$ = ConditionalExpressionAndVariableSemanticAction($right, $left, IN_COMPARISON); }
-    | expression[left] NOT_IN variableCall[right]                   { $$ = ConditionalExpressionAndVariableSemanticAction($right, $left, NOT_IN_COMPARISON); }
-    | expression                                                    { $$ = ConditionalSingleExpressionSemanticAction($1); }
-    | object                                                        { $$ = ConditionalSingleObjectSemanticAction($1); }
-    | object[left] IS object[right]                                 { $$ = ConditionalObjectSemanticAction($left, $right, IS_COND); }
-    | object[left] IS_NOT object[right]                             { $$ = ConditionalObjectSemanticAction($left, $right, IS_NOT_COND); }
-    | variableCall[left] IS variableCall[right]                     { $$ = ConditionalObjectVariableSemanticAction($left, $right, IS_COND); }
-    | variableCall[left] IS_NOT variableCall[right]                 { $$ = ConditionalObjectVariableSemanticAction($left, $right, IS_NOT_COND); }
-    | variableCall[left] IS object[right]                           { $$ = ConditionalObjectAndVariableSemanticAction($left, $right, IS_COND); }
-    | variableCall[left] IS_NOT object[right]                       { $$ = ConditionalObjectAndVariableSemanticAction($left, $right, IS_NOT_COND); }
-    | object[left] IS variableCall[right]                           { $$ = ConditionalObjectAndVariableSemanticAction($right, $left, IS_COND); }
-    | object[left] IS_NOT variableCall[right]                       { $$ = ConditionalObjectAndVariableSemanticAction($right, $left, IS_NOT_COND); }
-    | variableCall[var]                                             { $$ = ConditionalVariableSemanticAction($var);}
-	;
-
-while_block: conditional[cond]                                      { $$ = WhileBlockSemanticAction($cond); }
-
-for_block: expression[left] IN expression[right]                    { $$ = ForFactorBlockSemanticAction($left, $right); }
-         | variableCall[left] IN variableCall[right]                { $$ = ForVariableBlockSemanticAction($left, $right); }
-         | variableCall[left] IN factor[right]                      { $$ = ForFactorAndVariableBlockSemanticAction($left, $right, VARIABLE_ON_THE_LEFT); }
-         | factor[left] IN variableCall[right]                      { $$ = ForFactorAndVariableBlockSemanticAction($right, $left, FACTOR_ON_THE_LEFT); }
 
 expression: expression[left] ADD expression[right]					{ $$ = ArithmeticExpressionSemanticAction($left, $right, ADDITION); }
 	| expression[left] DIV expression[right]						{ $$ = ArithmeticExpressionSemanticAction($left, $right, DIVISION); }
@@ -299,81 +278,67 @@ expression: expression[left] ADD expression[right]					{ $$ = ArithmeticExpressi
 	| expression[left] BITWISE_XOR expression[right]				{ $$ = ArithmeticExpressionSemanticAction($left, $right, BIT_ARITHMETIC_XOR); }
 	| expression[left] BITWISE_LSHIFT expression[right]				{ $$ = ArithmeticExpressionSemanticAction($left, $right, BIT_ARITHMETIC_LEFT_SHIFT); }
 	| expression[left] BITWISE_RSHIFT expression[right]				{ $$ = ArithmeticExpressionSemanticAction($left, $right, BIT_ARITHMETIC_RIGHT_SHIFT); }
-	| factor        												{ $$ = FactorExpressionSemanticAction($1); }
+    | constant                                                      { $$ = ConstantExpressionSemanticAction($1); }
+    | variableCall                                                  { $$ = VariableCallExpressionSemanticAction($1); }
+    | functionCall                                                  { $$ = FunctionCallExpressionSemanticAction($1); }
+    | methodCall[method]                                            { $$ = MethodCallExpressionSemanticAction($method); }
+    | fieldGetter[field]                                            { $$ = FieldGetterExpressionSemanticAction($field); }
+    | expression[left] LOGICAL_AND expression[right]                { $$ = LogicalAndExpressionSemanticAction($left, $right); }
+    | expression[left] LOGICAL_OR expression[right]                 { $$ = LogicalOrExpressionSemanticAction($left, $right); }
+    | LOGICAL_NOT expression[exp]                                   { $$ = LogicalNotExpressionSemanticAction($exp); }
+    | expression[left] COMPARISON_EQ expression[right]	            { $$ = ExpressionComparisonSemanticAction(BCT_EQU, $left, $right); }
+    | expression[left] COMPARISON_NEQ expression[right]	            { $$ = ExpressionComparisonSemanticAction(BCT_NEQ, $left, $right); }
+    | expression[left] COMPARISON_GT expression[right]	            { $$ = ExpressionComparisonSemanticAction(BCT_GT, $left, $right); }
+    | expression[left] COMPARISON_GTE expression[right]	            { $$ = ExpressionComparisonSemanticAction(BCT_GTE, $left, $right); }
+    | expression[left] COMPARISON_LT expression[right]	            { $$ = ExpressionComparisonSemanticAction(BCT_LT, $left, $right); }
+    | expression[left] COMPARISON_LTE expression[right]	            { $$ = ExpressionComparisonSemanticAction(BCT_LTE, $left, $right); }
+    | expression[left] IN expression[right]	                        { $$ = ExpressionComparisonSemanticAction(BCT_MEMBER, $left, $right); }
+    | expression[left] NOT_IN expression[right]	                    { $$ = ExpressionComparisonSemanticAction(BCT_NMEMBER, $left, $right); }
+    | expression[left] IS expression[right]	                        { $$ = ExpressionComparisonSemanticAction(BCT_IDENTITY, $left, $right); }
+    | expression[left] IS_NOT expression[right]	                    { $$ = ExpressionComparisonSemanticAction(BCT_NIDENTITY, $left, $right); }
 	;
 
-factor: OPEN_PARENTHESIS expression CLOSE_PARENTHESIS				{ $$ = ExpressionFactorSemanticAction($2); }
-	| constant														{ $$ = ConstantFactorSemanticAction($1); }
-    | variableCall                                                  { $$ = VariableCallFactorSemanticAction($1); }
-    | methodCall                                                    { $$ = MethodCallFactorSemanticAction($1); }
-    | functionCall                                                  { $$ = FunctionCallFactorSemanticAction($1); }
-    | fieldGetter                                                   { $$ = FieldGetterFactorSemanticAction($1); }
-    | object                                                        { $$ = ObjectFactorSemanticAction($1); }
-	;
+variable: IDENTIFIER[id] ASSIGN expression[expr]                    { $$ = ExpressionVariableSemanticAction($id, $expr);}
+		;
 
 constant: INTEGER													{ $$ = IntegerConstantSemanticAction($1); }
-	| BOOLEAN														{ $$ = BooleanConstantSemanticAction($1); }
-    | STRING                                                        { $$ = StringConstantSemanticAction($1); }
-    | FLOAT                                                         { $$ = FloatConstantSemanticAction($1); }
+	    | BOOLEAN													{ $$ = BooleanConstantSemanticAction($1); }
+        | FLOAT                                                     { $$ = FloatConstantSemanticAction($1); }
+        | STRING                                                    { $$ = StringConstantSemanticAction($1); }
+        | list                                                      { $$ = ListConstantSemanticAction($1); }
+        | tuple                                                     { $$ = TupleConstantSemanticAction($1); }
+	    ;
+
+methodCall: variableCall[var] DOT functionCall[func]				{ $$ = VariableMethodCallSemanticAction($var, $func); }
+          | constant[cons] DOT functionCall[func]                   { $$ = ConstantMethodCallSemanticAction($cons, $func); }
+          ;
+
+fieldGetter: variableCall[var] DOT variableCall[field]				{ $$ = VariableFieldGetterSemanticAction($var, $field); }
+           | constant[cons] DOT variableCall[field]                 { $$ = ConstantFieldGetterSemanticAction($cons, $field);}
+           ;
+
+object: BUILTIN_IDENTIFIER  										{ $$ = ObjectSemanticAction($1, OT_BUILTIN); }
 	;
 
-sentence: expression												{ $$ = ExpressionSentenceSemanticAction($1) }
-	| variable														{ $$ = VariableSentenceSemanticAction($1) }
-	| block															{ $$ = BlockSentenceSemanticAction($1) }
-	;
-
-variableCall: IDENTIFIER[id]										{ $$ = VariableCallSemanticAction($id); }
-
-list: empty_list                                                    { $$ = EmptyListSemanticAction(); }
-    | typed_list                                                    { $$ = TypedListSemanticAction($1); }
-    | OPEN_BRACKET parameters[params] CLOSE_BRACKET                 { $$ = ListSemanticAction($params); }
+list: OPEN_BRACKET parameters[params] CLOSE_BRACKET			            { $$ = ParametrizedListSemanticAction($params); }
+    | OPEN_BRACKET object[type] CLOSE_BRACKET		    				{ $$ = TypedListSemanticAction($type); }
     ;
 
+tuple: OPEN_PARENTHESIS parameters[params] CLOSE_PARENTHESIS         { $$ =  ParametrizedTupleSemanticAction($params); }
+     | OPEN_PARENTHESIS object[type] CLOSE_PARENTHESIS               { $$ =  TypedTupleSemanticAction($type); }
+     ;
 
-empty_list: OPEN_BRACKET CLOSE_BRACKET                              { $$ = EmptyListSemanticAction(); }
-typed_list: OPEN_BRACKET object[id] CLOSE_BRACKET                   { $$ = TypedDefinitionListSemanticAction($id); }
-
-tuple: empty_tuple                                                      { $$ = EmptyTupleSemanticAction(); }
-     | typed_tuple                                                      { $$ = TypedTupleSemanticAction($1) }
-     | OPEN_PARENTHESIS parameters[params] CLOSE_PARENTHESIS            { $$ = TupleSemanticAction($params); }
-
-empty_tuple: OPEN_PARENTHESIS CLOSE_PARENTHESIS                         { $$ = EmptyTupleSemanticAction(); }
-typed_tuple: OPEN_PARENTHESIS BUILTIN_IDENTIFIER[id] CLOSE_PARENTHESIS  { $$ = TypedTupleSemanticAction($id); }
+variableCall: IDENTIFIER 											{ $$ = VariableCallSemanticAction($1); }
 
 functionCall: IDENTIFIER[id] OPEN_PARENTHESIS parameters[params] CLOSE_PARENTHESIS 	{ $$ = FunctionCallSemanticAction($id, $params); }
-	        ;
+	;
 
-object: BUILTIN_IDENTIFIER                                          { $$ = BuiltInObjectSemanticAction($1); }
-      | IDENTIFIER[id]                                              { $$ = ObjectSemanticAction($id); }
-      | tuple                                                       { $$ = ListObjectSemanticAction($1); }
-      | list                                                        { $$ = TupleObjectSemanticAction($1); }
-      ;
-
-methodCall: object[obj] DOT functionCall[func]                      { $$ = ObjectMethodCallSemanticAction($obj, $func); }
-          | variableCall[var] DOT functionCall[func]                { $$ = VariableMethodCallSemanticAction($var, $func); }
-          ;
-
-fieldGetter: object[obj] DOT variableCall[field]                    { $$ = ObjectFieldGetterSemanticAction($obj, $field); }
-          | variableCall[var] DOT variableCall[field]               { $$ = VariableFieldGetterSemanticAction($var, $field)}
-          ;
-
-
-parameters: %empty												    { $$ = ParametersSemanticAction(NULL, NULL, EMPTY); }
-	      | expression[left] COMMA parameters[right]				{ $$ = ParametersSemanticAction($left, $right, NOT_FINAL); }
-	      | expression[left]										{ $$ = ParametersSemanticAction($left, NULL, FINAL); }
-          ;
-
-variable: IDENTIFIER[id] ASSIGN expression[fact]                    { $$ = ExpressionVariableSemanticAction($id, $fact);}
-        | IDENTIFIER[id] ASSIGN functionCall[fcall]                 { $$ = FunctionCallVariableSemanticAction($id, $fcall); }
-        | IDENTIFIER[id] ASSIGN methodCall[method]                  { $$ = MethodCallVariableSemanticAction($id, $method); }
-        | IDENTIFIER[id] ASSIGN fieldGetter[field]                  { $$ = FieldGetterVariableSemanticAction($id, $field); }
-        | IDENTIFIER[id] ASSIGN object[obj]                         { $$ = ObjectVariableSemanticAction($id, $obj); }
-        | IDENTIFIER[id] ASSIGN variableCall[var]                   { $$ = VariableCallVariableSemanticAction($id, $var); }
+parameters: %empty													{ $$ = ParametersSemanticAction(NULL, NULL, EMPTY); }
+	| 	expression[left] COMMA parameters[right]				    { $$ = ParametersSemanticAction($left, $right, NOT_FINAL); }
+	|   expression[left]											{ $$ = ParametersSemanticAction($left, NULL, FINAL); }
 
 depth: %empty														{ $$ = DepthSemanticAction(END_DEPTH); }
 	| TAB depth														{ $$ = DepthSemanticAction(TAB_DEPTH); }
-
-newline: NEWLINE_TOKEN												{ $$ = NewlineSemanticAction(FINAL_NEWLINE); }
 
 %%
 

@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+
 /**
  * The state of a lexical-analyzer context.
  */
@@ -14,6 +15,9 @@ typedef struct {
 	unsigned int line;
 	union SemanticValue * semanticValue;
 } LexicalAnalyzerContext;
+
+static LexicalAnalyzerContext * oldLexicalAnalyzerContext = NULL;
+
 
 /**
  * Creates a new context with the current state of the lexical-analyzer over

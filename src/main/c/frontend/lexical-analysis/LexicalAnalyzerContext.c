@@ -23,7 +23,11 @@ extern char * yytext;
 
 /* PUBLIC FUNCTIONS */
 
+
 LexicalAnalyzerContext * createLexicalAnalyzerContext() {
+	if (oldLexicalAnalyzerContext != NULL)
+		destroyLexicalAnalyzerContext(oldLexicalAnalyzerContext);
+
 	LexicalAnalyzerContext * lexicalAnalyzerContext = calloc(1, sizeof(LexicalAnalyzerContext));
 	lexicalAnalyzerContext->length = yyleng;
 	lexicalAnalyzerContext->lexeme = calloc(1 + yyleng, sizeof(char));
@@ -31,6 +35,9 @@ LexicalAnalyzerContext * createLexicalAnalyzerContext() {
 	lexicalAnalyzerContext->semanticValue = &yylval;
 	lexicalAnalyzerContext->currentContext = flexCurrentContext();
 	strncpy(lexicalAnalyzerContext->lexeme, yytext, yyleng);
+
+	oldLexicalAnalyzerContext = lexicalAnalyzerContext; // TO FREE ?
+
 	return lexicalAnalyzerContext;
 }
 

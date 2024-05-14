@@ -8,10 +8,13 @@
 #include "shared/Environment.h"
 #include "shared/Logger.h"
 #include "shared/String.h"
-
+#include "frontend/lexical-analysis/LexicalAnalyzerContext.h"
 /**
  * The main entry-point of the entire application.
  */
+
+extern LexicalAnalyzerContext * oldLexicalAnalyzerContext;
+
 const int main(const int count, const char ** arguments) {
 	Logger * logger = createLogger("EntryPoint");
 	initializeFlexActionsModule();
@@ -34,6 +37,14 @@ const int main(const int count, const char ** arguments) {
 	};
 	const SyntacticAnalysisStatus syntacticAnalysisStatus = parse(&compilerState);
 	CompilationStatus compilationStatus = SUCCEED;
+	if (syntacticAnalysisStatus == ACCEPT) {
+		Program * program = compilerState.abstractSyntaxtTree;
+		logDebugging(logger, "Releasing AST resources...");
+		releaseProgram(program);
+	} else {
+		logError(logger, "The syntactic-analysis phase rejects the input program.");
+		compilationStatus = FAILED;
+	}
 	// if (syntacticAnalysisStatus == ACCEPT) {
 	// 	logDebugging(logger, "Computing expression value...");
 	// 	Program * program = compilerState.abstractSyntaxtTree;
@@ -63,5 +74,6 @@ const int main(const int count, const char ** arguments) {
 	shutdownFlexActionsModule();
 	logDebugging(logger, "Compilation is done.");
 	destroyLogger(logger);
+	destroyLexicalAnalyzerContext(oldLexicalAnalyzerContext);
 	return compilationStatus;
 }
