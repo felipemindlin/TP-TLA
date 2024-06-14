@@ -15,7 +15,9 @@
     char * string;
 
 	char * var_name;
-	Token token;
+	BuiltinDefinition builtin_definition;
+
+    Token token;
 
 	/** Non-terminals. */
 
@@ -49,28 +51,6 @@
  * @see https://www.gnu.org/software/bison/manual/html_node/Destructor-Decl.html
  */
 
-
-%destructor { releaseConstant($$); } <constant>
-%destructor { releaseExpression($$); } <expression>
-%destructor { releaseSentence($$); } <sentence>
-%destructor { releaseProgram($$); } <program>
-%destructor { releaseVariable($$); } <variable>
-%destructor { releaseVariableCall($$); } <variableCall>
-%destructor { releaseMethodCall($$); } <methodCall>
-%destructor { releaseFunctionCall($$); } <functionCall>
-%destructor { releaseParameters($$); } <parameters>
-%destructor { releaseDepth($$); } <depth>
-%destructor { releaseTuple($$); } <tuple>
-%destructor { releaseFunctionDefinition($$); } <functionDefinition>
-%destructor { releaseClassDefinition($$); } <classDefinition>
-%destructor { releaseBlock($$); } <block>
-%destructor { releaseObject($$); } <object>
-%destructor { releaseFieldGetter($$); } <fieldGetter>
-%destructor { releaseList($$); } <list>
-%destructor { releaseWhileBlock($$); } <whileBlock>
-%destructor { releaseForBlock($$); } <forBlock>
-%destructor { releaseConditionalBlock($$); } <conditionalBlock>
-
 /** Terminals. */
 %token <integer> INTEGER
 %token <fp_number> FLOAT
@@ -78,7 +58,8 @@
 %token <string> STRING
 
 %token <var_name> IDENTIFIER
-%token <var_name> BUILTIN_IDENTIFIER
+%token <builtin_definition> BUILTIN_IDENTIFIER
+
 
 %token <token> NONE
 
@@ -226,7 +207,7 @@
 %%
 
 program:  depth sentence program							{ $$ = GeneralProgramSemanticAction(currentCompilerState(), $1, $2, $3); }
-	| depth NEWLINE_TOKEN program						    { $$ = GeneralProgramSemanticAction(currentCompilerState(), $1, NULL, $3); }	
+	| depth NEWLINE_TOKEN program						    { $$ = GeneralProgramSemanticAction(currentCompilerState(), $1, NULL, $3); }
 	| YYEOF				                                    { $$ = FinishedProgramSemanticAction(currentCompilerState()); }
 	;
 
@@ -331,7 +312,8 @@ tuple: OPEN_PARENTHESIS parameters[params] CLOSE_PARENTHESIS         { $$ =  Par
 variableCall: IDENTIFIER 											{ $$ = VariableCallSemanticAction($1); }
 
 functionCall: IDENTIFIER[id] OPEN_PARENTHESIS parameters[params] CLOSE_PARENTHESIS 	{ $$ = FunctionCallSemanticAction($id, $params); }
-	;
+	        | object[obj] OPEN_PARENTHESIS parameters[params] CLOSE_PARENTHESIS { $$ = ObjectFunctionCallSemanticAction($obj, $params); }
+    ;
 
 parameters: %empty													{ $$ = ParametersSemanticAction(NULL, NULL, EMPTY); }
 	| 	expression[left] COMMA parameters[right]				    { $$ = ParametersSemanticAction($left, $right, NOT_FINAL); }

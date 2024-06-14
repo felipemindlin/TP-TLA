@@ -34,6 +34,8 @@ typedef enum BinaryComparatorType BinaryComparatorType;
 typedef enum ComparableValueType ComparableValueType;
 typedef enum LogicValueType LogicValueType;
 typedef enum ConditionalType ConditionalType;
+typedef enum BuiltinDefinition BuiltinDefinition;
+typedef enum FunctionCallType FunctionCallType;
 
 typedef struct Variable Variable;
 typedef struct Constant Constant;
@@ -141,7 +143,8 @@ enum FunctionDefinitionType {
     FD_OBJECT_TYPE,
     FD_VARIABLE_CALL_TYPE,
     FD_LIST_TYPE,
-    FD_TUPLE_TYPE
+    FD_TUPLE_TYPE,
+    FD_BUILTIN_TYPE,
 };
 
 enum ClassDefinitionType {
@@ -188,6 +191,81 @@ enum BinaryComparatorType {
 	BCT_NIDENTITY,
 };
 
+enum BuiltinDefinition {
+	BTF_ABS,
+    BTF_AITER,
+    BTF_ALL,
+    BTF_ANEXT,
+    BTF_ANY,
+    BTF_ASCII,
+    BTF_BIN,
+    BTF_BOOL,
+    BTF_BREAKPOINT,
+    BTF_BYTEARRAY,
+    BTF_BYTES,
+    BTF_CALLABLE,
+    BTF_CLASSMETHOD,
+    BTF_COMPILE,
+    BTF_COMPLEX,
+    BTF_DELATTR,
+    BTF_DICT,
+    BTF_DIR,
+    BTF_DIVMOD,
+    BTF_ENUMERATE,
+    BTF_EVAL,
+    BTF_EXEC,
+    BTF_FILTER,
+    BTF_FLOAT,
+    BTF_FORMAT,
+    BTF_FROZENSET,
+    BTF_GETATTR,
+    BTF_GLOBALS,
+    BTF_HASATTR,
+    BTF_HASH,
+    BTF_HELP,
+    BTF_HEX,
+    BTF_ID,
+    BTF_INPUT,
+    BTF_INT,
+    BTF_ISINSTANCE,
+    BTF_ISSUBCLASS,
+    BTF_ITER,
+    BTF_LEN,
+    BTF_LIST,
+    BTF_LOCALS,
+    BTF_MAP,
+    BTF_MEMORYVIEW,
+    BTF_MIN,
+    BTF_NEXT,
+    BTF_OBJECT,
+    BTF_OCT,
+    BTF_OPEN,
+    BTF_ORD,
+    BTF_POW,
+    BTF_PRINT,
+    BTF_RANGE,
+    BTF_REPR,
+    BTF_REVERSED,
+    BTF_ROUND,
+    BTF_SET,
+    BTF_SETATTR,
+    BTF_SLICE,
+    BTF_SORTED,
+    BTF_STATICMETHOD,
+    BTF_STR,
+    BTF_SUM,
+    BTF_SUPER,
+    BTF_TUPLE,
+    BTF_TYPE,
+    BTF_VARS,
+    BTF_ZIP,
+};
+
+enum FunctionCallType {
+    FC_DEF,
+    FC_OBJECT,
+};
+
 enum ConditionalType {
     CB_IF,
     CB_ELIF,
@@ -214,7 +292,7 @@ struct Variable {
 
 struct Object {
   union {
-    char * className;
+    BuiltinDefinition builtinDefinition;
   };
   ObjectType type;
 };
@@ -290,6 +368,7 @@ struct FunctionDefinition {
     union {
         Object * objectType;
         VariableCall * returnVariableType;
+        BuiltinDefinition builtinDefinition;
         List * listReturnType;
         Tuple * tupleReturnType;
     };
@@ -309,8 +388,12 @@ struct VariableCall {
 };
 
 struct FunctionCall {
-	const char * functionName;
+    union {
+	    const char * functionName;
+        Object * object;
+    };
 	Parameters * functionArguments;
+    FunctionCallType type;
 };
 
 struct MethodCall {

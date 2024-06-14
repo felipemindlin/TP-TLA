@@ -19,7 +19,6 @@ void shutdownAbstractSyntaxTreeModule() {
 void releaseObject(Object * object) {
 	logDebugging(_logger, "Executing destructor: %s", __FUNCTION__);
 	if (object != NULL) {
-		free(object->className);
 		free(object);
 	}
 }
@@ -127,7 +126,7 @@ void releaseProgram(Program * program) {
 	if (program != NULL) {
 		releaseDepth(program->depth);
 		releaseSentence(program->sentence);
-		releaseProgram(program->nextProgram);
+	    releaseProgram(program->nextProgram);
 		free(program);
 	}
 }
@@ -202,7 +201,9 @@ void releaseBlock(Block * block){
             case BT_WHILE:
                 releaseWhileBlock(block->whileBlock);
 		}
-		releaseProgram(block->nextProgram);
+        if(block->nextProgram == NULL) {
+            releaseProgram(block->nextProgram);
+        }
 		free(block);
 	}
 }
@@ -234,7 +235,7 @@ void releaseSentence(Sentence * sentence){
 	if (sentence != NULL) {
 		switch (sentence->type) {
 			case EXPRESSION_SENTENCE:
-				// free(sentence->functionName); no es necesario casi seguro que no tiene sentido freear un const char * pero lo dejo para charlar
+				// free(sentence->functionName); // no es necesario casi seguro que no tiene sentido freear un const char * pero lo dejo para charlar
 				releaseExpression(sentence->expression);
 				break;
 			case VARIABLE_SENTENCE:
@@ -251,7 +252,7 @@ void releaseVariableCall(VariableCall * variableCall){
 
 	logDebugging(_logger, "Executing destructor: %s", __FUNCTION__);
 	if (variableCall != NULL) {
-		//free(variableCall->variableName); same as above
+		// free(variableCall->variableName); // same as above
 		free(variableCall);
 	}
 }
@@ -259,7 +260,11 @@ void releaseVariableCall(VariableCall * variableCall){
 void releaseFunctionCall(FunctionCall * functionCall){
 	logDebugging(_logger, "Executing destructor: %s", __FUNCTION__);
 	if (functionCall != NULL) {
-		// free(functionCall->functionName); same as above
+        if(functionCall->type == FC_DEF) {
+            // free(functionCall->functionName); // same as above
+        } else {
+            releaseObject(functionCall->object);
+        }
 		releaseParameters(functionCall->functionArguments);
 		free(functionCall);
 	}

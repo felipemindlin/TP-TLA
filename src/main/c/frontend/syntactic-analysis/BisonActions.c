@@ -208,6 +208,16 @@ FunctionCall * FunctionCallSemanticAction(const char * function, Parameters * pa
 	FunctionCall * functionCall = calloc(1, sizeof(FunctionCall));
 	functionCall->functionName = function; // function is obtained from strdup, should be freed
 	functionCall->functionArguments = parameters;
+    functionCall->type = FC_DEF;
+	return functionCall;
+}
+
+FunctionCall * ObjectFunctionCallSemanticAction(Object * obj, Parameters * parameters){
+	_logSyntacticAnalyzerAction(__FUNCTION__);
+	FunctionCall * functionCall = calloc(1, sizeof(FunctionCall));
+	functionCall->object = obj;
+	functionCall->functionArguments = parameters;
+    functionCall->type = FC_OBJECT;
 	return functionCall;
 }
 
@@ -451,10 +461,10 @@ FieldGetter * ConstantFieldGetterSemanticAction(Constant * cons, VariableCall * 
 }
 
 /** OBJECT SECTION **/
-Object * ObjectSemanticAction(char * restrict id, ObjectType type) {
+Object * ObjectSemanticAction(BuiltinDefinition def, ObjectType type) {
 	_logSyntacticAnalyzerAction(__FUNCTION__);
 	Object * object = calloc(1, sizeof(Object));
-	object->className = id;
+	object->builtinDefinition = def;
 	object->type = type;
 	return object;
 }

@@ -43,6 +43,7 @@ Program * FinishedProgramSemanticAction(CompilerState * compilerState);
 
 VariableCall * VariableCallSemanticAction(const char * variableName);
 FunctionCall * FunctionCallSemanticAction(const char * functionName, Parameters * parameters);
+FunctionCall * ObjectFunctionCallSemanticAction(Object * obj, Parameters * parameters);
 Parameters * ParametersSemanticAction(Expression * leftExpression, Parameters * nextParameters, ParamType type);
 
 Depth * DepthSemanticAction(DepthType type);
@@ -92,7 +93,7 @@ FieldGetter * VariableFieldGetterSemanticAction(VariableCall *, VariableCall *);
 FieldGetter * ConstantFieldGetterSemanticAction(Constant * cons, VariableCall * field);
 
 /** OBJECT SECTION **/
-Object * ObjectSemanticAction(char * restrict id, ObjectType type);
+Object * ObjectSemanticAction(BuiltinDefinition def, ObjectType type);
 
 /** LIST SECTION **/
 List * ParametrizedListSemanticAction(Parameters * params);
