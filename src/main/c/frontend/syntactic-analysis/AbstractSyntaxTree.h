@@ -128,6 +128,7 @@ enum SentenceType {
 	EXPRESSION_SENTENCE,
     VARIABLE_SENTENCE,
     BLOCK_SENTENCE,
+    RETURN_SENTENCE
 };
 
 enum BlockType {

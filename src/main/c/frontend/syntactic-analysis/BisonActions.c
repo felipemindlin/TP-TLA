@@ -271,6 +271,14 @@ Sentence * BlockSentenceSemanticAction(Block * block) {
 	return sentence;
 }
 
+Sentence * ReturnSentenceSemanticAction(Expression * exp) {
+	_logSyntacticAnalyzerAction(__FUNCTION__);
+	Sentence * sentence = calloc(1, sizeof(Sentence));
+	sentence->expression = exp;
+	sentence->type = RETURN_SENTENCE;
+	return sentence;
+}
+
 /** BLOCK SECTION **/
 Block * FunctionDefinitionBlockSemanticAction(FunctionDefinition * fdef, Program * nextProg) {
 	_logSyntacticAnalyzerAction(__FUNCTION__);

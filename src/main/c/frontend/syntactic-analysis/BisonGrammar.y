@@ -214,6 +214,7 @@ program:  depth sentence program							{ $$ = GeneralProgramSemanticAction(curre
 sentence: expression												{ $$ = ExpressionSentenceSemanticAction($1); }
 	| variable														{ $$ = VariableSentenceSemanticAction($1); }
     | block                                                         { $$ = BlockSentenceSemanticAction($1); }
+	| RETURN_KEYWORD_TOKEN expression[exp]							{ $$ = ReturnSentenceSemanticAction($exp); }
 
 block: functionDefinition[fdef] COLON NEWLINE_TOKEN TAB program[prog]               { $$ = FunctionDefinitionBlockSemanticAction($fdef, $prog); }
      | classDefinition[cdef] COLON NEWLINE_TOKEN TAB program[prog]                  { $$ = ClassDefinitionBlockSemanticAction($cdef, $prog); }

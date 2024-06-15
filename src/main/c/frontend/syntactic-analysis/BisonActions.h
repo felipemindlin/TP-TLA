@@ -53,6 +53,7 @@ Newline * NewlineSemanticAction(NewlineType type);
 Sentence * ExpressionSentenceSemanticAction(Expression * exp);
 Sentence * VariableSentenceSemanticAction(Variable * var);
 Sentence * BlockSentenceSemanticAction(Block * block);
+Sentence * ReturnSentenceSemanticAction(Expression * exp);
 
 /** BLOCK SECTION **/
 Block * FunctionDefinitionBlockSemanticAction(FunctionDefinition * fdef, Program * nextProg);
