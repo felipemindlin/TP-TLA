@@ -5,8 +5,6 @@
 static Logger * _logger = NULL;
 static boolean _logIgnoredLexemes = true;
 
-static int isDefinedFunction(char * lexeme);
-
 void initializeFlexActionsModule() {
 	_logIgnoredLexemes = getBooleanOrDefault("LOG_IGNORED_LEXEMES", _logIgnoredLexemes);
 	_logger = createLogger("FlexActions");
@@ -98,10 +96,81 @@ Token UnknownLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext) {
 Token IdentifierLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext) {
 	_logLexicalAnalyzerContext(__FUNCTION__, lexicalAnalyzerContext);
 	lexicalAnalyzerContext->semanticValue->var_name = strdup(lexicalAnalyzerContext->lexeme);
-    if (isDefinedFunction(lexicalAnalyzerContext->lexeme)) {
-        return BUILTIN_IDENTIFIER;
-    }
 	return IDENTIFIER;
+}
+
+Token BuiltinIdentifierLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext, BuiltinIdentifier id){
+	_logLexicalAnalyzerContext(__FUNCTION__, lexicalAnalyzerContext);
+    switch(id){
+        case BI_ABS: lexicalAnalyzerContext->semanticValue->builtin_definition = BTF_ABS; break;
+        case BI_AITER: lexicalAnalyzerContext->semanticValue->builtin_definition = BTF_AITER; break;
+        case BI_ALL: lexicalAnalyzerContext->semanticValue->builtin_definition = BTF_ALL; break;
+        case BI_ANEXT: lexicalAnalyzerContext->semanticValue->builtin_definition = BTF_ANEXT; break;
+        case BI_ANY: lexicalAnalyzerContext->semanticValue->builtin_definition = BTF_ANY; break;
+        case BI_ASCII: lexicalAnalyzerContext->semanticValue->builtin_definition = BTF_ASCII; break;
+        case BI_BIN: lexicalAnalyzerContext->semanticValue->builtin_definition = BTF_BIN; break;
+        case BI_BOOL: lexicalAnalyzerContext->semanticValue->builtin_definition = BTF_BOOL; break;
+        case BI_BREAKPOINT: lexicalAnalyzerContext->semanticValue->builtin_definition = BTF_BREAKPOINT; break;
+        case BI_BYTEARRAY: lexicalAnalyzerContext->semanticValue->builtin_definition = BTF_BYTEARRAY; break;
+        case BI_BYTES: lexicalAnalyzerContext->semanticValue->builtin_definition = BTF_BYTES; break;
+        case BI_CALLABLE: lexicalAnalyzerContext->semanticValue->builtin_definition = BTF_CALLABLE; break;
+        case BI_CLASSMETHOD: lexicalAnalyzerContext->semanticValue->builtin_definition = BTF_CLASSMETHOD; break;
+        case BI_COMPILE: lexicalAnalyzerContext->semanticValue->builtin_definition = BTF_COMPILE; break;
+        case BI_COMPLEX: lexicalAnalyzerContext->semanticValue->builtin_definition = BTF_COMPLEX; break;
+        case BI_DELATTR: lexicalAnalyzerContext->semanticValue->builtin_definition = BTF_DELATTR; break;
+        case BI_DICT: lexicalAnalyzerContext->semanticValue->builtin_definition = BTF_DICT; break;
+        case BI_DIR: lexicalAnalyzerContext->semanticValue->builtin_definition = BTF_DIR; break;
+        case BI_DIVMOD: lexicalAnalyzerContext->semanticValue->builtin_definition = BTF_DIVMOD; break;
+        case BI_ENUMERATE: lexicalAnalyzerContext->semanticValue->builtin_definition = BTF_ENUMERATE; break;
+        case BI_EVAL: lexicalAnalyzerContext->semanticValue->builtin_definition = BTF_EVAL; break;
+        case BI_EXEC: lexicalAnalyzerContext->semanticValue->builtin_definition = BTF_EXEC; break;
+        case BI_FILTER: lexicalAnalyzerContext->semanticValue->builtin_definition = BTF_FILTER; break;
+        case BI_FLOAT: lexicalAnalyzerContext->semanticValue->builtin_definition = BTF_FLOAT; break;
+        case BI_FORMAT: lexicalAnalyzerContext->semanticValue->builtin_definition = BTF_FORMAT; break;
+        case BI_FROZENSET: lexicalAnalyzerContext->semanticValue->builtin_definition = BTF_FROZENSET; break;
+        case BI_GETATTR: lexicalAnalyzerContext->semanticValue->builtin_definition = BTF_GETATTR; break;
+        case BI_GLOBALS: lexicalAnalyzerContext->semanticValue->builtin_definition = BTF_GLOBALS; break;
+        case BI_HASATTR: lexicalAnalyzerContext->semanticValue->builtin_definition = BTF_HASATTR; break;
+        case BI_HASH: lexicalAnalyzerContext->semanticValue->builtin_definition = BTF_HASH; break;
+        case BI_HELP: lexicalAnalyzerContext->semanticValue->builtin_definition = BTF_HELP; break;
+        case BI_HEX: lexicalAnalyzerContext->semanticValue->builtin_definition = BTF_HEX; break;
+        case BI_ID: lexicalAnalyzerContext->semanticValue->builtin_definition = BTF_ID; break;
+        case BI_INPUT: lexicalAnalyzerContext->semanticValue->builtin_definition = BTF_INPUT; break;
+        case BI_INT: lexicalAnalyzerContext->semanticValue->builtin_definition = BTF_INT; break;
+        case BI_ISINSTANCE: lexicalAnalyzerContext->semanticValue->builtin_definition = BTF_ISINSTANCE; break;
+        case BI_ISSUBCLASS: lexicalAnalyzerContext->semanticValue->builtin_definition = BTF_ISSUBCLASS; break;
+        case BI_ITER: lexicalAnalyzerContext->semanticValue->builtin_definition = BTF_ITER; break;
+        case BI_LEN: lexicalAnalyzerContext->semanticValue->builtin_definition = BTF_LEN; break;
+        case BI_LIST: lexicalAnalyzerContext->semanticValue->builtin_definition = BTF_LIST; break;
+        case BI_LOCALS: lexicalAnalyzerContext->semanticValue->builtin_definition = BTF_LOCALS; break;
+        case BI_MAP: lexicalAnalyzerContext->semanticValue->builtin_definition = BTF_MAP; break;
+        case BI_MEMORYVIEW: lexicalAnalyzerContext->semanticValue->builtin_definition = BTF_MEMORYVIEW; break;
+        case BI_MIN: lexicalAnalyzerContext->semanticValue->builtin_definition = BTF_MIN; break;
+        case BI_NEXT: lexicalAnalyzerContext->semanticValue->builtin_definition = BTF_NEXT; break;
+        case BI_OBJECT: lexicalAnalyzerContext->semanticValue->builtin_definition = BTF_OBJECT; break;
+        case BI_OCT: lexicalAnalyzerContext->semanticValue->builtin_definition = BTF_OCT; break;
+        case BI_OPEN: lexicalAnalyzerContext->semanticValue->builtin_definition = BTF_OPEN; break;
+        case BI_ORD: lexicalAnalyzerContext->semanticValue->builtin_definition = BTF_ORD; break;
+        case BI_POW: lexicalAnalyzerContext->semanticValue->builtin_definition = BTF_POW; break;
+        case BI_PRINT: lexicalAnalyzerContext->semanticValue->builtin_definition = BTF_PRINT; break;
+        case BI_RANGE: lexicalAnalyzerContext->semanticValue->builtin_definition = BTF_RANGE; break;
+        case BI_REPR: lexicalAnalyzerContext->semanticValue->builtin_definition = BTF_REPR; break;
+        case BI_REVERSED: lexicalAnalyzerContext->semanticValue->builtin_definition = BTF_REVERSED; break;
+        case BI_ROUND: lexicalAnalyzerContext->semanticValue->builtin_definition = BTF_ROUND; break;
+        case BI_SET: lexicalAnalyzerContext->semanticValue->builtin_definition = BTF_SET; break;
+        case BI_SETATTR: lexicalAnalyzerContext->semanticValue->builtin_definition = BTF_SETATTR; break;
+        case BI_SLICE: lexicalAnalyzerContext->semanticValue->builtin_definition = BTF_SLICE; break;
+        case BI_SORTED: lexicalAnalyzerContext->semanticValue->builtin_definition = BTF_SORTED; break;
+        case BI_STATICMETHOD: lexicalAnalyzerContext->semanticValue->builtin_definition = BTF_STATICMETHOD; break;
+        case BI_STR: lexicalAnalyzerContext->semanticValue->builtin_definition = BTF_STR; break;
+        case BI_SUM: lexicalAnalyzerContext->semanticValue->builtin_definition = BTF_SUM; break;
+        case BI_SUPER: lexicalAnalyzerContext->semanticValue->builtin_definition = BTF_SUPER; break;
+        case BI_TUPLE: lexicalAnalyzerContext->semanticValue->builtin_definition = BTF_TUPLE; break;
+        case BI_TYPE: lexicalAnalyzerContext->semanticValue->builtin_definition = BTF_TYPE; break;
+        case BI_VARS: lexicalAnalyzerContext->semanticValue->builtin_definition = BTF_VARS; break;
+        case BI_ZIP: lexicalAnalyzerContext->semanticValue->builtin_definition = BTF_ZIP;
+    }
+    return BUILTIN_IDENTIFIER;
 }
 
 
@@ -450,75 +519,4 @@ Token DefineLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext) {
 	_logLexicalAnalyzerContext(__FUNCTION__, lexicalAnalyzerContext);
 	lexicalAnalyzerContext->semanticValue->token = DEF;
 	return DEF;
-}
-
-
-static int isDefinedFunction(char * lexeme) {
-	return strcmp(lexeme, "abs") == 0
-    	|| strcmp(lexeme, "aiter") == 0
-    	|| strcmp(lexeme, "all") == 0
-    	|| strcmp(lexeme, "anext") == 0
-    	|| strcmp(lexeme, "any") == 0
-    	|| strcmp(lexeme, "ascii") == 0
-    	|| strcmp(lexeme, "bin") == 0
-    	|| strcmp(lexeme, "bool") == 0
-    	|| strcmp(lexeme, "breakpoint") == 0
-    	|| strcmp(lexeme, "bytearray") == 0
-    	|| strcmp(lexeme, "bytes") == 0
-    	|| strcmp(lexeme, "callable") == 0
-    	|| strcmp(lexeme, "classmethod") == 0
-    	|| strcmp(lexeme, "compile") == 0
-    	|| strcmp(lexeme, "complex") == 0
-    	|| strcmp(lexeme, "delattr") == 0
-    	|| strcmp(lexeme, "dict") == 0
-    	|| strcmp(lexeme, "dir") == 0
-    	|| strcmp(lexeme, "divmod") == 0
-    	|| strcmp(lexeme, "enumerate") == 0
-    	|| strcmp(lexeme, "eval") == 0
-    	|| strcmp(lexeme, "exec") == 0
-    	|| strcmp(lexeme, "filter") == 0
-    	|| strcmp(lexeme, "float") == 0
-    	|| strcmp(lexeme, "format") == 0
-    	|| strcmp(lexeme, "frozenset") == 0
-    	|| strcmp(lexeme, "getattr") == 0
-    	|| strcmp(lexeme, "globals") == 0
-    	|| strcmp(lexeme, "hasattr") == 0
-    	|| strcmp(lexeme, "hash") == 0
-    	|| strcmp(lexeme, "help") == 0
-    	|| strcmp(lexeme, "hex") == 0
-    	|| strcmp(lexeme, "id") == 0
-    	|| strcmp(lexeme, "input") == 0
-    	|| strcmp(lexeme, "int") == 0
-    	|| strcmp(lexeme, "isinstance") == 0
-    	|| strcmp(lexeme, "issubclass") == 0
-    	|| strcmp(lexeme, "iter") == 0
-    	|| strcmp(lexeme, "len") == 0
-    	|| strcmp(lexeme, "list") == 0
-    	|| strcmp(lexeme, "locals") == 0
-    	|| strcmp(lexeme, "map") == 0
-    	|| strcmp(lexeme, "memoryview") == 0
-    	|| strcmp(lexeme, "min") == 0
-    	|| strcmp(lexeme, "next") == 0
-    	|| strcmp(lexeme, "object") == 0
-    	|| strcmp(lexeme, "oct") == 0
-    	|| strcmp(lexeme, "open") == 0
-    	|| strcmp(lexeme, "ord") == 0
-    	|| strcmp(lexeme, "pow") == 0
-    	|| strcmp(lexeme, "print") == 0
-    	|| strcmp(lexeme, "range") == 0
-    	|| strcmp(lexeme, "repr") == 0
-    	|| strcmp(lexeme, "reversed") == 0
-    	|| strcmp(lexeme, "round") == 0
-    	|| strcmp(lexeme, "set") == 0
-    	|| strcmp(lexeme, "setattr") == 0
-    	|| strcmp(lexeme, "slice") == 0
-    	|| strcmp(lexeme, "sorted") == 0
-    	|| strcmp(lexeme, "staticmethod") == 0
-    	|| strcmp(lexeme, "str") == 0
-    	|| strcmp(lexeme, "sum") == 0
-    	|| strcmp(lexeme, "super") == 0
-    	|| strcmp(lexeme, "tuple") == 0
-    	|| strcmp(lexeme, "type") == 0
-    	|| strcmp(lexeme, "vars") == 0
-    	|| strcmp(lexeme, "zip") == 0;
 }

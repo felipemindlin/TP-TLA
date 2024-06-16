@@ -21,6 +21,77 @@ void shutdownFlexActionsModule();
  * Flex lexeme processing actions.
  */
 
+typedef enum BuiltinIdentifier {
+    BI_ABS,
+    BI_AITER,
+    BI_ALL,
+    BI_ANEXT,
+    BI_ANY,
+    BI_ASCII,
+    BI_BIN,
+    BI_BOOL,
+    BI_BREAKPOINT,
+    BI_BYTEARRAY,
+    BI_BYTES,
+    BI_CALLABLE,
+    BI_CLASSMETHOD,
+    BI_COMPILE,
+    BI_COMPLEX,
+    BI_DELATTR,
+    BI_DICT,
+    BI_DIR,
+    BI_DIVMOD,
+    BI_ENUMERATE,
+    BI_EVAL,
+    BI_EXEC,
+    BI_FILTER,
+    BI_FLOAT,
+    BI_FORMAT,
+    BI_FROZENSET,
+    BI_GETATTR,
+    BI_GLOBALS,
+    BI_HASATTR,
+    BI_HASH,
+    BI_HELP,
+    BI_HEX,
+    BI_ID,
+    BI_INPUT,
+    BI_INT,
+    BI_ISINSTANCE,
+    BI_ISSUBCLASS,
+    BI_ITER,
+    BI_LEN,
+    BI_LIST,
+    BI_LOCALS,
+    BI_MAP,
+    BI_MEMORYVIEW,
+    BI_MIN,
+    BI_NEXT,
+    BI_OBJECT,
+    BI_OCT,
+    BI_OPEN,
+    BI_ORD,
+    BI_POW,
+    BI_PRINT,
+    BI_RANGE,
+    BI_REPR,
+    BI_REVERSED,
+    BI_ROUND,
+    BI_SET,
+    BI_SETATTR,
+    BI_SLICE,
+    BI_SORTED,
+    BI_STATICMETHOD,
+    BI_STR,
+    BI_SUM,
+    BI_SUPER,
+    BI_TUPLE,
+    BI_TYPE,
+    BI_VARS,
+    BI_ZIP,
+} BuiltinIdentifier;
+
+
 void BeginMultilineCommentLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);
 void EndMultilineCommentLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);
 void IgnoredLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);
@@ -30,6 +101,7 @@ Token FloatLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);
 Token BooleanLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);
 Token NoneLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);
 Token IdentifierLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);
+Token BuiltinIdentifierLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext, BuiltinIdentifier id);
 
 Token NewlineLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);
 Token TabLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);

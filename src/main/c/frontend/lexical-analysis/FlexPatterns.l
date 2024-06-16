@@ -135,7 +135,75 @@
 [+-]?[[:digit:]]+([.][[:digit:]]+)?[e][+-]?[[:digit:]]+ { return FloatLexemeAction(createLexicalAnalyzerContext());/* fp literal in sci notation */ }
 [+-]?[[:digit:]]+[.][[:digit:]]+                        { return FloatLexemeAction(createLexicalAnalyzerContext());/* floating point literal */ }
 [+-]?[[:digit:]]+                                       { return IntegerLexemeAction(createLexicalAnalyzerContext());/* integer literal */ }
-[_[:alpha:]][_[:alnum:]]*                                { return IdentifierLexemeAction(createLexicalAnalyzerContext());/* variable or function */ }
+[[^:alnum:]]"abs"[[^:alnum:]]                           { return BuiltinIdentifierLexemeAction(createLexicalAnalyzerContext(), BI_ABS); /* Builtin Classes */}
+[[^:alnum:]]"aiter"[[^:alnum:]]                         { return BuiltinIdentifierLexemeAction(createLexicalAnalyzerContext(), BI_AITER); /* Builtin Classes */}
+[[^:alnum:]]"all"[[^:alnum:]]                           { return BuiltinIdentifierLexemeAction(createLexicalAnalyzerContext(), BI_ALL); /* Builtin Classes */}
+[[^:alnum:]]"anext"[[^:alnum:]]                         { return BuiltinIdentifierLexemeAction(createLexicalAnalyzerContext(), BI_ANEXT); /* Builtin Classes */}
+[[^:alnum:]]"any"[[^:alnum:]]                           { return BuiltinIdentifierLexemeAction(createLexicalAnalyzerContext(), BI_ANY); /* Builtin Classes */}
+[[^:alnum:]]"ascii"[[^:alnum:]]                         { return BuiltinIdentifierLexemeAction(createLexicalAnalyzerContext(), BI_ASCII); /* Builtin Classes */}
+[[^:alnum:]]"bin"[[^:alnum:]]                           { return BuiltinIdentifierLexemeAction(createLexicalAnalyzerContext(), BI_BIN); /* Builtin Classes */}
+[[^:alnum:]]"bool"[[^:alnum:]]                          { return BuiltinIdentifierLexemeAction(createLexicalAnalyzerContext(), BI_BOOL); /* Builtin Classes */}
+[[^:alnum:]]"breakpoint"[[^:alnum:]]                    { return BuiltinIdentifierLexemeAction(createLexicalAnalyzerContext(), BI_BREAKPOINT); /* Builtin Classes */}
+[[^:alnum:]]"bytearray"[[^:alnum:]]                     { return BuiltinIdentifierLexemeAction(createLexicalAnalyzerContext(), BI_BYTEARRAY); /* Builtin Classes */}
+[[^:alnum:]]"bytes"[[^:alnum:]]                         { return BuiltinIdentifierLexemeAction(createLexicalAnalyzerContext(), BI_BYTES); /* Builtin Classes */}
+[[^:alnum:]]"callable"[[^:alnum:]]                      { return BuiltinIdentifierLexemeAction(createLexicalAnalyzerContext(), BI_CALLABLE); /* Builtin Classes */}
+[[^:alnum:]]"classmethod"[[^:alnum:]]                   { return BuiltinIdentifierLexemeAction(createLexicalAnalyzerContext(), BI_CLASSMETHOD); /* Builtin Classes */}
+[[^:alnum:]]"compile"[[^:alnum:]]                       { return BuiltinIdentifierLexemeAction(createLexicalAnalyzerContext(), BI_COMPILE); /* Builtin Classes */}
+[[^:alnum:]]"complex"[[^:alnum:]]                       { return BuiltinIdentifierLexemeAction(createLexicalAnalyzerContext(), BI_COMPLEX); /* Builtin Classes */}
+[[^:alnum:]]"delattr"[[^:alnum:]]                       { return BuiltinIdentifierLexemeAction(createLexicalAnalyzerContext(), BI_DELATTR); /* Builtin Classes */}
+[[^:alnum:]]"dict"[[^:alnum:]]                          { return BuiltinIdentifierLexemeAction(createLexicalAnalyzerContext(), BI_DICT); /* Builtin Classes */}
+[[^:alnum:]]"dir"[[^:alnum:]]                           { return BuiltinIdentifierLexemeAction(createLexicalAnalyzerContext(), BI_DIR); /* Builtin Classes */}
+[[^:alnum:]]"divmod"[[^:alnum:]]                        { return BuiltinIdentifierLexemeAction(createLexicalAnalyzerContext(), BI_DIVMOD); /* Builtin Classes */}
+[[^:alnum:]]"enumerate"[[^:alnum:]]                     { return BuiltinIdentifierLexemeAction(createLexicalAnalyzerContext(), BI_ENUMERATE); /* Builtin Classes */}
+[[^:alnum:]]"eval"[[^:alnum:]]                          { return BuiltinIdentifierLexemeAction(createLexicalAnalyzerContext(), BI_EVAL); /* Builtin Classes */}
+[[^:alnum:]]"exec"[[^:alnum:]]                          { return BuiltinIdentifierLexemeAction(createLexicalAnalyzerContext(), BI_EXEC); /* Builtin Classes */}
+[[^:alnum:]]"filter"[[^:alnum:]]                        { return BuiltinIdentifierLexemeAction(createLexicalAnalyzerContext(), BI_FILTER); /* Builtin Classes */}
+[[^:alnum:]]"float"[[^:alnum:]]                         { return BuiltinIdentifierLexemeAction(createLexicalAnalyzerContext(), BI_FLOAT); /* Builtin Classes */}
+[[^:alnum:]]"format"[[^:alnum:]]                        { return BuiltinIdentifierLexemeAction(createLexicalAnalyzerContext(), BI_FORMAT); /* Builtin Classes */}
+[[^:alnum:]]"frozenset"[[^:alnum:]]                     { return BuiltinIdentifierLexemeAction(createLexicalAnalyzerContext(), BI_FROZENSET); /* Builtin Classes */}
+[[^:alnum:]]"getattr"[[^:alnum:]]                       { return BuiltinIdentifierLexemeAction(createLexicalAnalyzerContext(), BI_GETATTR); /* Builtin Classes */}
+[[^:alnum:]]"globals"[[^:alnum:]]                       { return BuiltinIdentifierLexemeAction(createLexicalAnalyzerContext(), BI_GLOBALS); /* Builtin Classes */}
+[[^:alnum:]]"hasattr"[[^:alnum:]]                       { return BuiltinIdentifierLexemeAction(createLexicalAnalyzerContext(), BI_HASATTR); /* Builtin Classes */}
+[[^:alnum:]]"hash"[[^:alnum:]]                          { return BuiltinIdentifierLexemeAction(createLexicalAnalyzerContext(), BI_HASH); /* Builtin Classes */}
+[[^:alnum:]]"help"[[^:alnum:]]                          { return BuiltinIdentifierLexemeAction(createLexicalAnalyzerContext(), BI_HELP); /* Builtin Classes */}
+[[^:alnum:]]"hex"[[^:alnum:]]                           { return BuiltinIdentifierLexemeAction(createLexicalAnalyzerContext(), BI_HEX); /* Builtin Classes */}
+[[^:alnum:]]"id"[[^:alnum:]]                            { return BuiltinIdentifierLexemeAction(createLexicalAnalyzerContext(), BI_ID); /* Builtin Classes */}
+[[^:alnum:]]"input"[[^:alnum:]]                         { return BuiltinIdentifierLexemeAction(createLexicalAnalyzerContext(), BI_INPUT); /* Builtin Classes */}
+[[^:alnum:]]"int"[[^:alnum:]]                           { return BuiltinIdentifierLexemeAction(createLexicalAnalyzerContext(), BI_INT); /* Builtin Classes */}
+[[^:alnum:]]"isinstance"[[^:alnum:]]                    { return BuiltinIdentifierLexemeAction(createLexicalAnalyzerContext(), BI_ISINSTANCE); /* Builtin Classes */}
+[[^:alnum:]]"issubclass"[[^:alnum:]]                    { return BuiltinIdentifierLexemeAction(createLexicalAnalyzerContext(), BI_ISSUBCLASS); /* Builtin Classes */}
+[[^:alnum:]]"iter"[[^:alnum:]]                          { return BuiltinIdentifierLexemeAction(createLexicalAnalyzerContext(), BI_ITER); /* Builtin Classes */}
+[[^:alnum:]]"len"[[^:alnum:]]                           { return BuiltinIdentifierLexemeAction(createLexicalAnalyzerContext(), BI_LEN); /* Builtin Classes */}
+[[^:alnum:]]"list"[[^:alnum:]]                          { return BuiltinIdentifierLexemeAction(createLexicalAnalyzerContext(), BI_LIST); /* Builtin Classes */}
+[[^:alnum:]]"locals"[[^:alnum:]]                        { return BuiltinIdentifierLexemeAction(createLexicalAnalyzerContext(), BI_LOCALS); /* Builtin Classes */}
+[[^:alnum:]]"map"[[^:alnum:]]                           { return BuiltinIdentifierLexemeAction(createLexicalAnalyzerContext(), BI_MAP); /* Builtin Classes */}
+[[^:alnum:]]"memoryview"[[^:alnum:]]                    { return BuiltinIdentifierLexemeAction(createLexicalAnalyzerContext(), BI_MEMORYVIEW); /* Builtin Classes */}
+[[^:alnum:]]"min"[[^:alnum:]]                           { return BuiltinIdentifierLexemeAction(createLexicalAnalyzerContext(), BI_MIN); /* Builtin Classes */}
+[[^:alnum:]]"next"[[^:alnum:]]                          { return BuiltinIdentifierLexemeAction(createLexicalAnalyzerContext(), BI_NEXT); /* Builtin Classes */}
+[[^:alnum:]]"object"[[^:alnum:]]                        { return BuiltinIdentifierLexemeAction(createLexicalAnalyzerContext(), BI_OBJECT); /* Builtin Classes */}
+[[^:alnum:]]"oct"[[^:alnum:]]                           { return BuiltinIdentifierLexemeAction(createLexicalAnalyzerContext(), BI_OCT); /* Builtin Classes */}
+[[^:alnum:]]"open"[[^:alnum:]]                          { return BuiltinIdentifierLexemeAction(createLexicalAnalyzerContext(), BI_OPEN); /* Builtin Classes */}
+[[^:alnum:]]"ord"[[^:alnum:]]                           { return BuiltinIdentifierLexemeAction(createLexicalAnalyzerContext(), BI_ORD); /* Builtin Classes */}
+[[^:alnum:]]"pow"[[^:alnum:]]                           { return BuiltinIdentifierLexemeAction(createLexicalAnalyzerContext(), BI_POW); /* Builtin Classes */}
+[[^:alnum:]]"print"[[^:alnum:]]                         { return BuiltinIdentifierLexemeAction(createLexicalAnalyzerContext(), BI_PRINT); /* Builtin Classes */}
+[[^:alnum:]]"range"[[^:alnum:]]                         { return BuiltinIdentifierLexemeAction(createLexicalAnalyzerContext(), BI_RANGE); /* Builtin Classes */}
+[[^:alnum:]]"repr"[[^:alnum:]]                          { return BuiltinIdentifierLexemeAction(createLexicalAnalyzerContext(), BI_REPR); /* Builtin Classes */}
+[[^:alnum:]]"reversed"[[^:alnum:]]                      { return BuiltinIdentifierLexemeAction(createLexicalAnalyzerContext(), BI_REVERSED); /* Builtin Classes */}
+[[^:alnum:]]"round"[[^:alnum:]]                         { return BuiltinIdentifierLexemeAction(createLexicalAnalyzerContext(), BI_ROUND); /* Builtin Classes */}
+[[^:alnum:]]"set"[[^:alnum:]]                           { return BuiltinIdentifierLexemeAction(createLexicalAnalyzerContext(), BI_SET); /* Builtin Classes */}
+[[^:alnum:]]"setattr"[[^:alnum:]]                       { return BuiltinIdentifierLexemeAction(createLexicalAnalyzerContext(), BI_SETATTR); /* Builtin Classes */}
+[[^:alnum:]]"slice"[[^:alnum:]]                         { return BuiltinIdentifierLexemeAction(createLexicalAnalyzerContext(), BI_SLICE); /* Builtin Classes */}
+[[^:alnum:]]"sorted"[[^:alnum:]]                        { return BuiltinIdentifierLexemeAction(createLexicalAnalyzerContext(), BI_SORTED); /* Builtin Classes */}
+[[^:alnum:]]"staticmethod"[[^:alnum:]]                  { return BuiltinIdentifierLexemeAction(createLexicalAnalyzerContext(), BI_STATICMETHOD); /* Builtin Classes */}
+[[^:alnum:]]"str"[[^:alnum:]]                           { return BuiltinIdentifierLexemeAction(createLexicalAnalyzerContext(), BI_STR); /* Builtin Classes */}
+[[^:alnum:]]"sum"[[^:alnum:]]                           { return BuiltinIdentifierLexemeAction(createLexicalAnalyzerContext(), BI_SUM); /* Builtin Classes */}
+[[^:alnum:]]"super"[[^:alnum:]]                         { return BuiltinIdentifierLexemeAction(createLexicalAnalyzerContext(), BI_SUPER); /* Builtin Classes */}
+[[^:alnum:]]"tuple"[[^:alnum:]]                         { return BuiltinIdentifierLexemeAction(createLexicalAnalyzerContext(), BI_TUPLE); /* Builtin Classes */}
+[[^:alnum:]]"type"[[^:alnum:]]                          { return BuiltinIdentifierLexemeAction(createLexicalAnalyzerContext(), BI_TYPE); /* Builtin Classes */}
+[[^:alnum:]]"vars"[[^:alnum:]]                          { return BuiltinIdentifierLexemeAction(createLexicalAnalyzerContext(), BI_VARS); /* Builtin Classes */}
+[[^:alnum:]]"zip"[[^:alnum:]]                           { return BuiltinIdentifierLexemeAction(createLexicalAnalyzerContext(), BI_ZIP); /* Builtin Classes */}
+
+[_[:alpha:]][_[:alnum:]]*                               { return IdentifierLexemeAction(createLexicalAnalyzerContext());/* variable or function */ }
 [[:space:]]                                             { IgnoredLexemeAction(createLexicalAnalyzerContext()); }
 .                                                       { return UnknownLexemeAction(createLexicalAnalyzerContext()); }
 
