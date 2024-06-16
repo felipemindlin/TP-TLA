@@ -203,7 +203,6 @@
 [[^:alnum:]]"vars"[[^:alnum:]]                          { return BuiltinIdentifierLexemeAction(createLexicalAnalyzerContext(), BI_VARS); /* Builtin Classes */}
 [[^:alnum:]]"zip"[[^:alnum:]]                           { return BuiltinIdentifierLexemeAction(createLexicalAnalyzerContext(), BI_ZIP); /* Builtin Classes */}
 
-[_[:alpha:]][_[:alnum:]]*                               { return IdentifierLexemeAction(createLexicalAnalyzerContext());/* variable or function */ }
 [[:space:]]                                             { IgnoredLexemeAction(createLexicalAnalyzerContext()); }
 .                                                       { return UnknownLexemeAction(createLexicalAnalyzerContext()); }
 
