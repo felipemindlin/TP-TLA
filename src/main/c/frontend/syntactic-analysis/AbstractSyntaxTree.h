@@ -334,6 +334,7 @@ struct Sentence {
         Block * block;
 	};
 	SentenceType type;
+    Sentence * nextSentence;
 };
 
 struct Block {
@@ -347,7 +348,7 @@ struct Block {
         ForBlock * forBlock;
         WhileBlock * whileBlock;
     };
-    Program * nextProgram;
+    Sentence * nextSentence;
     BlockType type;
 };
 

@@ -247,82 +247,91 @@ Depth * DepthSemanticAction(DepthType type) {
 }
 
 /** SENTENCE SECTION **/
-Sentence * ExpressionSentenceSemanticAction(Expression * exp) {
+Sentence * ExpressionSentenceSemanticAction(Expression * exp, Sentence * next) {
 	_logSyntacticAnalyzerAction(__FUNCTION__);
 	Sentence * sentence = calloc(1, sizeof(Sentence));
 	sentence->expression = exp;
 	sentence->type = EXPRESSION_SENTENCE;
+	sentence->nextSentence = next;
 	return sentence;
 }
 
-Sentence * VariableSentenceSemanticAction(Variable * var) {
+Sentence * VariableSentenceSemanticAction(Variable * var, Sentence * next) {
 	_logSyntacticAnalyzerAction(__FUNCTION__);
 	Sentence * sentence = calloc(1, sizeof(Sentence));
 	sentence->variable = var;
 	sentence->type = VARIABLE_SENTENCE;
+	sentence->nextSentence = next;
 	return sentence;
 }
 
-Sentence * BlockSentenceSemanticAction(Block * block) {
+Sentence * BlockSentenceSemanticAction(Block * block, Sentence * next) {
 	_logSyntacticAnalyzerAction(__FUNCTION__);
 	Sentence * sentence = calloc(1, sizeof(Sentence));
 	sentence->block = block;
 	sentence->type = BLOCK_SENTENCE;
+	sentence->nextSentence = next;
 	return sentence;
 }
 
-Sentence * ReturnSentenceSemanticAction(Expression * exp) {
+Sentence * ReturnSentenceSemanticAction(Expression * exp, Sentence * next) {
 	_logSyntacticAnalyzerAction(__FUNCTION__);
 	Sentence * sentence = calloc(1, sizeof(Sentence));
 	sentence->expression = exp;
 	sentence->type = RETURN_SENTENCE;
+	sentence->nextSentence = next;
 	return sentence;
 }
 
+Sentence * EndOfSentencesSemanticAction() {
+	_logSyntacticAnalyzerAction(__FUNCTION__);
+	return NULL;
+}
+
 /** BLOCK SECTION **/
-Block * FunctionDefinitionBlockSemanticAction(FunctionDefinition * fdef, Program * nextProg) {
+Block * FunctionDefinitionBlockSemanticAction(FunctionDefinition * fdef, Sentence * next) {
 	_logSyntacticAnalyzerAction(__FUNCTION__);
     Block * block = calloc(1, sizeof(Block));
     block->type = BT_FUNCTION_DEFINITION;
     block->functionDefinition = fdef;
-    block->nextProgram = nextProg;
+    block->nextSentence = next;
     return block;
 }
 
-Block * ClassDefinitionBlockSemanticAction(ClassDefinition * cdef, Program * nextProg) {
+Block * ClassDefinitionBlockSemanticAction(ClassDefinition * cdef, Sentence * next) {
 	_logSyntacticAnalyzerAction(__FUNCTION__);
     Block * block = calloc(1, sizeof(Block));
     block->type = BT_CLASS_DEFINITION;
     block->classDefinition = cdef;
-    block->nextProgram = nextProg;
+    block->nextSentence = next;
     return block;
 }
 
-Block * ConditionalBlockSemanticAction(ConditionalBlock * cond, Program * nextProg, Block * nextConditional) {
+Block * ConditionalBlockSemanticAction(ConditionalBlock * cond, Sentence * nextSentence, Block * nextConditional) {
 	_logSyntacticAnalyzerAction(__FUNCTION__);
 	Block * block = calloc(1, sizeof(Block));
 	block->type = BT_CONDITIONAL;
 	block->conditional = cond;
-	block->nextProgram = nextProg;
+	block->nextSentence = nextSentence;
     block->nextCond = nextConditional;
 	return block;
 }
 
-Block * WhileLoopBlockSemanticAction(WhileBlock * wblock, Program * nextProg) {
+Block * WhileLoopBlockSemanticAction(WhileBlock * wblock, Sentence * next) {
 	_logSyntacticAnalyzerAction(__FUNCTION__);
 	Block * block = calloc(1, sizeof(Block));
 	block->type = BT_WHILE;
 	block->whileBlock = wblock;
-	block->nextProgram = nextProg;
+	block->nextSentence = next;
 	return block;
 }
 
-Block * ForLoopBlockSemanticAction(ForBlock * fblock, Program * nextProg) {
+Block * ForLoopBlockSemanticAction(ForBlock * fblock, Sentence * next) {
 	_logSyntacticAnalyzerAction(__FUNCTION__);
 	Block * block = calloc(1, sizeof(Block));
 	block->type = BT_FOR;
 	block->forBlock = fblock;
-	block->nextProgram = nextProg;
+	block->nextSentence = next;
 	return block;
 }
 

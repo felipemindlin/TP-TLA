@@ -148,6 +148,9 @@
 %token <token> TYPE_KEYWORD_TOKEN
 %token <token> ASSERT_KEYWORD_TOKEN
 %token <token> UNKNOWN
+%token <token> INDENT
+%token <token> DEDENT
+
 
 /** Non-terminals. */
 %type <constant> constant
@@ -167,7 +170,6 @@
 %type <block> nextCondBlock
 %type <functionDefinition> functionDefinition
 %type <classDefinition> classDefinition
-%type <depth> depth
 %type <whileBlock> whileBlock
 %type <forBlock> forBlock
 %type <conditionalBlock> ifBlock
@@ -206,21 +208,165 @@
 %right OPEN_PARENTHESIS CLOSE_PARENTHESIS
 %%
 
-program:  depth sentence program							{ $$ = GeneralProgramSemanticAction(currentCompilerState(), $1, $2, $3); }
+program: sentence 											{ $$ = GeneralProgramSemanticAction(currentCompilerState(), NULL, $1, NULL); }
+	;
+
+sentence: expression[expr] sentence[sent]							{ $$ = ExpressionSentenceSemanticAction($expr, $sent); }
+	| variable[var] sentence[sent]									{ $$ = VariableSentenceSemanticAction($var, $sent);    }
+    | block[bloc] sentence[sent]                                    { $$ = BlockSentenceSemanticAction($bloc, $sent);      }
+	| RETURN_KEYWORD_TOKEN expression[expr] sentence[sent]			{ $$ = ReturnSentenceSemanticAction($expr, $sent);     }
+	| %empty														{ $$ = EndOfSentencesSemanticAction(); }
+
+block: functionDefinition[fdef] COLON INDENT sentence[prog] DEDENT             				{ $$ = FunctionDefinitionBlockSemanticAction($fdef, $prog); }
+     | classDefinition[cdef]    COLON INDENT sentence[prog] DEDENT              			{ $$ = ClassDefinitionBlockSemanticAction($cdef, $prog); }
+	 | ifBlock[cblock]          COLON INDENT sentence[prog] DEDENT nextCondBlock[next]    	{ $$ = ConditionalBlockSemanticAction($cblock, $prog, $next); }
+     | whileBlock[wblock]       COLON INDENT sentence[prog] DEDENT                  		{ $$ = WhileLoopBlockSemanticAction($wblock, $prog); }
+     | forBlock[fblock]         COLON INDENT sentence[prog] DEDENT                   		{ $$ = ForLoopBlockSemanticAction($fblock, $prog); }
+	 ;
+
+nextCondBlock: %empty                                                                       { $$ = ConditionalBlockSemanticAction(NULL, NULL, NULL); }
+             | elifBlock[elif] COLON INDENT sentence[prog] DEDENT nextCondBlock[next]    	{ $$ = ConditionalBlockSemanticAction($elif, $prog, $next); }
+             | elseBlock[els]  COLON INDENT sentence[prog] DEDENT                        	{ $$ = ConditionalBlockSemanticAction($els, $prog, NULL); }
+
+ifBlock: IF expression[exp]                                             { $$ = ConditionalSemanticAction(CB_IF, $exp); }
+
+elifBlock: ELIF expression[exp]                                         { $$ = ConditionalSemanticAction(CB_ELIF, $exp); }
+
+elseBlock: ELSE expression[exp]                                         { $$ = ConditionalSemanticAction(CB_ELSE, $exp); }
+
+forBlock: FOR expression[exp1] IN expression[exp2]                      { $$ = ForBlockSemanticAction($exp1, $exp2); }
+
+whileBlock: WHILE expression[cond] 									    { $$ = WhileBlockSemanticAction($cond); }
+	      ;
+
+functionDefinition: DEF IDENTIFIER[id] OPEN_PARENTHESIS parameters[params] CLOSE_PARENTHESIS                                { $$ = GenericFunctionDefinitionSemanticAction($id, $params); }
+                  | DEF IDENTIFIER[id] OPEN_PARENTHESIS parameters[params] CLOSE_PARENTHESIS RETURNS object[retObj]         { $$ = ObjectFunctionDefinitionSemanticAction($id, $params, $retObj); }
+                  | DEF IDENTIFIER[id] OPEN_PARENTHESIS parameters[params] CLOSE_PARENTHESIS RETURNS variableCall[retVar]   { $$ = VariableCallFunctionDefinitionSemanticAction($id, $params, $retVar); }
+                  | DEF IDENTIFIER[id] OPEN_PARENTHESIS parameters[params] CLOSE_PARENTHESIS RETURNS tuple[tupleVar]        { $$ = TupleFunctionDefinitionSemanticAction($id, $params, $tupleVar); }
+                  | DEF IDENTIFIER[id] OPEN_PARENTHESIS parameters[params] CLOSE_PARENTHESIS RETURNS list[listVar]          { $$ = ListFunctionDefinitionSemanticAction($id, $params, $listVar); }
+
+classDefinition: CLASS IDENTIFIER[id]                               { $$ = ClassDefinitionSemanticAction($id); }
+               | CLASS IDENTIFIER[id] tuple[tpl]                    { $$ = TupleClassDefinitionSemanticAction($id, $tpl); }
+               ;
+
+expression: expression[left] ADD expression[right]					{ $$ = ArithmeticExpressionSemanticAction($left, $right, ADDITION); }
+	| expression[left] DIV expression[right]						{ $$ = ArithmeticExpressionSemanticAction($left, $right, DIVISION); }
+	| expression[left] MUL expression[right]						{ $$ = ArithmeticExpressionSemanticAction($left, $right, MULTIPLICATION); }
+	| expression[left] SUB expression[right]						{ $$ = ArithmeticExpressionSemanticAction($left, $right, SUBTRACTION); }
+	| expression[left] EXP expression[right]						{ $$ = ArithmeticExpressionSemanticAction($left, $right, EXPONENTIATION); }
+	| expression[left] FLOOR_DIV expression[right]					{ $$ = ArithmeticExpressionSemanticAction($left, $right, TRUNCATED_DIVISION); }
+	| expression[left] MOD expression[right]						{ $$ = ArithmeticExpressionSemanticAction($left, $right, MODULO); }
+	| expression[left] BITWISE_AND expression[right]				{ $$ = ArithmeticExpressionSemanticAction($left, $right, BIT_ARITHMETIC_AND); }
+	| expression[left] BITWISE_OR expression[right]					{ $$ = ArithmeticExpressionSemanticAction($left, $right, BIT_ARITHMETIC_OR); }
+	| expression[left] BITWISE_XOR expression[right]				{ $$ = ArithmeticExpressionSemanticAction($left, $right, BIT_ARITHMETIC_XOR); }
+	| expression[left] BITWISE_LSHIFT expression[right]				{ $$ = ArithmeticExpressionSemanticAction($left, $right, BIT_ARITHMETIC_LEFT_SHIFT); }
+	| expression[left] BITWISE_RSHIFT expression[right]				{ $$ = ArithmeticExpressionSemanticAction($left, $right, BIT_ARITHMETIC_RIGHT_SHIFT); }
+    | constant                                                      { $$ = ConstantExpressionSemanticAction($1); }
+    | variableCall                                                  { $$ = VariableCallExpressionSemanticAction($1); }
+    | functionCall                                                  { $$ = FunctionCallExpressionSemanticAction($1); }
+    | methodCall[method]                                            { $$ = MethodCallExpressionSemanticAction($method); }
+    | fieldGetter[field]                                            { $$ = FieldGetterExpressionSemanticAction($field); }
+    | expression[left] LOGICAL_AND expression[right]                { $$ = LogicalAndExpressionSemanticAction($left, $right); }
+    | expression[left] LOGICAL_OR expression[right]                 { $$ = LogicalOrExpressionSemanticAction($left, $right); }
+    | LOGICAL_NOT expression[exp]                                   { $$ = LogicalNotExpressionSemanticAction($exp); }
+    | expression[left] COMPARISON_EQ expression[right]	            { $$ = ExpressionComparisonSemanticAction(BCT_EQU, $left, $right); }
+    | expression[left] COMPARISON_NEQ expression[right]	            { $$ = ExpressionComparisonSemanticAction(BCT_NEQ, $left, $right); }
+    | expression[left] COMPARISON_GT expression[right]	            { $$ = ExpressionComparisonSemanticAction(BCT_GT, $left, $right); }
+    | expression[left] COMPARISON_GTE expression[right]	            { $$ = ExpressionComparisonSemanticAction(BCT_GTE, $left, $right); }
+    | expression[left] COMPARISON_LT expression[right]	            { $$ = ExpressionComparisonSemanticAction(BCT_LT, $left, $right); }
+    | expression[left] COMPARISON_LTE expression[right]	            { $$ = ExpressionComparisonSemanticAction(BCT_LTE, $left, $right); }
+    | expression[left] IN expression[right]	                        { $$ = ExpressionComparisonSemanticAction(BCT_MEMBER, $left, $right); }
+    | expression[left] NOT_IN expression[right]	                    { $$ = ExpressionComparisonSemanticAction(BCT_NMEMBER, $left, $right); }
+    | expression[left] IS expression[right]	                        { $$ = ExpressionComparisonSemanticAction(BCT_IDENTITY, $left, $right); }
+    | expression[left] IS_NOT expression[right]	                    { $$ = ExpressionComparisonSemanticAction(BCT_NIDENTITY, $left, $right); }
+	;
+
+variable: IDENTIFIER[id] ASSIGN expression[expr]                    { $$ = ExpressionVariableSemanticAction($id, $expr);}
+		;
+
+constant: INTEGER													{ $$ = IntegerConstantSemanticAction($1); }
+	    | BOOLEAN													{ $$ = BooleanConstantSemanticAction($1); }
+        | FLOAT                                                     { $$ = FloatConstantSemanticAction($1); }
+        | STRING                                                    { $$ = StringConstantSemanticAction($1); }
+        | list                                                      { $$ = ListConstantSemanticAction($1); }
+        | tuple                                                     { $$ = TupleConstantSemanticAction($1); }
+	    ;
+
+methodCall: variableCall[var] DOT functionCall[func]				{ $$ = VariableMethodCallSemanticAction($var, $func); }
+          | constant[cons] DOT functionCall[func]                   { $$ = ConstantMethodCallSemanticAction($cons, $func); }
+          ;
+
+fieldGetter: variableCall[var] DOT variableCall[field]				{ $$ = VariableFieldGetterSemanticAction($var, $field); }
+           | constant[cons] DOT variableCall[field]                 { $$ = ConstantFieldGetterSemanticAction($cons, $field);}
+           ;
+
+object: BUILTIN_IDENTIFIER  										{ $$ = ObjectSemanticAction($1, OT_BUILTIN); }
+	;
+
+list: OPEN_BRACKET parameters[params] CLOSE_BRACKET			            { $$ = ParametrizedListSemanticAction($params); }
+    | OPEN_BRACKET object[type] CLOSE_BRACKET		    				{ $$ = TypedListSemanticAction($type); }
+    ;
+
+tuple: OPEN_PARENTHESIS parameters[params] CLOSE_PARENTHESIS         { $$ =  ParametrizedTupleSemanticAction($params); }
+     | OPEN_PARENTHESIS object[type] CLOSE_PARENTHESIS               { $$ =  TypedTupleSemanticAction($type); }
+     ;
+
+variableCall: IDENTIFIER 											{ $$ = VariableCallSemanticAction($1); }
+
+functionCall: IDENTIFIER[id] OPEN_PARENTHESIS parameters[params] CLOSE_PARENTHESIS 	{ $$ = FunctionCallSemanticAction($id, $params); }
+	        | object[obj] OPEN_PARENTHESIS parameters[params] CLOSE_PARENTHESIS { $$ = ObjectFunctionCallSemanticAction($obj, $params); }
+    ;
+
+parameters: %empty													{ $$ = ParametersSemanticAction(NULL, NULL, EMPTY); }
+	| 	expression[left] COMMA parameters[right]				    { $$ = ParametersSemanticAction($left, $right, NOT_FINAL); }
+	|   expression[left]											{ $$ = ParametersSemanticAction($left, NULL, FINAL); }
+%%
+
+	/* | FLOAT 														{ $$ = FloatConstantSemanticAction($1); }
+	| BOOLEAN														{ $$ = BooleanConstantSemanticAction($1); } */
+
+/**
+*
+	  expression[left] ASSIGN expression[right]						{ $$ = AssignmentExpressionSemanticAction($left, $right, ASSIGNMENT); }
+	| expression[left] ASSIGN_ADD expression[right]					{ $$ = AssignmentExpressionSemanticAction($left, $right, ADDITION_ASSIGNMENT); }
+	| expression[left] ASSIGN_SUB expression[right]					{ $$ = AssignmentExpressionSemanticAction($left, $right, SUBTRACTION_ASSIGNMENT); }
+	| expression[left] ASSIGN_MUL expression[right]					{ $$ = AssignmentExpressionSemanticAction($left, $right, MULTIPLICATION_ASSIGNMENT); }
+	| expression[left] ASSIGN_DIV expression[right]					{ $$ = AssignmentExpressionSemanticAction($left, $right, DIVISION_ASSIGNMENT); }
+	| expression[left] ASSIGN_MOD expression[right]					{ $$ = AssignmentExpressionSemanticAction($left, $right, MODULO_ASSIGNMENT); }
+	| expression[left] ASSIGN_EXP expression[right]					{ $$ = AssignmentExpressionSemanticAction($left, $right, EXPONENTIATION_ASSIGNMENT); }
+	| expression[left] ASSIGN_FLOOR_DIV expression[right]			{ $$ = AssignmentExpressionSemanticAction($left, $right, TRUNCATED_DIVISION_ASSIGNMENT); }
+	| expression[left] ASSIGN_BITWISE_AND expression[right]			{ $$ = AssignmentExpressionSemanticAction($left, $right, BITWISE_AND_ASSIGNMENT); }
+	| expression[left] ASSIGN_BITWISE_OR expression[right]			{ $$ = AssignmentExpressionSemanticAction($left, $right, BITWISE_OR_ASSIGNMENT); }
+	| expression[left] ASSIGN_BITWISE_XOR expression[right]			{ $$ = AssignmentExpressionSemanticAction($left, $right, BITWISE_XOR_ASSIGNMENT); }
+	| expression[left] ASSIGN_BITWISE_LSHIFT expression[right]		{ $$ = AssignmentExpressionSemanticAction($left, $right, BITWISE_LEFT_SHIFT_ASSIGNMENT); }
+	| expression[left] ASSIGN_BITWISE_RSHIFT expression[right]		{ $$ = AssignmentExpressionSemanticAction($left, $right, BITWISE_RIGHT_SHIFT_ASSIGNMENT); }
+	| expression[left] ASSIGN_WALRUS expression[right]				{ $$ = AssignmentExpressionSemanticAction($left, $right, RETURNED_ASSIGNMENT); }
+	| expression[left] COMPARISON_EQ expression[right]				{ $$ = ComparisonExpressionSemanticAction($left, $right, EQUALS_COMPARISON); }
+	| expression[left] COMPARISON_NEQ expression[right]				{ $$ = ComparisonExpressionSemanticAction($left, $right, NOT_EQUALS_COMPARISON); }
+	| expression[left] COMPARISON_GT expression[right]				{ $$ = ComparisonExpressionSemanticAction($left, $right, GREATER_THAN_COMPARISON); }
+	| expression[left] COMPARISON_GTE expression[right]				{ $$ = ComparisonExpressionSemanticAction($left, $right, GREATER_THAN_OR_EQUALS_COMPARISON); }
+	| expression[left] COMPARISON_LT expression[right]				{ $$ = ComparisonExpressionSemanticAction($left, $right, LESS_THAN_COMPARISON); }
+	| expression[left] COMPARISON_LTE expression[right]				{ $$ = ComparisonExpressionSemanticAction($left, $right, LESS_THAN_OR_EQUALS_COMPARISON); }
+*/
+
+/*
+program: sentence 											{ $$ = GeneralProgramSemanticAction(currentCompilerState(), NULL, NULL, NULL) }
+	| depth sentence program								{ $$ = GeneralProgramSemanticAction(currentCompilerState(), $1, $2, $3); }
 	| depth NEWLINE_TOKEN program						    { $$ = GeneralProgramSemanticAction(currentCompilerState(), $1, NULL, $3); }
 	| YYEOF				                                    { $$ = FinishedProgramSemanticAction(currentCompilerState()); }
 	;
 
-sentence: expression												{ $$ = ExpressionSentenceSemanticAction($1); }
+sentence: expression[expr] sentence[sent]							{ $$ = ExpressionSentenceSemanticAction($expr, $sent); }
+	| expression CONTINUE CONTINUE									{ $$ = ExpressionSentenceSemanticAction($1, NULL); }
 	| variable														{ $$ = VariableSentenceSemanticAction($1); }
     | block                                                         { $$ = BlockSentenceSemanticAction($1); }
 	| RETURN_KEYWORD_TOKEN expression[exp]							{ $$ = ReturnSentenceSemanticAction($exp); }
 
-block: functionDefinition[fdef] COLON NEWLINE_TOKEN TAB program[prog]               { $$ = FunctionDefinitionBlockSemanticAction($fdef, $prog); }
-     | classDefinition[cdef] COLON NEWLINE_TOKEN TAB program[prog]                  { $$ = ClassDefinitionBlockSemanticAction($cdef, $prog); }
-	 | ifBlock[cblock] COLON NEWLINE_TOKEN TAB program[prog] nextCondBlock[next]    { $$ = ConditionalBlockSemanticAction($cblock, $prog, $next); }
-     | whileBlock[wblock] COLON NEWLINE_TOKEN TAB program[prog]                     { $$ = WhileLoopBlockSemanticAction($wblock, $prog); }
-     | forBlock[fblock] COLON NEWLINE_TOKEN TAB program[prog]                       { $$ = ForLoopBlockSemanticAction($fblock, $prog); }
+block: functionDefinition[fdef] COLON NEWLINE_TOKEN TAB sentence[prog]               { $$ = FunctionDefinitionBlockSemanticAction($fdef, $prog); }
+     | classDefinition[cdef] COLON NEWLINE_TOKEN TAB sentence[prog]                  { $$ = ClassDefinitionBlockSemanticAction($cdef, $prog); }
+	 | ifBlock[cblock] COLON NEWLINE_TOKEN TAB sentence[prog] nextCondBlock[next]    { $$ = ConditionalBlockSemanticAction($cblock, $prog, $next); }
+     | whileBlock[wblock] COLON NEWLINE_TOKEN TAB sentence[prog]                     { $$ = WhileLoopBlockSemanticAction($wblock, $prog); }
+     | forBlock[fblock] COLON NEWLINE_TOKEN TAB sentence[prog]                       { $$ = ForLoopBlockSemanticAction($fblock, $prog); }
 	 ;
 
 nextCondBlock: %empty                                                                       { $$ = ConditionalBlockSemanticAction(NULL, NULL, NULL); }
@@ -323,31 +469,5 @@ parameters: %empty													{ $$ = ParametersSemanticAction(NULL, NULL, EMPTY
 depth: %empty														{ $$ = DepthSemanticAction(END_DEPTH); }
 	| TAB depth														{ $$ = DepthSemanticAction(TAB_DEPTH); }
 
-%%
 
-	/* | FLOAT 														{ $$ = FloatConstantSemanticAction($1); }
-	| BOOLEAN														{ $$ = BooleanConstantSemanticAction($1); } */
-
-/**
-*
-	  expression[left] ASSIGN expression[right]						{ $$ = AssignmentExpressionSemanticAction($left, $right, ASSIGNMENT); }
-	| expression[left] ASSIGN_ADD expression[right]					{ $$ = AssignmentExpressionSemanticAction($left, $right, ADDITION_ASSIGNMENT); }
-	| expression[left] ASSIGN_SUB expression[right]					{ $$ = AssignmentExpressionSemanticAction($left, $right, SUBTRACTION_ASSIGNMENT); }
-	| expression[left] ASSIGN_MUL expression[right]					{ $$ = AssignmentExpressionSemanticAction($left, $right, MULTIPLICATION_ASSIGNMENT); }
-	| expression[left] ASSIGN_DIV expression[right]					{ $$ = AssignmentExpressionSemanticAction($left, $right, DIVISION_ASSIGNMENT); }
-	| expression[left] ASSIGN_MOD expression[right]					{ $$ = AssignmentExpressionSemanticAction($left, $right, MODULO_ASSIGNMENT); }
-	| expression[left] ASSIGN_EXP expression[right]					{ $$ = AssignmentExpressionSemanticAction($left, $right, EXPONENTIATION_ASSIGNMENT); }
-	| expression[left] ASSIGN_FLOOR_DIV expression[right]			{ $$ = AssignmentExpressionSemanticAction($left, $right, TRUNCATED_DIVISION_ASSIGNMENT); }
-	| expression[left] ASSIGN_BITWISE_AND expression[right]			{ $$ = AssignmentExpressionSemanticAction($left, $right, BITWISE_AND_ASSIGNMENT); }
-	| expression[left] ASSIGN_BITWISE_OR expression[right]			{ $$ = AssignmentExpressionSemanticAction($left, $right, BITWISE_OR_ASSIGNMENT); }
-	| expression[left] ASSIGN_BITWISE_XOR expression[right]			{ $$ = AssignmentExpressionSemanticAction($left, $right, BITWISE_XOR_ASSIGNMENT); }
-	| expression[left] ASSIGN_BITWISE_LSHIFT expression[right]		{ $$ = AssignmentExpressionSemanticAction($left, $right, BITWISE_LEFT_SHIFT_ASSIGNMENT); }
-	| expression[left] ASSIGN_BITWISE_RSHIFT expression[right]		{ $$ = AssignmentExpressionSemanticAction($left, $right, BITWISE_RIGHT_SHIFT_ASSIGNMENT); }
-	| expression[left] ASSIGN_WALRUS expression[right]				{ $$ = AssignmentExpressionSemanticAction($left, $right, RETURNED_ASSIGNMENT); }
-	| expression[left] COMPARISON_EQ expression[right]				{ $$ = ComparisonExpressionSemanticAction($left, $right, EQUALS_COMPARISON); }
-	| expression[left] COMPARISON_NEQ expression[right]				{ $$ = ComparisonExpressionSemanticAction($left, $right, NOT_EQUALS_COMPARISON); }
-	| expression[left] COMPARISON_GT expression[right]				{ $$ = ComparisonExpressionSemanticAction($left, $right, GREATER_THAN_COMPARISON); }
-	| expression[left] COMPARISON_GTE expression[right]				{ $$ = ComparisonExpressionSemanticAction($left, $right, GREATER_THAN_OR_EQUALS_COMPARISON); }
-	| expression[left] COMPARISON_LT expression[right]				{ $$ = ComparisonExpressionSemanticAction($left, $right, LESS_THAN_COMPARISON); }
-	| expression[left] COMPARISON_LTE expression[right]				{ $$ = ComparisonExpressionSemanticAction($left, $right, LESS_THAN_OR_EQUALS_COMPARISON); }
 */

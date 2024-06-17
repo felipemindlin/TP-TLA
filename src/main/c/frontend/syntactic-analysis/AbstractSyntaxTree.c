@@ -218,8 +218,8 @@ void releaseBlock(Block * block){
                 releaseWhileBlock(block->whileBlock);
             }
     }
-    if(block->nextProgram != NULL) {
-        releaseProgram(block->nextProgram);
+    if(block->nextSentence!= NULL) {
+        releaseSentence(block->nextSentence);
     }
 }
 
@@ -266,6 +266,7 @@ void releaseSentence(Sentence * sentence){
             }
         break;
     }
+    releaseSentence(sentence->nextSentence);
     free(sentence);
 }
 

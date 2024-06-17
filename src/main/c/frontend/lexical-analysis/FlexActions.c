@@ -2,12 +2,19 @@
 
 /* MODULE INTERNAL STATE */
 
+int currIndent;
+int prevIndent;
+int bkupIndent;
+
 static Logger * _logger = NULL;
 static boolean _logIgnoredLexemes = true;
 
 void initializeFlexActionsModule() {
 	_logIgnoredLexemes = getBooleanOrDefault("LOG_IGNORED_LEXEMES", _logIgnoredLexemes);
 	_logger = createLogger("FlexActions");
+	currIndent = 0;
+	prevIndent = 0;
+	bkupIndent = 0;
 }
 
 void shutdownFlexActionsModule() {
@@ -51,6 +58,7 @@ void EndMultilineCommentLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerCon
 void IgnoredLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext) {
 	if (_logIgnoredLexemes) {
 		_logLexicalAnalyzerContext(__FUNCTION__, lexicalAnalyzerContext);
+		logDebugging(_logger, "Current indentation: %d - Previous indentation: %d - Step: %d", bkupIndent, prevIndent, currIndent);
 	}
 }
 
@@ -470,6 +478,7 @@ Token ParenthesisLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext) {
 
 Token TabLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext) {
 	_logLexicalAnalyzerContext(__FUNCTION__, lexicalAnalyzerContext);
+	// TODO EDIT HERE
 	lexicalAnalyzerContext->semanticValue->token = TAB;
 	return TAB;
 }
@@ -519,4 +528,16 @@ Token DefineLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext) {
 	_logLexicalAnalyzerContext(__FUNCTION__, lexicalAnalyzerContext);
 	lexicalAnalyzerContext->semanticValue->token = DEF;
 	return DEF;
+}
+
+Token IndentLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext) {
+	_logLexicalAnalyzerContext(__FUNCTION__, lexicalAnalyzerContext);
+	lexicalAnalyzerContext->semanticValue->token = INDENT;
+	return INDENT;
+}
+
+Token DedentLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext) {
+	_logLexicalAnalyzerContext(__FUNCTION__, lexicalAnalyzerContext);
+	lexicalAnalyzerContext->semanticValue->token = DEDENT;
+	return DEDENT;
 }

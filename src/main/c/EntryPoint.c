@@ -1,6 +1,6 @@
 // #include "backend/code-generation/Generator.h"
 // #include "backend/domain-specific/Calculator.h"
-#include "backend/domain-specific/Test.h"
+#include "backend/semantic-analysis/SemanticAnalyzer.h"
 #include "frontend/lexical-analysis/FlexActions.h"
 #include "frontend/syntactic-analysis/AbstractSyntaxTree.h"
 #include "frontend/syntactic-analysis/BisonActions.h"
@@ -22,7 +22,7 @@ const int main(const int count, const char ** arguments) {
 	initializeBisonActionsModule();
 	initializeSyntacticAnalyzerModule();
 	initializeAbstractSyntaxTreeModule();
-	initializeTestModule();
+	initializeSemanticAnalyzerModule();
 	// initializeCalculatorModule();
 	// initializeGeneratorModule();
 
@@ -42,7 +42,7 @@ const int main(const int count, const char ** arguments) {
 	if (syntacticAnalysisStatus == ACCEPT) {
 		Program * program = compilerState.abstractSyntaxtTree;
 		logDebugging(logger, "Computing program value...");
-		ComputationResult computationResult = computeProgram(program);
+		//SaComputationResult computationResult = computeProgram(program);
 		logDebugging(logger, "Releasing AST resources...");
 		releaseProgram(program);
 	} else {
@@ -72,7 +72,7 @@ const int main(const int count, const char ** arguments) {
 	logDebugging(logger, "Releasing modules resources...");
 	// shutdownGeneratorModule();
 	// shutdownCalculatorModule();
-	shutdownTestModule();
+	shutdownSemanticAnalyzerModule();
 	shutdownAbstractSyntaxTreeModule();
 	shutdownSyntacticAnalyzerModule();
 	shutdownBisonActionsModule();

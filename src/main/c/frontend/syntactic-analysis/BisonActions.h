@@ -50,17 +50,18 @@ Depth * DepthSemanticAction(DepthType type);
 Newline * NewlineSemanticAction(NewlineType type);
 
 /** SENTENCE SECTION **/
-Sentence * ExpressionSentenceSemanticAction(Expression * exp);
-Sentence * VariableSentenceSemanticAction(Variable * var);
-Sentence * BlockSentenceSemanticAction(Block * block);
-Sentence * ReturnSentenceSemanticAction(Expression * exp);
+Sentence * ExpressionSentenceSemanticAction(Expression * exp, Sentence * sentence);
+Sentence * VariableSentenceSemanticAction(Variable * var, Sentence * sentence);
+Sentence * BlockSentenceSemanticAction(Block * block, Sentence * sentence);
+Sentence * ReturnSentenceSemanticAction(Expression * exp, Sentence * sentence);
+Sentence * EndOfSentencesSemanticAction();
 
 /** BLOCK SECTION **/
-Block * FunctionDefinitionBlockSemanticAction(FunctionDefinition * fdef, Program * nextProg);
-Block * ClassDefinitionBlockSemanticAction(ClassDefinition * cdef, Program * nextProg);
-Block * ConditionalBlockSemanticAction(ConditionalBlock * cond, Program * nextProg, Block * nextConditinoal);
-Block * WhileLoopBlockSemanticAction(WhileBlock * wblock, Program * nextProg);
-Block * ForLoopBlockSemanticAction(ForBlock * fblock, Program * nextProg);
+Block * FunctionDefinitionBlockSemanticAction(FunctionDefinition * fdef, Sentence * nextProg);
+Block * ClassDefinitionBlockSemanticAction(ClassDefinition * cdef, Sentence * nextProg);
+Block * ConditionalBlockSemanticAction(ConditionalBlock * cond, Sentence * nextProg, Block * nextConditinoal);
+Block * WhileLoopBlockSemanticAction(WhileBlock * wblock, Sentence * nextProg);
+Block * ForLoopBlockSemanticAction(ForBlock * fblock, Sentence * nextProg);
 
 /** CONDITIONAL SECTION **/
 ConditionalBlock * ConditionalSemanticAction(ConditionalType type, Expression * exp);

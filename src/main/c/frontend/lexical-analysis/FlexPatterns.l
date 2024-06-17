@@ -15,6 +15,7 @@
  * @see https://westes.github.io/flex/manual/Start-Conditions.html
  */
 %x MULTILINE_COMMENT
+%x INDENT
 
 /**
  * Reusable patterns.
@@ -24,6 +25,16 @@
  */
 
 %%
+
+<INDENT>[ ]{4}                              { currIndent++; bkupIndent = currIndent; IgnoredLexemeAction(createLexicalAnalyzerContext()); }
+<INDENT>[\t]{4}                             { currIndent++; bkupIndent = currIndent; IgnoredLexemeAction(createLexicalAnalyzerContext()); }
+<INDENT>.                                   { 
+                                              unput(*yytext);
+                                              if (currIndent == prevIndent+1) { currIndent--; return IndentLexemeAction(createLexicalAnalyzerContext()); }
+                                              else if (currIndent < prevIndent) { currIndent++; return DedentLexemeAction(createLexicalAnalyzerContext()); }
+                                              else if (currIndent == prevIndent) { BEGIN(INITIAL); }
+                                              else { currIndent = prevIndent; return UnknownLexemeAction(createLexicalAnalyzerContext()); } 
+                                            }
 
 "#".*"\n"                                   { IgnoredLexemeAction(createLexicalAnalyzerContext()); }
 
@@ -72,9 +83,10 @@
 "case"                                      { return CaseKeywordLexemeAction(createLexicalAnalyzerContext());/* case keyword - blocked in match statements */ }
 "type"                                      { return TypeKeywordLexemeAction(createLexicalAnalyzerContext());/* type keyword - blocked in type statements */ }
 
-[\n]                                        { return NewlineLexemeAction(createLexicalAnalyzerContext());/* new line */ }
-[ ]{4}                                      { return TabLexemeAction(createLexicalAnalyzerContext());/* tab */}
-[\t]                                        { return TabLexemeAction(createLexicalAnalyzerContext());/* tab */ }
+[\n]                                        { BEGIN(INDENT); prevIndent = bkupIndent; currIndent = 0;
+                                              IgnoredLexemeAction(createLexicalAnalyzerContext());
+                                              //return NewlineLexemeAction(createLexicalAnalyzerContext());/* new line */ 
+                                            }
 ":"                                         { return ColonLexemeAction(createLexicalAnalyzerContext());/* colon */ }
 ","                                         { return CommaLexemeAction(createLexicalAnalyzerContext());/* comma */ }
 "("                                         { return ParenthesisLexemeAction(createLexicalAnalyzerContext());/* left parenthesis */ }
@@ -135,6 +147,7 @@
 [+-]?[[:digit:]]+([.][[:digit:]]+)?[e][+-]?[[:digit:]]+ { return FloatLexemeAction(createLexicalAnalyzerContext());/* fp literal in sci notation */ }
 [+-]?[[:digit:]]+[.][[:digit:]]+                        { return FloatLexemeAction(createLexicalAnalyzerContext());/* floating point literal */ }
 [+-]?[[:digit:]]+                                       { return IntegerLexemeAction(createLexicalAnalyzerContext());/* integer literal */ }
+[_[:alpha:]][_[:alnum:]]*                               { return IdentifierLexemeAction(createLexicalAnalyzerContext());/* variable or function */ }
 [[^:alnum:]]"abs"[[^:alnum:]]                           { return BuiltinIdentifierLexemeAction(createLexicalAnalyzerContext(), BI_ABS); /* Builtin Classes */}
 [[^:alnum:]]"aiter"[[^:alnum:]]                         { return BuiltinIdentifierLexemeAction(createLexicalAnalyzerContext(), BI_AITER); /* Builtin Classes */}
 [[^:alnum:]]"all"[[^:alnum:]]                           { return BuiltinIdentifierLexemeAction(createLexicalAnalyzerContext(), BI_ALL); /* Builtin Classes */}
@@ -205,8 +218,11 @@
 
 [[:space:]]                                             { IgnoredLexemeAction(createLexicalAnalyzerContext()); }
 .                                                       { return UnknownLexemeAction(createLexicalAnalyzerContext()); }
-
 %%
+
+static int currentIndent = 0;
+static int backupIndent = 0;
+static int previousIndent = 0;
 
 /* LO ANTERIOR ESTA ABAJO - las dos lineas siguientes contenian los simbolos de comentario
 ""								{ BEGIN(MULTILINE_COMMENT); BeginMultilineCommentLexemeAction(createLexicalAnalyzerContext()); }

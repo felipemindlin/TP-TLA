@@ -91,6 +91,10 @@ typedef enum BuiltinIdentifier {
     BI_ZIP,
 } BuiltinIdentifier;
 
+extern int currIndent;
+extern int prevIndent;
+extern int bkupIndent;
+
 
 void BeginMultilineCommentLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);
 void EndMultilineCommentLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);
@@ -103,6 +107,8 @@ Token NoneLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);
 Token IdentifierLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);
 Token BuiltinIdentifierLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext, BuiltinIdentifier id);
 
+Token IndentLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);
+Token DedentLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);
 Token NewlineLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);
 Token TabLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);
 Token ColonLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);
