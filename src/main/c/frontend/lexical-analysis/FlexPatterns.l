@@ -26,6 +26,7 @@
 
 %%
 
+
 <INDENT>[ ]{4}                              { currIndent++; bkupIndent = currIndent; IgnoredLexemeAction(createLexicalAnalyzerContext()); }
 <INDENT>[\t]{4}                             { currIndent++; bkupIndent = currIndent; IgnoredLexemeAction(createLexicalAnalyzerContext()); }
 <INDENT>.                                   { 
@@ -34,6 +35,10 @@
                                               else if (currIndent < prevIndent) { currIndent++; return DedentLexemeAction(createLexicalAnalyzerContext()); }
                                               else if (currIndent == prevIndent) { BEGIN(INITIAL); }
                                               else { currIndent = prevIndent; return UnknownLexemeAction(createLexicalAnalyzerContext()); } 
+                                            }
+<INDENT><<EOF>>                             { 
+                                              if (currIndent < prevIndent) { currIndent++; return DedentLexemeAction(createLexicalAnalyzerContext()); } 
+                                              else { BEGIN(INITIAL); } 
                                             }
 
 "#".*"\n"                                   { IgnoredLexemeAction(createLexicalAnalyzerContext()); }
