@@ -41,17 +41,32 @@ SaComputationResult computeProgram(Program * program);
 
 /**
  * @brief Check if a sentence is semantically correct.
- * @param program The sentence to be computed.
+ * @param sentence The sentence to be computed.
  * @return A computation result with the subjacent data type if successful.
  */
 SaComputationResult computeSentence(Sentence * sentence);
 
 /**
  * @brief Check if an expression is semantically correct.
- * @param program The program to be computed.
+ * @param expression The expression to be computed.
  * @return A computation result with the subjacent data type if successful.
  */
 SaComputationResult computeExpression(Expression * expression);
+
+/**
+ * @brief Check if a code block is semantically correct.
+ * @param block The code block to be computed.
+ * @return A computation result with the subjacent data type if successful.
+ */
+SaComputationResult computeBlock(Block * block);
+
+/**
+ * @brief Check if a function definition is semantically correct.
+ * @param fdef The function definition to be computed.
+ * @param body The body of the function.
+ * @return A computation result with the subjacent data type if successful.
+ */
+SaComputationResult computeFunctionDefinition(FunctionDefinition * fdef, Sentence * body);
 
 /***
  * @brief Generate a computation result for a constant.

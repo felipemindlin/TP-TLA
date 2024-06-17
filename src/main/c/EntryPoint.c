@@ -42,7 +42,7 @@ const int main(const int count, const char ** arguments) {
 	if (syntacticAnalysisStatus == ACCEPT) {
 		Program * program = compilerState.abstractSyntaxtTree;
 		logDebugging(logger, "Computing program value...");
-		//SaComputationResult computationResult = computeProgram(program);
+		SaComputationResult computationResult = computeProgram(program);
 		logDebugging(logger, "Releasing AST resources...");
 		releaseProgram(program);
 	} else {

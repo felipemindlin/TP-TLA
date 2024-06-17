@@ -28,7 +28,7 @@
 
 
 <INDENT>[ ]{4}                              { currIndent++; bkupIndent = currIndent; IgnoredLexemeAction(createLexicalAnalyzerContext()); }
-<INDENT>[\t]{4}                             { currIndent++; bkupIndent = currIndent; IgnoredLexemeAction(createLexicalAnalyzerContext()); }
+<INDENT>[\t]                                { currIndent++; bkupIndent = currIndent; IgnoredLexemeAction(createLexicalAnalyzerContext()); }
 <INDENT>.                                   { 
                                               unput(*yytext);
                                               if (currIndent == prevIndent+1) { currIndent--; return IndentLexemeAction(createLexicalAnalyzerContext()); }

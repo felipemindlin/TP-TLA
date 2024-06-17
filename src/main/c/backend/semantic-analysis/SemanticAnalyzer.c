@@ -71,6 +71,17 @@ static BinaryArithmeticOperation _expressionTypeToBinaryOperator(const Expressio
 	}
 }
 
+/**
+ * @brief Check if a function or class definition is present in the given sentence.
+ * @param sentence The sentence to be checked.
+ * @return True if a definition is present, false otherwise.
+ */
+static boolean _hasDefinition(Sentence * sentence) {
+    if (sentence == NULL) return false;
+    else return (sentence->type == BLOCK_SENTENCE && (sentence->block->type == BT_FUNCTION_DEFINITION || sentence->block->type == BT_CLASS_DEFINITION)) 
+                || _hasDefinition(sentence->nextSentence);
+}
+
 /** PUBLIC FUNCTIONS SECTION **/
 
 void initializeSemanticAnalyzerModule() {
@@ -148,14 +159,18 @@ SaComputationResult computeProgram(Program * program) {
 }
 
 SaComputationResult computeSentence(Sentence * sentence) {
+    if (sentence == NULL) { return (SaComputationResult) { .dataType = SA_VOID, .success = true }; };
+    if (!computeSentence(sentence->nextSentence).success) { return generateInvalidComputationResult(); }
     logDebugging(_logger, "Computing sentence (ADDR: %lx)...", sentence);
     switch (sentence->type){
         case EXPRESSION_SENTENCE:
             logDebugging(_logger, "...of expression type %d", sentence->expression->type);
             return computeExpression(sentence->expression);
+        case BLOCK_SENTENCE:
+            logDebugging(_logger, "...of code block type %d", sentence->type);
+            return computeBlock(sentence->block);
         // TODO: implement the rest of the sentence types
         case VARIABLE_SENTENCE:
-        case BLOCK_SENTENCE:
         case RETURN_SENTENCE:
         default:
             logError(_logger, "The specified sentence type is not supported: %d", sentence->type);
@@ -182,6 +197,47 @@ SaComputationResult computeExpression(Expression * expression) {
                 (computeExpression(expression->leftExpression), computeExpression(expression->rightExpression));
         default:
             logError(_logger, "The specified expression type is not supported: %d", expression->type);
+            return generateInvalidComputationResult();
+    }
+}
+
+SaComputationResult computeBlock(Block * block) {
+    logDebugging(_logger, "Computing code block (ADDR: %lx)...", block);
+    switch (block->type) {
+        case BT_FUNCTION_DEFINITION:
+            logDebugging(_logger, "...of function definition type");
+            return computeFunctionDefinition(block->functionDefinition, block->nextSentence);
+        case BT_CLASS_DEFINITION:
+        case BT_CONDITIONAL:
+        case BT_FOR:
+        case BT_WHILE:
+        default:
+            logError(_logger, "The specified block type is not supported: %d", block->type);
+            return generateInvalidComputationResult();
+    }
+}
+
+SaComputationResult computeFunctionDefinition(FunctionDefinition * fdef, Sentence * body) {
+    if (!computeSentence(body).success) { return generateInvalidComputationResult(); }
+    logDebugging(_logger, "Computing function definition (ADDR: %lx)...", fdef);
+    if (_hasDefinition(body)) {
+        logError(_logger, "Definition of classes or functions inside a function is not allowed");
+        return generateInvalidComputationResult();
+    }
+    switch (fdef->type) {
+        case FD_GENERIC:
+            logDebugging(_logger, "...without explicitely typed return (name: %s)", fdef->functionName);
+            return (SaComputationResult) {
+                .dataType = SA_UNKNOWN,
+                .success = true
+            };
+        case FD_OBJECT_TYPE:
+        case FD_VARIABLE_CALL_TYPE:
+        case FD_LIST_TYPE:
+        case FD_TUPLE_TYPE:
+        case FD_BUILTIN_TYPE:
+        default:
+            logError(_logger, "The specified function definition type is not supported: %d", fdef->type);
             return generateInvalidComputationResult();
     }
 }
