@@ -77,9 +77,11 @@ static int getExpressionType(Expression *expression) {
     case CONSTANT_EXPRESSION:
 		return expression->constant->type;
 	case VARIABLE_CALL_EXPRESSION:
-		return expression->variableCall->type;
+		key.varname = expression->variableCall->variableName;
+		symbolTableFind(&key,&value);
+		return value.type;
     case FUNCTION_CALL_EXPRESSION:
-		return expression->functionCall->type;
+		return SA_FUNCTION_DEF;
     case METHOD_CALL_EXPRESSION:
 		return expression->methodCall->type;
     case FIELD_GETTER_EXPRESSION:
@@ -196,6 +198,7 @@ Expression * VariableCallExpressionSemanticAction(VariableCall * var) {
 	bool found = symbolTableFind(&key, &value);
 	if (found == false) {
 		logCritical(_logger, "ERROR UNDECLARED VARIABLE");
+		exit(1);
 	}
 	Expression * expression = calloc(1, sizeof(Expression));
 	expression->variableCall = var;
@@ -444,6 +447,10 @@ Block * ForLoopBlockSemanticAction(ForBlock * fblock, Sentence * next) {
 /** CONDITIONAL BLOCK SECTION **/
 ConditionalBlock * ConditionalSemanticAction(ConditionalType type, Expression * exp) {
 	_logSyntacticAnalyzerAction(__FUNCTION__);
+	if (getExpressionType(exp) != SA_BOOLEAN){
+		logCritical(_logger, "ERROR: Not boolean expression");
+		exit(1);
+	}
 	ConditionalBlock * conditionalBlock = calloc(1, sizeof(ConditionalBlock));
     conditionalBlock->expression = exp;
     conditionalBlock->type = type;

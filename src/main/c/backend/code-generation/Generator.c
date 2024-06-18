@@ -231,44 +231,79 @@ void generateFunctionDef(FunctionDefinition * fdef){
     }
 }
 
+void generateConditionalBlock(ConditionalBlock * conditionalBlock){
+    switch (conditionalBlock->type)
+    {
+    case CB_IF:
+        _output("if (");
+        generateExpression(conditionalBlock->expression);
+        _output(") {\n");
+        indentLevel++;
+        break;
+    case CB_ELSE:
+        _output("else {\n");
+        indentLevel++;
+        break;
+    case CB_ELIF:
+        _output("else if (");
+        generateExpression(conditionalBlock->expression);
+        _output(") {\n");
+        indentLevel++;
+        break;
+    default:
+        break;
+    }
+}
+
+void generateWhileBlock(WhileBlock * whileBlock){
+    _output("while (");
+    generateExpression(whileBlock->expression);
+    _output(") {\n");
+    indentLevel++;
+}
+
 void generateBlock(Block * block){
     switch (block->type)
     {
     case BT_FUNCTION_DEFINITION:
         generateFunctionDef(block->functionDefinition);
         generateSentence(block->nextSentence);
-        for (int i = 0; i < indentLevel ; i++){
-                _output("\t");
-        }
-        _output("}\n");
         break;
     case BT_CLASS_DEFINITION:
     case BT_CONDITIONAL:
+        generateConditionalBlock(block->conditional);
+        generateSentence(block->nextSentence);
+        indentLevel--;
+        break;
     case BT_FOR:
     case BT_WHILE:
-        _output("in dev");
+        generateWhileBlock(block->whileBlock);
+        generateSentence(block->nextSentence);
+        indentLevel--;
     default:
         break;
     }
+    for (int i = 0; i < indentLevel ; i++){
+                _output("\t");
+    }
+    _output("}");
 }
 
 void generateSentence(Sentence * sentence){
+    
     if (sentence == NULL){
         return;
     }
+    for (int i = 0; i < indentLevel ; i++){
+                _output("\t");
+    }
     switch (sentence->type) {
         case EXPRESSION_SENTENCE:
-            for (int i = 0; i < indentLevel ; i++){
-                _output("\t");
-            }
             generateExpression(sentence->expression);
             _output(";");
             generateSentence(sentence->nextSentence);
             return;
         case VARIABLE_SENTENCE:
-            for (int i = 0; i < indentLevel ; i++){
-                _output("\t");
-            }
             generateVariable(sentence->variable);
             _output(";");
             _output("\n");
@@ -279,9 +314,6 @@ void generateSentence(Sentence * sentence){
             generateSentence(sentence->nextSentence);
             return;
         case RETURN_SENTENCE:
-            for (int i = 0; i < indentLevel ; i++){
-                _output("\t");
-            }
             _output("return ");
             generateExpression(sentence->expression);
             _output(";\n");
@@ -296,7 +328,7 @@ void generateSentence(Sentence * sentence){
 void generateProgram(Program * program){
     _output("import java.io.IOException;\n");
     _output("public class Main {\n\t");
-    _output("public static void main(String[] args) throws IOException {\n\t\t");
+    _output("public static void main(String[] args) throws IOException {\n");
     indentLevel = 2;
     generateSentence(program->sentence);
     _output("\n\t}\n");

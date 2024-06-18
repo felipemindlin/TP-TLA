@@ -1,6 +1,3 @@
-def asd():
-    x = 8
-    y = 9.8
-    return y
-
-
+x = True
+if x:
+    y = 9
