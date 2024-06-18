@@ -6,6 +6,7 @@
 #include "../../shared/Type.h"
 #include "AbstractSyntaxTree.h"
 #include "SyntacticAnalyzer.h"
+#include "../../backend/semantic-analysis/SymbolTable.h"
 #include <stdlib.h>
 
 /** Initialize module's internal state. */
@@ -13,7 +14,6 @@ void initializeBisonActionsModule();
 
 /** Shutdown module's internal state. */
 void shutdownBisonActionsModule();
-
 /**
  * Bison semantic actions.
  */

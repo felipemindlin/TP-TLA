@@ -36,6 +36,7 @@ typedef enum LogicValueType LogicValueType;
 typedef enum ConditionalType ConditionalType;
 typedef enum BuiltinDefinition BuiltinDefinition;
 typedef enum FunctionCallType FunctionCallType;
+typedef enum VariableCallType VariableCallType;
 
 typedef struct Variable Variable;
 typedef struct Constant Constant;
@@ -262,6 +263,10 @@ enum BuiltinDefinition {
     BTF_ZIP,
 };
 
+enum VariableCallType {
+    CALL_TYPE,
+};
+
 enum FunctionCallType {
     FC_DEF,
     FC_OBJECT,
@@ -387,6 +392,7 @@ struct ClassDefinition {
 
 struct VariableCall {
 	const char * variableName;
+    VariableCallType type;
 };
 
 struct FunctionCall {

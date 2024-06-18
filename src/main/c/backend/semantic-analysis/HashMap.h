@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include "../../shared/Type.h">
 #include <string.h>
+#include <stdbool.h>
 
 
 typedef void * tAny;
@@ -36,7 +37,7 @@ void hashMapInsertOrUpdate(hashMapADT hm, tAny key, tAny value);
  * @param key The key of the pair to be removed.
  * @return True if the key was removed, false otherwise.
  */
-boolean hashMapRemove(hashMapADT hm, tAny key);
+bool hashMapRemove(hashMapADT hm, tAny key);
 
 /**
  * @brief Find the value for a given key in the hash map
@@ -45,7 +46,7 @@ boolean hashMapRemove(hashMapADT hm, tAny key);
  * @param value The address where the value will be stored if found.
  * @return True if the value was found, false otherwise.
  */
-boolean hashMapFind(hashMapADT hm, tAny key, tAny value);
+bool hashMapFind(hashMapADT hm, tAny key, tAny value);
 
 /**
  * @brief Get the used space of the hash map.

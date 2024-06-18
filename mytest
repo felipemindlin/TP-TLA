@@ -1,4 +1,6 @@
-def hola():
-    asd()
-    afe()
-    yo()
+def asd():
+    x = 8
+    y = 9.8
+    return y
+
+

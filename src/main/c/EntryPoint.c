@@ -43,6 +43,7 @@ const int main(const int count, const char ** arguments) {
 		Program * program = compilerState.abstractSyntaxtTree;
 		logDebugging(logger, "Computing program value...");
 		SaComputationResult computationResult = computeProgram(program);
+		generateProgram(program);
 		logDebugging(logger, "Releasing AST resources...");
 		releaseProgram(program);
 	} else {

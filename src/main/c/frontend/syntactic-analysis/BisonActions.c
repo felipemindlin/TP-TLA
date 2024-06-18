@@ -1,8 +1,12 @@
 #include "BisonActions.h"
+#include "AbstractSyntaxTree.h"
+#include "stdbool.h"
+#include "../../backend/semantic-analysis/SymbolTable.c"
+
+
 /* GLOBAL VARIABLES*/
 static int expectedDepth = 0;
 static int currentDepth = 0;
-
 
 /* MODULE INTERNAL STATE */
 
@@ -10,6 +14,8 @@ static Logger * _logger = NULL;
 
 void initializeBisonActionsModule() {
 	_logger = createLogger("BisonActions");
+	symbolTableInit();
+
 }
 
 void shutdownBisonActionsModule() {
@@ -25,7 +31,79 @@ extern unsigned int flexCurrentContext(void);
 /* PRIVATE FUNCTIONS */
 
 static void _logSyntacticAnalyzerAction(const char * functionName);
+static int getExpressionType(Expression *expression) {
+    struct key key;
+    struct value value;
+    switch (expression->type) {
+    case ADDITION:
+    case SUBTRACTION:
+    case MULTIPLICATION:
+    case MODULO:
+        return (getExpressionType(expression->leftExpression) == CT_INTEGER && getExpressionType(expression->rightExpression) == CT_INTEGER)
+                   ? CT_INTEGER
+                   : CT_FLOAT;
+	case DIVISION:
+		return CT_FLOAT;
+    case LOGIC_AND:
+    case LOGIC_OR:
+	case LOGIC_NOT:
+	case COMPARISON_EXPRESSION:
+	case MEMBERSHIP:
+	case NOT_MEMBERSHIP:
+	case BIT_ARITHMETIC_AND:
+	case BIT_ARITHMETIC_OR:
+	case BIT_ARITHMETIC_XOR:
+	case BIT_ARITHMETIC_NOT:
+	case BIT_ARITHMETIC_LEFT_SHIFT:
+	case BIT_ARITHMETIC_RIGHT_SHIFT:
+        return CT_BOOLEAN;
+    case ASSIGNMENT:
+	case ADDITION_ASSIGNMENT:
+	case DIVISION_ASSIGNMENT:
+	case MULTIPLICATION_ASSIGNMENT:
+	case SUBTRACTION_ASSIGNMENT:
+	case EXPONENTIATION_ASSIGNMENT:
+	case TRUNCATED_DIVISION_ASSIGNMENT:
+	case MODULO_ASSIGNMENT:
+	case BITWISE_AND_ASSIGNMENT:
+	case BITWISE_OR_ASSIGNMENT:
+	case BITWISE_XOR_ASSIGNMENT:
+	case BITWISE_LEFT_SHIFT_ASSIGNMENT:
+	case BITWISE_RIGHT_SHIFT_ASSIGNMENT:
+	case RETURNED_ASSIGNMENT:
+	case IDENTITY:
+		return getExpressionType(expression->rightExpression);
+	case FACTOR:
+    case CONSTANT_EXPRESSION:
+		return expression->constant->type;
+	case VARIABLE_CALL_EXPRESSION:
+		return expression->variableCall->type;
+    case FUNCTION_CALL_EXPRESSION:
+		return expression->functionCall->type;
+    case METHOD_CALL_EXPRESSION:
+		return expression->methodCall->type;
+    case FIELD_GETTER_EXPRESSION:
+		return expression->fieldGetter->type;
+    default:
+        logCritical(_logger, "Invalid expression type");
+        exit(1);
+    }
+}
 
+static int typeConversionToSa(int cttype){
+	switch (cttype) {
+		case CT_INTEGER:
+			return SA_INTEGER;
+		case CT_FLOAT:
+			return SA_FLOAT;
+		case CT_BOOLEAN:
+			return SA_BOOLEAN;
+		case CT_STRING:
+			return SA_STRING;
+		default:
+			return SA_UNKNOWN;
+	}
+}
 /**
  * Logs a syntactic-analyzer action in DEBUGGING level.
  */
@@ -113,6 +191,12 @@ Expression * ConstantExpressionSemanticAction(Constant * constant) {
 
 Expression * VariableCallExpressionSemanticAction(VariableCall * var) {
 	_logSyntacticAnalyzerAction(__FUNCTION__);
+	struct value value;
+	struct key key = {.varname = var->variableName};
+	bool found = symbolTableFind(&key, &value);
+	if (found == false) {
+		logCritical(_logger, "ERROR UNDECLARED VARIABLE");
+	}
 	Expression * expression = calloc(1, sizeof(Expression));
 	expression->variableCall = var;
 	expression->type = VARIABLE_CALL_EXPRESSION;
@@ -121,6 +205,12 @@ Expression * VariableCallExpressionSemanticAction(VariableCall * var) {
 
 Expression * FunctionCallExpressionSemanticAction(FunctionCall * fcall) {
 	_logSyntacticAnalyzerAction(__FUNCTION__);
+	struct value value;
+	struct key key = {.varname = fcall->functionName};
+	bool found = symbolTableFind(&key, &value);
+	if (found == false) {
+		logCritical(_logger, "ERROR UNDECLARED VARIABLE");
+	}
 	Expression * expression = calloc(1, sizeof(Expression));
 	expression->functionCall = fcall;
 	expression->type = FUNCTION_CALL_EXPRESSION;
@@ -223,6 +313,7 @@ FunctionCall * ObjectFunctionCallSemanticAction(Object * obj, Parameters * param
 
 VariableCall * VariableCallSemanticAction(const char * variable) {
 	_logSyntacticAnalyzerAction(__FUNCTION__);
+	symbolTableInsert(variable, NULL);
 	VariableCall * variableCall = calloc(1, sizeof(VariableCall));
 	variableCall->variableName = variable;
 	return variableCall;
@@ -291,6 +382,21 @@ Sentence * EndOfSentencesSemanticAction() {
 /** BLOCK SECTION **/
 Block * FunctionDefinitionBlockSemanticAction(FunctionDefinition * fdef, Sentence * next) {
 	_logSyntacticAnalyzerAction(__FUNCTION__);
+	struct value value;
+	struct key key = {.varname = fdef->functionName};
+	bool found = symbolTableFind(&key, &value);
+	if (found == true) {
+		logCritical(_logger, "ERROR: ATTEMPTING TO REDECLARE FUNCTION");
+	}
+	
+	struct value value_def;
+	
+	value.type = SA_FUNCTION_DEF;
+
+	symbolTableInsert(&key, &value);
+	logCritical(_logger, "TYPE --  %d -- ", SA_FUNCTION_DEF);
+
+
     Block * block = calloc(1, sizeof(Block));
     block->type = BT_FUNCTION_DEFINITION;
     block->functionDefinition = fdef;
@@ -433,6 +539,13 @@ ClassDefinition * TupleClassDefinitionSemanticAction(char * restrict id, Tuple *
 /** VARIABLE SECTION **/
 Variable * ExpressionVariableSemanticAction(char * restrict id, Expression * expr) {
 	_logSyntacticAnalyzerAction(__FUNCTION__);
+	struct key  key = {.varname = id};
+	struct value value;
+	int type = getExpressionType(expr);
+	int sa_type = typeConversionToSa(type);
+	value.type = sa_type;
+	symbolTableInsert(&key, &value);
+	logCritical(_logger, "TYPE --  %d -- ", sa_type);
     Variable * variable = calloc(1, sizeof(Variable));
 	variable->expression = expr;
 	variable->identifier = id;

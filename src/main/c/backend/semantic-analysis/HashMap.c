@@ -1,7 +1,6 @@
 #include "HashMap.h"
 #include <stdint.h>
 #include <stdlib.h>
-#include <stdbool.h>
 #include <string.h>
 #include "../../shared/Logger.h"
 
@@ -22,6 +21,8 @@ typedef struct hashMapCDT {
     uint64_t keySize;
     uint64_t valueSize;
 } hashMapCDT;
+
+static Logger * __logger = NULL;
 
 #define INITIAL_SIZE 20
 typedef enum {FREE = 0, USED, BRIDGE} status;
@@ -88,7 +89,7 @@ void hashMapInsertOrUpdate(hashMapADT hm, tAny key, tAny value) {
     // =====
 
     uint64_t pos = hash(hm, key);
-    LogDebug("hashMapFind: pos = %lu", pos);
+    // LogDebug("hashMapFind: pos = %lu", pos);
     bool found = false;
     if(hm->lookup[pos].status == USED) {
         for(uint64_t i = 1; i < hm->lookupSize && !found; i++) {
