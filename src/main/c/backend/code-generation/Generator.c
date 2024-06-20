@@ -22,6 +22,26 @@ static void _output(const char * const format, ...);
 
 /** PRIVATE FUNCTIONS */
 
+#define MAX_VARIABLES 1000
+
+static char *declaredVariables[MAX_VARIABLES];
+static int declaredVariablesCount = 0;
+
+bool isDeclared(const char *varName) {
+    for (int i = 0; i < declaredVariablesCount; ++i) {
+        if (strcmp(declaredVariables[i], varName) == 0) {
+            return true;
+        }
+    }
+    return false;
+}
+
+void markDeclared(const char *varName) {
+    if (!isDeclared(varName)) {
+        declaredVariables[declaredVariablesCount++] = strdup(varName);
+    }
+}
+
 void generateConstant(Constant * constant){
     switch (constant->type) {
         case CT_BOOLEAN:
@@ -194,27 +214,34 @@ void generateVariable(Variable * variable) {
     struct key key = {.varname = variable->identifier};
     struct value value;
 
-    symbolTableFind(&key,&value);
-    switch ( value.type ){
-        case SA_BOOLEAN:
-            _output("boolean ");
-            break;
-        case SA_FLOAT:
-            _output("double ");
-            break;
-        case SA_INTEGER:
-            _output("int ");
-            break;
-        case SA_STRING:
-            _output("String ");
-            break;
-        default:
-            _output("Object ");
+    bool declared = isDeclared(variable->identifier);
+
+    if (!declared) {
+        symbolTableFind(&key, &value);
+        switch (value.type) {
+            case SA_BOOLEAN:
+                _output("boolean ");
+                break;
+            case SA_FLOAT:
+                _output("double ");
+                break;
+            case SA_INTEGER:
+                _output("int ");
+                break;
+            case SA_STRING:
+                _output("String ");
+                break;
+            default:
+                _output("Object ");
+        }
+        markDeclared(variable->identifier);
     }
+
     _output(variable->identifier);
     _output(" = ");
     generateExpression(variable->expression);
 }
+
 
 void generateFunctionDef(FunctionDefinition * fdef){
     switch (fdef->type) {
@@ -289,13 +316,12 @@ void generateBlock(Block * block){
     _output("}");
 }
 
-void generateSentence(Sentence * sentence){
-    
-    if (sentence == NULL){
+void generateSentence(Sentence * sentence) {
+    if (sentence == NULL) {
         return;
     }
-    for (int i = 0; i < indentLevel ; i++){
-                _output("\t");
+    for (int i = 0; i < indentLevel; i++) {
+        _output("\t");
     }
     switch (sentence->type) {
         case EXPRESSION_SENTENCE:
@@ -325,7 +351,9 @@ void generateSentence(Sentence * sentence){
 }
 
 
-void generateProgram(Program * program){
+
+void generateProgram(Program * program) {
+    declaredVariablesCount = 0; // Reset declared variables
     _output("import java.io.IOException;\n");
     _output("public class Main {\n\t");
     _output("public static void main(String[] args) throws IOException {\n");
@@ -334,6 +362,7 @@ void generateProgram(Program * program){
     _output("\n\t}\n");
     _output("}\n");
 }
+
 
 /**
  * _outputs a formatted string to standard _output.
