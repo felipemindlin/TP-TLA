@@ -1,10 +1,11 @@
 #include "SymbolTable.h"
 #include <stdint.h>
-#include "HashMap.c"
 #include <string.h>
+#include "../../shared/Logger.h"
 
 #define SEED 0x13572468
 
+static Logger * _logger = NULL;
 static hashMapADT table = NULL;
 
 // MurmurOAAT_32_Modified
@@ -24,7 +25,7 @@ static uint64_t symbolHashFunction(tAny key) {
     return h;
 }
 
-static int symbolKeyEquals(tAny key1, tAny key2) {
+static boolean symbolKeyEquals(tAny key1, tAny key2) {
     struct key aux1 = *(struct key *) key1;
     struct key aux2 = *(struct key *) key2;
     return strcmp(aux1.varname, aux2.varname) == 0;
@@ -34,7 +35,9 @@ void symbolTableInit() {
     if(table != NULL) {
         symbolTableDestroy();
     }
+    _logger = createLogger("SymbolTable");
     table = hashMapInit(sizeof(struct key), sizeof(struct value), symbolHashFunction, symbolKeyEquals);
+    logInformation(_logger, "Symbol table initialized.");
 }
 
 boolean symbolTableFind(tKey * key, tValue * value) {
@@ -47,5 +50,26 @@ void symbolTableInsert(struct key * key, struct value * value) {
 
 void symbolTableDestroy() {
     hashMapDestroy(table);
+    if (_logger != NULL) { 
+        destroyLogger(_logger);
+    }
     table = NULL;
+}
+
+boolean symbolTableHasUnititializedTypes() {
+    logDebugging(_logger, "Checking for uninitialized types in the symbol table...");
+    int valuesSize;
+    tValue** values = (tValue**) hashMapValues(table, &valuesSize);
+    logDebugging(_logger, "%d symbol%s found", valuesSize, valuesSize == 1 ? "" : "s");
+    for (int i = 0; i < valuesSize; i++) {
+        logCritical(_logger, "ADDR: %p");
+        if ((values[i])->type == SA_UNDECLARED) {
+            logWarning(_logger, "   Found symbol with uninitialized type", values[i]->type);
+            return true;
+        } else {
+            logDebugging(_logger, "   Symbol PLACEHOLDER initialized with type %d", values[i]->type);
+        }
+    }
+    logDebugging(_logger, "No symbols with uninitialized types found.");
+    return false;
 }

@@ -3,7 +3,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../../shared/Type.h">
+#include "../../shared/Type.h"
 #include <string.h>
 #include <stdbool.h>
 
@@ -61,4 +61,11 @@ uint64_t hashMapSize(hashMapADT hm);
  */
 void hashMapDestroy(hashMapADT hm);
 
+/**
+ * @brief Get all the values in the hash map in a dynamically allocated array. This array should be freed by after use.
+ * @param hm The hash map.
+ * @param size A memory location to store the size of the values array. Can be NULL.
+ * @return An array with all the values in the hash map.
+ */
+void ** hashMapValues(hashMapADT hm, int * size);
 #endif

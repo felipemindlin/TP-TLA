@@ -1,7 +1,7 @@
 #include "BisonActions.h"
 #include "AbstractSyntaxTree.h"
 #include "stdbool.h"
-#include "../../backend/semantic-analysis/SymbolTable.c"
+#include "../../backend/semantic-analysis/SymbolTable.h"
 
 
 /* GLOBAL VARIABLES*/
@@ -199,12 +199,6 @@ Expression * VariableCallExpressionSemanticAction(VariableCall * var) {
 
 Expression * FunctionCallExpressionSemanticAction(FunctionCall * fcall) {
 	_logSyntacticAnalyzerAction(__FUNCTION__);
-	struct value value;
-	struct key key = {.varname = fcall->functionName};
-	bool found = symbolTableFind(&key, &value);
-	if (found == false) {
-		logCritical(_logger, "ERROR UNDECLARED VARIABLE");
-	}
 	Expression * expression = calloc(1, sizeof(Expression));
 	expression->functionCall = fcall;
 	expression->type = FUNCTION_CALL_EXPRESSION;

@@ -90,7 +90,7 @@ static boolean _hasDefinition(Sentence * sentence) {
  * @param comp The computation result of the expression assigned to the symbol.
  * @return true if the symbol was added or updated successfully, false otherwise.
  */
-static boolean _addToSymbolTable(char * identifier, SaComputationResult comp) {
+static boolean _addToSymbolTable(const char * identifier, SaComputationResult comp) {
     tKey key = { .varname = identifier };
     tValue value = { .type = comp.dataType };
     tValue existingValue;
@@ -117,17 +117,15 @@ static boolean _addToSymbolTable(char * identifier, SaComputationResult comp) {
  * @param identifier The identifier/name of the symbol.
  * @return The value of the symbol if it is present in the table, a literal "undefined" value otherwise.
  */
-static tValue _getFromSymbolTable(char * identifier) {
+static tValue _getFromSymbolTable(const char * identifier) {
     tKey key = { .varname = identifier };
     tValue value;
 
     boolean found = symbolTableFind(&key, &value);
 
-    if (!found) {
-        value.type = SA_UNDECLARED;
-        logInformation(_logger, "Undeclared symbol %s with type %d added to the symbol table", key.varname, value.type);
-        symbolTableInsert(&key, &value);
-    }
+    value.type = SA_UNDECLARED;
+    logInformation(_logger, "Undeclared symbol %s with type %d added to the symbol table", key.varname, value.type);
+    symbolTableInsert(&key, &value);
 
     return value;
 }
@@ -135,14 +133,16 @@ static tValue _getFromSymbolTable(char * identifier) {
 /** PUBLIC FUNCTIONS SECTION **/
 
 void initializeSemanticAnalyzerModule() {
-    _logger = createLogger("Test");
+    _logger = createLogger("SemanticAnalyzer");
     symbolTableInit();
+    logInformation(_logger, "Semantic Analyzer module initialized");
 }
 
 void shutdownSemanticAnalyzerModule() {
     if (_logger != NULL) {
         destroyLogger(_logger);
     }
+    symbolTableDestroy();
 }
 
 /**
@@ -205,7 +205,12 @@ SaComputationResult computeProgram(Program * program) {
         return nextResult;
     } else {
         logDebugging(_logger, "...non-empty line");
-        return computeSentence(program->sentence);
+        SaComputationResult tempSacr = computeSentence(program->sentence);
+        if (symbolTableHasUnititializedTypes()) { 
+            logError(_logger, "There are symbols with uninitialized types");
+            return generateInvalidComputationResult();
+        }
+        return tempSacr;
     }
 }
 
@@ -257,6 +262,9 @@ SaComputationResult computeExpression(Expression * expression) {
         case VARIABLE_CALL_EXPRESSION:
             logDebugging(_logger, "...of a variable call (id: %s)", expression->variableCall->variableName);
             return computeVariableCall(expression->variableCall);
+        case FUNCTION_CALL_EXPRESSION:
+            logDebugging(_logger, "...of a function call (id: %s)", expression->functionCall->functionName);
+            return computeFunctionCall(expression->functionCall);
         default:
             logError(_logger, "The specified expression type is not supported: %d", expression->type);
             return generateInvalidComputationResult();
@@ -274,6 +282,19 @@ SaComputationResult computeVariableCall(VariableCall * vCall) {
     //     logError(_logger, "Undeclared variable");
     //     return generateInvalidComputationResult();
     // }
+    return (SaComputationResult) {
+        .dataType = retVal.type,
+        .success = true
+    };
+}
+
+SaComputationResult computeFunctionCall(FunctionCall * fCall) {
+    if (fCall == NULL) {
+        logError(_logger, "Invalid function call");
+        return generateInvalidComputationResult();
+    }
+    logDebugging(_logger, "Computing function call (ADDR: %lx)...", fCall);
+    tValue retVal = _getFromSymbolTable(fCall->functionName);
     return (SaComputationResult) {
         .dataType = retVal.type,
         .success = true

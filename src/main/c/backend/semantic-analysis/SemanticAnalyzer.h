@@ -62,6 +62,13 @@ SaComputationResult computeExpression(Expression * expression);
 SaComputationResult computeVariableCall(VariableCall * vCall);
 
 /**
+ * @brief Check if a function/method call is semantically correct.
+ * @param fCall The function call to be computed.
+ * @return A computation result with the subjacent data type if successful.
+ */
+SaComputationResult computeFunctionCall(FunctionCall * fCall);
+
+/**
  * @brief Check if a code block is semantically correct.
  * @param block The code block to be computed.
  * @return A computation result with the subjacent data type if successful.

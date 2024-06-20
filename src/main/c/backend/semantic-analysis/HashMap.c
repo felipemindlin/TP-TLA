@@ -22,13 +22,14 @@ typedef struct hashMapCDT {
     uint64_t valueSize;
 } hashMapCDT;
 
-static Logger * __logger = NULL;
+static Logger * _logger = NULL;
 
 #define INITIAL_SIZE 20
 typedef enum {FREE = 0, USED, BRIDGE} status;
 
 hashMapADT hashMapInit(uint64_t keySize, uint64_t valueSize, hashFp prehash, keyEqualsFp keyEquals) {
     hashMapADT new = malloc(sizeof(hashMapCDT));
+    _logger = createLogger("HashMap");
     if(new == NULL || (new->lookup = calloc(INITIAL_SIZE, sizeof(entry))) == NULL) {
         free(new);
         return NULL;
@@ -149,7 +150,7 @@ bool hashMapFind(hashMapADT hm, tAny key, tAny value) {
     if(key == NULL) return false;
 
     uint64_t pos = hash(hm, key);
-    logDebugging("hashMapFind: pos = %lu", pos);
+    logDebugging(_logger, "hashMapFind: pos = %lu", pos);
     for(uint64_t i = 0; i < hm->lookupSize; i++) {
         uint64_t index = (pos + i) % hm->lookupSize;
         entry * aux = &hm->lookup[index];
@@ -169,6 +170,7 @@ uint64_t hashMapSize(hashMapADT hm) {
 }
 
 void hashMapDestroy(hashMapADT hm) {
+    if (_logger != NULL) { destroyLogger(_logger); }
     for(uint64_t i = 0; i < hm->lookupSize; i++) {
         entry * aux = &hm->lookup[i];
         if(aux->status == USED) {
@@ -178,4 +180,20 @@ void hashMapDestroy(hashMapADT hm) {
     }
     free(hm->lookup);
     free(hm);
+}
+
+void ** hashMapValues(hashMapADT hm, int * size) {
+    void ** values = malloc(hm->usedSize * sizeof(void *));
+    if(values == NULL) {
+        return NULL;
+    }
+    int insertIndex = 0;
+    for (int i = 0; i < hm->lookupSize; i++) {
+        entry * aux = &hm->lookup[i];
+        if(aux->status == USED) {
+            values[insertIndex++] = aux->value;
+        }
+    }
+    if (size != NULL) { *size = hm->usedSize; }
+    return values;
 }
