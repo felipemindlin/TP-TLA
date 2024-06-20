@@ -16,6 +16,7 @@ typedef enum {
     SA_ERROR = -1,
     SA_UNKNOWN = 13,
     SA_FUNCTION_DEF = 14,
+    SA_UNDECLARED = 15,
     /**
      * @brief Upper-most value for numeric type coercion
      */

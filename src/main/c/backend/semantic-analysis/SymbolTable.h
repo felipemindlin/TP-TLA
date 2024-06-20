@@ -4,17 +4,17 @@
 #include "SaDataTypes.h"
 
 
-struct key {
+typedef struct key {
     char * varname;
-};
+} tKey;
 
-struct value {
+typedef struct value {
     SaDataType type;
-};
+} tValue;
 
 void symbolTableInit();
 
-int symbolTableFind(struct key * key, struct value * value);
+boolean symbolTableFind(struct key * key, struct value * value);
 
 void symbolTableInsert(struct key * key, struct value * value);
 

@@ -14,8 +14,6 @@ static Logger * _logger = NULL;
 
 void initializeBisonActionsModule() {
 	_logger = createLogger("BisonActions");
-	symbolTableInit();
-
 }
 
 void shutdownBisonActionsModule() {
@@ -193,13 +191,6 @@ Expression * ConstantExpressionSemanticAction(Constant * constant) {
 
 Expression * VariableCallExpressionSemanticAction(VariableCall * var) {
 	_logSyntacticAnalyzerAction(__FUNCTION__);
-	struct value value;
-	struct key key = {.varname = var->variableName};
-	bool found = symbolTableFind(&key, &value);
-	if (found == false) {
-		logCritical(_logger, "ERROR UNDECLARED VARIABLE");
-		exit(1);
-	}
 	Expression * expression = calloc(1, sizeof(Expression));
 	expression->variableCall = var;
 	expression->type = VARIABLE_CALL_EXPRESSION;
@@ -316,7 +307,6 @@ FunctionCall * ObjectFunctionCallSemanticAction(Object * obj, Parameters * param
 
 VariableCall * VariableCallSemanticAction(const char * variable) {
 	_logSyntacticAnalyzerAction(__FUNCTION__);
-	symbolTableInsert(variable, NULL);
 	VariableCall * variableCall = calloc(1, sizeof(VariableCall));
 	variableCall->variableName = variable;
 	return variableCall;
@@ -385,22 +375,7 @@ Sentence * EndOfSentencesSemanticAction() {
 /** BLOCK SECTION **/
 Block * FunctionDefinitionBlockSemanticAction(FunctionDefinition * fdef, Sentence * next) {
 	_logSyntacticAnalyzerAction(__FUNCTION__);
-	struct value value;
-	struct key key = {.varname = fdef->functionName};
-	bool found = symbolTableFind(&key, &value);
-	if (found == true) {
-		logCritical(_logger, "ERROR: ATTEMPTING TO REDECLARE FUNCTION");
-	}
-	
-	struct value value_def;
-	
-	value.type = SA_FUNCTION_DEF;
-
-	symbolTableInsert(&key, &value);
-	logCritical(_logger, "TYPE --  %d -- ", SA_FUNCTION_DEF);
-
-
-    Block * block = calloc(1, sizeof(Block));
+	Block * block = calloc(1, sizeof(Block));
     block->type = BT_FUNCTION_DEFINITION;
     block->functionDefinition = fdef;
     block->nextSentence = next;
@@ -447,10 +422,10 @@ Block * ForLoopBlockSemanticAction(ForBlock * fblock, Sentence * next) {
 /** CONDITIONAL BLOCK SECTION **/
 ConditionalBlock * ConditionalSemanticAction(ConditionalType type, Expression * exp) {
 	_logSyntacticAnalyzerAction(__FUNCTION__);
-	if (getExpressionType(exp) != SA_BOOLEAN){
-		logCritical(_logger, "ERROR: Not boolean expression");
-		exit(1);
-	}
+	// if (getExpressionType(exp) != SA_BOOLEAN){
+	// 	logCritical(_logger, "ERROR: Not boolean expression");
+	// 	exit(1);
+	// }
 	ConditionalBlock * conditionalBlock = calloc(1, sizeof(ConditionalBlock));
     conditionalBlock->expression = exp;
     conditionalBlock->type = type;
@@ -546,13 +521,6 @@ ClassDefinition * TupleClassDefinitionSemanticAction(char * restrict id, Tuple *
 /** VARIABLE SECTION **/
 Variable * ExpressionVariableSemanticAction(char * restrict id, Expression * expr) {
 	_logSyntacticAnalyzerAction(__FUNCTION__);
-	struct key  key = {.varname = id};
-	struct value value;
-	int type = getExpressionType(expr);
-	int sa_type = typeConversionToSa(type);
-	value.type = sa_type;
-	symbolTableInsert(&key, &value);
-	logCritical(_logger, "TYPE --  %d -- ", sa_type);
     Variable * variable = calloc(1, sizeof(Variable));
 	variable->expression = expr;
 	variable->identifier = id;

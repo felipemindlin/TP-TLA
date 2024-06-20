@@ -1,5 +1,7 @@
 #include "SemanticAnalyzer.h"
 
+static const boolean redeclarationIsError = false;
+
 static Logger * _logger = NULL;
 
 /** PRIVATE FUNCTIONS SECTION **/
@@ -82,10 +84,59 @@ static boolean _hasDefinition(Sentence * sentence) {
                 || _hasDefinition(sentence->nextSentence);
 }
 
+/**
+ * @brief Add a symbol to the symbol table. If the symbol is already declared, it will be updated unless the data types mismatch.
+ * @param identifier The identifier/name of the symbol.
+ * @param comp The computation result of the expression assigned to the symbol.
+ * @return true if the symbol was added or updated successfully, false otherwise.
+ */
+static boolean _addToSymbolTable(char * identifier, SaComputationResult comp) {
+    tKey key = { .varname = identifier };
+    tValue value = { .type = comp.dataType };
+    tValue existingValue;
+
+    boolean isAlreadyDeclared = symbolTableFind(&key, &existingValue);
+    boolean isMismatchType = existingValue.type != SA_UNDECLARED && existingValue.type != comp.dataType;
+
+    if (isAlreadyDeclared && isMismatchType) {
+        logWarning(_logger, "Symbol %s is already declared with a mismatching type", identifier);
+        return false;
+    }
+
+    symbolTableInsert(&key, &value);
+    if (isAlreadyDeclared) {
+        logInformation(_logger, "Symbol %s updated with type %d in the symbol table", key.varname, value.type);
+    } else {
+        logInformation(_logger, "Symbol %s added with type %d to the symbol table", key.varname, value.type);
+    }
+    return true;
+}
+
+/**
+ * @brief Get the data type of a symbol from the symbol table. If the symbol is not present, it is added to the table with "undeclared" type.
+ * @param identifier The identifier/name of the symbol.
+ * @return The value of the symbol if it is present in the table, a literal "undefined" value otherwise.
+ */
+static tValue _getFromSymbolTable(char * identifier) {
+    tKey key = { .varname = identifier };
+    tValue value;
+
+    boolean found = symbolTableFind(&key, &value);
+
+    if (!found) {
+        value.type = SA_UNDECLARED;
+        logInformation(_logger, "Undeclared symbol %s with type %d added to the symbol table", key.varname, value.type);
+        symbolTableInsert(&key, &value);
+    }
+
+    return value;
+}
+
 /** PUBLIC FUNCTIONS SECTION **/
 
 void initializeSemanticAnalyzerModule() {
     _logger = createLogger("Test");
+    symbolTableInit();
 }
 
 void shutdownSemanticAnalyzerModule() {
@@ -171,7 +222,15 @@ SaComputationResult computeSentence(Sentence * sentence) {
             return computeBlock(sentence->block);
         // TODO: implement the rest of the sentence types
         case VARIABLE_SENTENCE:
+            logDebugging(_logger, "...of variable declaration type");
+            return computeVariableDeclaration(sentence->variable);
         case RETURN_SENTENCE:
+            logDebugging(_logger, "...of return expression type %d", sentence->expression->type);
+            if (sentence->nextSentence != NULL) {
+                logError(_logger, "but Return statement must be the last statement in the block");
+                return generateInvalidComputationResult();
+            }
+            return computeExpression(sentence->expression);
         default:
             logError(_logger, "The specified sentence type is not supported: %d", sentence->type);
             return generateInvalidComputationResult();
@@ -195,10 +254,30 @@ SaComputationResult computeExpression(Expression * expression) {
             logDebugging(_logger, "...of an arithmetic operator (type: %d)", expression->type);
             return (_expressionTypeToBinaryOperator(expression->type))
                 (computeExpression(expression->leftExpression), computeExpression(expression->rightExpression));
+        case VARIABLE_CALL_EXPRESSION:
+            logDebugging(_logger, "...of a variable call (id: %s)", expression->variableCall->variableName);
+            return computeVariableCall(expression->variableCall);
         default:
             logError(_logger, "The specified expression type is not supported: %d", expression->type);
             return generateInvalidComputationResult();
     }
+}
+
+SaComputationResult computeVariableCall(VariableCall * vCall) {
+    if (vCall == NULL) {
+        logError(_logger, "Invalid variable call");
+        return generateInvalidComputationResult();
+    }
+    logDebugging(_logger, "Computing variable call (ADDR: %lx)...", vCall);
+    tValue retVal = _getFromSymbolTable(vCall->variableName);
+    // if (retVal.type == SA_ERROR) {
+    //     logError(_logger, "Undeclared variable");
+    //     return generateInvalidComputationResult();
+    // }
+    return (SaComputationResult) {
+        .dataType = retVal.type,
+        .success = true
+    };
 }
 
 SaComputationResult computeBlock(Block * block) {
@@ -217,6 +296,20 @@ SaComputationResult computeBlock(Block * block) {
     }
 }
 
+boolean _findReturn(Sentence * first, SaDataType * returnType) {
+    if (first == NULL) {
+        logDebugging(_logger, "This function returns void");
+        return false;
+    } else if (first->type == RETURN_SENTENCE) {
+        // Inefficient, but works for now
+        *returnType = computeExpression(first->expression).dataType;
+        logDebugging(_logger, "This function returns type %d", *returnType);
+        return true;
+    } else {
+        return _findReturn(first->nextSentence, returnType);
+    }
+}
+
 SaComputationResult computeFunctionDefinition(FunctionDefinition * fdef, Sentence * body) {
     if (!computeSentence(body).success) { return generateInvalidComputationResult(); }
     logDebugging(_logger, "Computing function definition (ADDR: %lx)...", fdef);
@@ -227,10 +320,14 @@ SaComputationResult computeFunctionDefinition(FunctionDefinition * fdef, Sentenc
     switch (fdef->type) {
         case FD_GENERIC:
             logDebugging(_logger, "...without explicitely typed return (name: %s)", fdef->functionName);
-            return (SaComputationResult) {
-                .dataType = SA_UNKNOWN,
+            SaDataType returnType;
+            boolean hasReturn = _findReturn(body, &returnType);
+            SaComputationResult sacr = {
+                .dataType = hasReturn? returnType : SA_VOID,
                 .success = true
             };
+            _addToSymbolTable(fdef->functionName, sacr);
+            return sacr;
         case FD_OBJECT_TYPE:
         case FD_VARIABLE_CALL_TYPE:
         case FD_LIST_TYPE:
@@ -240,6 +337,26 @@ SaComputationResult computeFunctionDefinition(FunctionDefinition * fdef, Sentenc
             logError(_logger, "The specified function definition type is not supported: %d", fdef->type);
             return generateInvalidComputationResult();
     }
+}
+
+SaComputationResult computeVariableDeclaration(Variable * var) {
+    logDebugging(_logger, "Computing variable declaration (ADDR: %lx)...", var);
+    SaComputationResult exprResult = computeExpression(var->expression);
+    if (!exprResult.success) {
+        logError(_logger, "...invalid expression");
+        return generateInvalidComputationResult();
+    } 
+
+    boolean wasAdded = _addToSymbolTable(var->identifier, exprResult);
+    if (!wasAdded) {
+        logError(_logger, "The variable declared type mismatches its uses");
+        return generateInvalidComputationResult();
+    }
+    // This may change should we support assignments other than '='
+    return (SaComputationResult) {
+        .dataType = SA_VOID,
+        .success = true
+    };
 }
 
 SaComputationResult computeConstant(Constant * constant) {

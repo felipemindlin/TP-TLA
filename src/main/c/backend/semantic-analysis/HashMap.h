@@ -43,7 +43,7 @@ bool hashMapRemove(hashMapADT hm, tAny key);
  * @brief Find the value for a given key in the hash map
  * @param hm The hash map to be searched.
  * @param key The hashing key.
- * @param value The address where the value will be stored if found.
+ * @param value NULL or an address to store the value.
  * @return True if the value was found, false otherwise.
  */
 bool hashMapFind(hashMapADT hm, tAny key, tAny value);

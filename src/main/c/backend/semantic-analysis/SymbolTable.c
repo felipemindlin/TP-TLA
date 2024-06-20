@@ -37,7 +37,7 @@ void symbolTableInit() {
     table = hashMapInit(sizeof(struct key), sizeof(struct value), symbolHashFunction, symbolKeyEquals);
 }
 
-int symbolTableFind(struct key * key, struct value * value) {
+boolean symbolTableFind(tKey * key, tValue * value) {
     return hashMapFind(table, key, value);
 }
 
