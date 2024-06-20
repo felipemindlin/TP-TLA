@@ -88,7 +88,11 @@
 "case"                                      { return CaseKeywordLexemeAction(createLexicalAnalyzerContext());/* case keyword - blocked in match statements */ }
 "type"                                      { return TypeKeywordLexemeAction(createLexicalAnalyzerContext());/* type keyword - blocked in type statements */ }
 
-[\n]                                        { BEGIN(INDENT); prevIndent = bkupIndent; currIndent = 0;
+"@{"                                        { return IndentLexemeAction(createLexicalAnalyzerContext());/* indent */ }
+"@}"                                        { return DedentLexemeAction(createLexicalAnalyzerContext()); }
+[\t]                                        { IgnoredLexemeAction(createLexicalAnalyzerContext()); }
+[ ]{4}                                      { IgnoredLexemeAction(createLexicalAnalyzerContext()); }
+[\n]                                        { prevIndent = bkupIndent; currIndent = 0;
                                               IgnoredLexemeAction(createLexicalAnalyzerContext());
                                               //return NewlineLexemeAction(createLexicalAnalyzerContext());/* new line */ 
                                             }

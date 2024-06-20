@@ -1,4 +1,5 @@
-def func():
+def func() @{
     saber = "excariba"
+@}
 
 x = saber
