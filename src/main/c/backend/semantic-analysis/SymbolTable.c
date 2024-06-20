@@ -65,11 +65,13 @@ boolean symbolTableHasUnititializedTypes() {
         logCritical(_logger, "ADDR: %p");
         if ((values[i])->type == SA_UNDECLARED) {
             logWarning(_logger, "   Found symbol with uninitialized type", values[i]->type);
+            free(values);
             return true;
         } else {
             logDebugging(_logger, "   Symbol PLACEHOLDER initialized with type %d", values[i]->type);
         }
     }
     logDebugging(_logger, "No symbols with uninitialized types found.");
+    free(values);
     return false;
 }
