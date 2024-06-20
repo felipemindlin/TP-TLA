@@ -1,3 +1,5 @@
-class clazz:
-    class clazzz:
+class clazz: @{
+    class clazzz: @{
         x=7
+    @}
+@}

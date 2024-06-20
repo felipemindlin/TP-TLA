@@ -1,2 +1,3 @@
-class classy: 
+class classy: @{
     x=7
+@}
