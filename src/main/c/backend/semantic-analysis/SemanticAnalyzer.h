@@ -18,6 +18,8 @@ void initializeSemanticAnalyzerModule();
  */
 void shutdownSemanticAnalyzerModule();
 
+SaComputationResult binaryComparisonOperator(SaComputationResult left, SaComputationResult right);
+
 /**
  * @brief Check if a function with an operator WITH string support is defined for the given operands.
  * @param left The left operand.

@@ -66,6 +66,8 @@ static BinaryArithmeticOperation _expressionTypeToBinaryOperator(const Expressio
         case MODULO:
         case EXPONENTIATION:
             return binaryArithmeticOperatorWO;
+        case COMPARISON_EXPRESSION:
+            return binaryComparisonOperator;
 		default:
 			logCritical(_logger, "Unknown expression type for conversion: %d", type);
 			return generateInvalidBinaryOperation;
@@ -133,7 +135,7 @@ static tValue _getFromSymbolTable(const char * identifier) {
 
 void initializeSemanticAnalyzerModule() {
     _logger = createLogger("SemanticAnalyzer");
-    symbolTableInit();
+    //symbolTableInit();
     funcListInit();
     logInformation(_logger, "Semantic Analyzer module initialized");
 }
@@ -143,6 +145,16 @@ void shutdownSemanticAnalyzerModule() {
         destroyLogger(_logger);
     }
     symbolTableDestroy();
+}
+
+SaComputationResult binaryComparisonOperator(SaComputationResult left, SaComputationResult right) {
+    if (!left.success || !right.success) {
+        return generateInvalidComputationResult();
+    }
+    return (SaComputationResult) { 
+        .dataType = SA_BOOLEAN,
+        .success = true
+    };
 }
 
 /**
@@ -256,6 +268,7 @@ SaComputationResult computeExpression(Expression * expression) {
         case TRUNCATED_DIVISION:
         case MODULO:
         case EXPONENTIATION:
+        case COMPARISON_EXPRESSION:
             logDebugging(_logger, "...of an arithmetic operator (type: %d)", expression->type);
             return (_expressionTypeToBinaryOperator(expression->type))
                 (computeExpression(expression->leftExpression), computeExpression(expression->rightExpression));
