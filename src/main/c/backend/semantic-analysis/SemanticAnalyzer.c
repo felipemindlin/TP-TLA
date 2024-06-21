@@ -388,6 +388,8 @@ SaComputationResult computeFunctionDefinition(FunctionDefinition * fdef, Sentenc
                 .success = true
             };
             _addToSymbolTable(fdef->functionName, sacr);
+            // hacky, change whenever possible
+            sacr.dataType = SA_VOID;
             return sacr;
         case FD_OBJECT_TYPE:
         case FD_VARIABLE_CALL_TYPE:
@@ -398,6 +400,31 @@ SaComputationResult computeFunctionDefinition(FunctionDefinition * fdef, Sentenc
             logError(_logger, "The specified function definition type is not supported: %d", fdef->type);
             return generateInvalidComputationResult();
     }
+}
+
+SaComputationResult computeParameters(Parameters * params) {
+    logDebugging(_logger, "Computing parameters (ADDR: %p)...", params);
+    if (params == NULL) {
+        logDebugging(_logger, "...no parameters");
+        return (SaComputationResult) {
+            .dataType = SA_VOID,
+            .success = true
+        };
+    } 
+    if (!computeParameters(params->rightParameters).success) {
+        logError(_logger, "...invalid parameters");
+        return generateInvalidComputationResult();
+    }
+    if (params->leftExpression == NULL || params->leftExpression->type != VARIABLE_CALL_EXPRESSION) {
+        logError(_logger, "...invalid parameter");
+        return generateInvalidComputationResult();
+    }
+    SaComputationResult thisComputation = {
+        .dataType = SA_OBJECT,
+        .success = true
+    };
+    _addToSymbolTable(params->leftExpression->variableCall->variableName, thisComputation);
+    return thisComputation;
 }
 
 SaComputationResult computeVariableDeclaration(Variable * var) {

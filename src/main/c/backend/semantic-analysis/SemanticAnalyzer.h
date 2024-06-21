@@ -93,6 +93,13 @@ SaComputationResult computeConditionalBlock(ConditionalBlock * conditional);
  */
 SaComputationResult computeFunctionDefinition(FunctionDefinition * fdef, Sentence * body);
 
+/**
+ * @brief Check if parameters are semantically correct.
+ * @param params The parameters to be computed.
+ * @return A computation result with the subjacent data type if successful.
+ */
+SaComputationResult computeParameters(Parameters * params);
+
 /***
  * @brief Generate a computation result for a constant.
  * @param constant The constant to be computed.
