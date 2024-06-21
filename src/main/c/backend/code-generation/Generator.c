@@ -245,11 +245,19 @@ void generateFunctionCall(FunctionCall * functionCall){
 }
 
 void generateVariable(Variable * variable) {
-    struct key key = {.varname = variable->identifier};
+   
     struct value value;
+    struct key key;
     bool declared = isDeclared(variable->identifier);
+    bool inferType = false;
+    if (variable->expression->type == FUNCTION_CALL_EXPRESSION){
+        inferType = true;
+        key.varname = variable->expression->functionCall->functionName;
+    } else
+        key.varname = variable->identifier;
     if (!declared) {
         symbolTableFind(&key, &value);
+        _output("TYPE %d IS ?", value.type);
         switch (value.type) {
             case SA_BOOLEAN:
                 _output("Boolean ");

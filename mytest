@@ -1,9 +1,15 @@
-def asd():@{
-    x = True
-    y = 4
-    if x:@{
-        if y > 5:@{
-            return x
-            @}
-    @}
+# Function to add two numbers
+def add(x, y): @{
+    return x + y
 @}
+
+def booleanRet(k,w):@{
+    return k or w
+@}
+
+a = 5
+b = 7
+z = add(a,b)
+tr = True
+fa = False
+booleano = booleanRet(tr,fa)
