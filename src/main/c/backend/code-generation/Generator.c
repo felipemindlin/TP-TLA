@@ -60,7 +60,7 @@ void markDeclared(const char *varName) {
 void generateConstant(Constant * constant){
     switch (constant->type) {
         case CT_BOOLEAN:
-            _output( (constant->boolean == true )? "True" : "False" );
+            _output( (constant->boolean == true )? "true" : "false" );
             return;
         case CT_INTEGER:
             _output("%d", constant->integer);
