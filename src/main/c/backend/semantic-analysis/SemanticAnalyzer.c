@@ -135,7 +135,7 @@ static tValue _getFromSymbolTable(const char * identifier) {
 
 void initializeSemanticAnalyzerModule() {
     _logger = createLogger("SemanticAnalyzer");
-    //symbolTableInit();
+    symbolTableInit();
     funcListInit();
     logInformation(_logger, "Semantic Analyzer module initialized");
 }
