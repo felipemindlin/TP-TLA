@@ -427,14 +427,14 @@ Token AssignmentOperatorLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerCon
 // Not exposed to header file
 Token LeftChevronComparisonOperatorPicker(char * lexeme, int length) {
 	if (length == 2 && lexeme[1] == '=') return COMPARISON_GTE;
-	else if (length == 1) return COMPARISON_GT;
+	else if (length == 1) return COMPARISON_LT;
 	else return UNKNOWN;
 }
 
 // Not exposed to header file
 Token RightChevronComparisonOperatorPicker(char * lexeme, int length) {
 	if (length == 2 && lexeme[1] == '=') return COMPARISON_LTE;
-	else if (length == 1) return COMPARISON_LT;
+	else if (length == 1) return COMPARISON_GT;
 	else return UNKNOWN;
 }
 
