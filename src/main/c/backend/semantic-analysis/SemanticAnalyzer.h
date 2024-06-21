@@ -37,6 +37,21 @@ SaComputationResult binaryArithmeticOperatorW(SaComputationResult left, SaComput
 SaComputationResult binaryArithmeticOperatorWO(SaComputationResult left, SaComputationResult right);
 
 /**
+ * @brief Check if a function with an operator WITHOUT string support is defined for the given operands.
+ * @param left The left operand.
+ * @param right The right operand.
+ * @return A computation result with the subjacent data type if successful.
+ */
+SaComputationResult binaryBooleanOperator(SaComputationResult left, SaComputationResult right);
+
+/**
+ * @brief Check if a function with an operator WITHOUT string support is defined for the given operands.
+ * @param left The only operand.
+ * @return A computation result with the subjacent data type if successful.
+ */
+SaComputationResult notBooleanOperator(SaComputationResult left);
+
+/**
  * @brief Check if a program is semantically correct.
  * @param program The program to be computed.
  * @return A computation result with the subjacent data type if successful.

@@ -1,6 +1,7 @@
 #include "Generator.h"
 #include "../semantic-analysis/SymbolTable.h"
 #include "../semantic-analysis/funcList.h"
+#include "../semantic-analysis/utils.h"
 
 /* MODULE INTERNAL STATE */
 void generateVariableCall(VariableCall * variableCall);
@@ -35,28 +36,8 @@ void _outputBraceWithIndent(){
     _outputIndent();
     _output("}\n");
 }
-
-#define MAX_VARIABLES 1000
 FILE * file = NULL;
 FILE * write = NULL;
-
-static char *declaredVariables[MAX_VARIABLES];
-static int declaredVariablesCount = 0;
-
-bool isDeclared(const char *varName) {
-    for (int i = 0; i < declaredVariablesCount; ++i) {
-        if (strcmp(declaredVariables[i], varName) == 0) {
-            return true;
-        }
-    }
-    return false;
-}
-
-void markDeclared(const char *varName) {
-    if (!isDeclared(varName)) {
-        declaredVariables[declaredVariablesCount++] = strdup(varName);
-    }
-}
 
 void generateConstant(Constant * constant){
     switch (constant->type) {
@@ -259,13 +240,13 @@ void generateVariable(Variable * variable) {
         symbolTableFind(&key, &value);
         switch (value.type) {
             case SA_BOOLEAN:
-                _output("Boolean ");
+                _output("boolean  ");
                 break;
             case SA_FLOAT:
-                _output("Double ");
+                _output("double  ");
                 break;
             case SA_INTEGER:
-                _output("Integer ");
+                _output("int ");
                 break;
             case SA_STRING:
                 _output("String ");
@@ -296,13 +277,13 @@ void generateFunctionDef(FunctionDefinition * fdef){
             if ( found ) {
                 switch (retValue.type) {
                     case SA_BOOLEAN:
-                        _output("Boolean ");
+                        _output("boolean ");
                         break;
                     case SA_FLOAT:
-                        _output("Double ");
+                        _output("double ");
                         break;
                     case SA_INTEGER:
-                        _output("Integer ");
+                        _output("int ");
                         break;
                     case SA_STRING:
                         _output("String ");
@@ -318,7 +299,12 @@ void generateFunctionDef(FunctionDefinition * fdef){
             Parameters * currentParam = fdef->parameters;
             while (currentParam != NULL && currentParam->leftExpression != NULL) {
                 _outputIndent();
-                _output("Object ");
+                if (isAlreadyArithmetic(currentParam->leftExpression->variableCall->variableName))
+                    _output("double ");
+                else if (isAlreadyBoolean(currentParam->leftExpression->variableCall->variableName))
+                    _output("boolean ");
+                else
+                    _output("Object ");
                 _output(currentParam->leftExpression->variableCall->variableName);
                 currentParam = currentParam->rightParameters;
                 if (currentParam != NULL) {

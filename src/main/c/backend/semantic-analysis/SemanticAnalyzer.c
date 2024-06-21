@@ -1,5 +1,5 @@
 #include "SemanticAnalyzer.h"
-
+#include "utils.h"
 static const boolean redeclarationIsError = false;
 
 static Logger * _logger = NULL;
@@ -68,6 +68,11 @@ static BinaryArithmeticOperation _expressionTypeToBinaryOperator(const Expressio
             return binaryArithmeticOperatorWO;
         case COMPARISON_EXPRESSION:
             return binaryComparisonOperator;
+        case LOGIC_AND:
+        case LOGIC_OR:
+            return binaryBooleanOperator;
+        case LOGIC_NOT:
+            return notBooleanOperator;
 		default:
 			logCritical(_logger, "Unknown expression type for conversion: %d", type);
 			return generateInvalidBinaryOperation;
@@ -194,7 +199,29 @@ SaComputationResult binaryArithmeticOperatorWO(SaComputationResult left, SaCompu
         return generateInvalidComputationResult();
     }
     return (SaComputationResult) {
-        .dataType = operationDataType,
+        .dataType = SA_FLOAT,
+        .success = true
+    };
+}
+
+SaComputationResult binaryBooleanOperator(SaComputationResult left, SaComputationResult right) {
+    logDebugging(_logger, "Performing boolean operation ...");
+    if (!left.success || !right.success) {
+        return generateInvalidComputationResult();
+    }
+    return (SaComputationResult) {
+        .dataType = SA_BOOLEAN,
+        .success = true
+    };
+}
+
+SaComputationResult notBooleanOperator(SaComputationResult left) {
+    logDebugging(_logger, "Performing boolean operation ...");
+    if (!left.success) {
+        return generateInvalidComputationResult();
+    }
+    return (SaComputationResult) {
+        .dataType = SA_BOOLEAN,
         .success = true
     };
 }
@@ -270,9 +297,28 @@ SaComputationResult computeExpression(Expression * expression) {
         case MODULO:
         case EXPONENTIATION:
         case COMPARISON_EXPRESSION:
+            if (expression->leftExpression->type == VARIABLE_CALL_EXPRESSION){
+                markArith(expression->leftExpression->variableCall->variableName);
+            }
+            if (expression->rightExpression->type == VARIABLE_CALL_EXPRESSION){
+                markArith(expression->rightExpression->variableCall->variableName);
+            }
             logDebugging(_logger, "...of an arithmetic operator (type: %d)", expression->type);
             return (_expressionTypeToBinaryOperator(expression->type))
                 (computeExpression(expression->leftExpression), computeExpression(expression->rightExpression));
+        case LOGIC_AND:
+        case LOGIC_OR:
+            if (expression->leftExpression->type == VARIABLE_CALL_EXPRESSION){
+                markBoolean(expression->leftExpression->variableCall->variableName);
+            }
+            if (expression->rightExpression->type == VARIABLE_CALL_EXPRESSION){
+                markBoolean(expression->rightExpression->variableCall->variableName);
+            }
+            logDebugging(_logger, "...of an arithmetic operator (type: %d)", expression->type);
+            return (_expressionTypeToBinaryOperator(expression->type))
+                (computeExpression(expression->leftExpression), computeExpression(expression->rightExpression));
+        case LOGIC_NOT:
+
         case VARIABLE_CALL_EXPRESSION:
             logDebugging(_logger, "...of a variable call (id: %s)", expression->variableCall->variableName);
             return computeVariableCall(expression->variableCall);

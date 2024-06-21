@@ -26,7 +26,7 @@ def divide(x_div, y_div): @{
    
 @}
 
-x = 10
+x = 10.4
 y = 5
 hola="Hola Mundo"
 is_true = True
@@ -35,9 +35,6 @@ a = add(x, y)
 s= subtract(x, y)
 m = multiply(x, y)
 d = divide(x, y)
-
 while x>y: @{
     x = subtract(x, 1)
 @}
-
-
