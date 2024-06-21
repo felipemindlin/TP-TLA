@@ -225,7 +225,19 @@ void generateVariableCall(VariableCall * variableCall) {
 
 void generateFunctionCall(FunctionCall * functionCall){
     _output(functionCall->functionName);
-    _output("()");
+    _output("(");
+    while (functionCall->functionArguments->leftExpression != NULL){
+        _output(functionCall->functionArguments->leftExpression->variableCall->variableName);
+       
+        if(functionCall->functionArguments->rightParameters != NULL){
+            _output(", ");
+        }
+        else{
+            break;
+        }
+        functionCall->functionArguments = functionCall->functionArguments->rightParameters;
+    }
+    _output(")");
 }
 
 void generateVariable(Variable * variable) {
@@ -258,7 +270,6 @@ void generateVariable(Variable * variable) {
     generateExpression(variable->expression);
 }
 
-
 void generateFunctionDef(FunctionDefinition * fdef){
     switch (fdef->type) {
         case FD_GENERIC:
@@ -271,16 +282,16 @@ void generateFunctionDef(FunctionDefinition * fdef){
             _output("public Object ");
             _output(fdef->functionName);
             _output("(");
-            Parameters * currentParam = fdef->parameters;
-            while (currentParam != NULL && currentParam->leftExpression != NULL) {
+            while (fdef->parameters != NULL){
+                _outputIndent();
                 _output("Object ");
-                _output(currentParam->leftExpression->variableCall->variableName);
-                currentParam = currentParam->rightParameters;
-                if (currentParam != NULL) {
+                _output(fdef->parameters->leftExpression->variableCall->variableName);
+                if(fdef->parameters->rightParameters != NULL){
                     _output(", ");
                 }
+                fdef->parameters = fdef->parameters->rightParameters;
             }
-            _output(") {\n");
+            _output("){\n");
             indentLevel++;
     }
 }

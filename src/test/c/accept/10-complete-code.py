@@ -21,9 +21,11 @@ def divide(x, y): @{
     return x / y
 @}
 
-number1 = 10
-number2 = 5
+x = 10
+y = 5
 
+
+x = add(x, y)
 
 
 
