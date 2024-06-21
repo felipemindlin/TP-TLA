@@ -1,5 +1,5 @@
 y = "aaaaaaaaaa"
 
 for x in y: @{
-    a = a + x
+    a = a * x
 @}
