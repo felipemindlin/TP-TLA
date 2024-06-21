@@ -269,7 +269,17 @@ void generateFunctionDef(FunctionDefinition * fdef){
             _outputIndent();
             _output("public Object ");
             _output(fdef->functionName);
-            _output("(){\n");
+            _output("(");
+            Parameters * currentParam = fdef->parameters;
+            while (currentParam != NULL && currentParam->leftExpression != NULL) {
+                _output("Object ");
+                _output(currentParam->leftExpression->variableCall->variableName);
+                currentParam = currentParam->rightParameters;
+                if (currentParam != NULL) {
+                    _output(", ");
+                }
+            }
+            _output(") {\n");
             indentLevel++;
     }
 }
