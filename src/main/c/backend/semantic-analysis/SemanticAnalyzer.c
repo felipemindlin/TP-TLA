@@ -71,8 +71,6 @@ static BinaryArithmeticOperation _expressionTypeToBinaryOperator(const Expressio
         case LOGIC_AND:
         case LOGIC_OR:
             return binaryBooleanOperator;
-        case LOGIC_NOT:
-            return notBooleanOperator;
 		default:
 			logCritical(_logger, "Unknown expression type for conversion: %d", type);
 			return generateInvalidBinaryOperation;
@@ -215,17 +213,6 @@ SaComputationResult binaryBooleanOperator(SaComputationResult left, SaComputatio
     };
 }
 
-SaComputationResult notBooleanOperator(SaComputationResult left) {
-    logDebugging(_logger, "Performing boolean operation ...");
-    if (!left.success) {
-        return generateInvalidComputationResult();
-    }
-    return (SaComputationResult) {
-        .dataType = SA_BOOLEAN,
-        .success = true
-    };
-}
-
 SaComputationResult computeProgram(Program * program) {
     logDebugging(_logger, "Computing program (ADDR: %p)...", program);
     if (program == NULL) {
@@ -319,8 +306,6 @@ SaComputationResult computeExpression(Expression * expression) {
             logDebugging(_logger, "...of an arithmetic operator (type: %d)", expression->type);
             return (_expressionTypeToBinaryOperator(expression->type))
                 (computeExpression(expression->leftExpression), computeExpression(expression->rightExpression));
-        case LOGIC_NOT:
-            return notBooleanOperator(computeExpression(expression->leftExpression));
         case VARIABLE_CALL_EXPRESSION:
             logDebugging(_logger, "...of a variable call (id: %s)", expression->variableCall->variableName);
             return computeVariableCall(expression->variableCall);

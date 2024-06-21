@@ -21,11 +21,11 @@ def divide(x_div, y_div): @{
    
 @}
 
-def orFunc(x_or, y_or)@{
+def orFunc(x_or, y_or): @{
     return x_or or y_or    
 @}
 
-def andFunc(x_and, y_and)@{
+def andFunc(x_and, y_and): @{
     return x_and and y_and    
 @}
 

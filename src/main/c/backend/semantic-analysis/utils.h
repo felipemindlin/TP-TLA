@@ -1,6 +1,7 @@
 #ifndef UTILS_H
 #define UTILS_H
 #include "stdbool.h"
+#include "string.h"
 
 #define MAX_VARIABLES 1000
 
