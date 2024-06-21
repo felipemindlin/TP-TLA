@@ -226,8 +226,12 @@ void generateVariableCall(VariableCall * variableCall) {
 void generateFunctionCall(FunctionCall * functionCall){
     _output(functionCall->functionName);
     _output("(");
+    if (functionCall->functionArguments == NULL){
+        _output(")");
+        return;
+    }
     while (functionCall->functionArguments->leftExpression != NULL){
-        _output(functionCall->functionArguments->leftExpression->variableCall->variableName);
+        generateExpression(functionCall->functionArguments->leftExpression);
        
         if(functionCall->functionArguments->rightParameters != NULL){
             _output(", ");
@@ -278,19 +282,51 @@ void generateFunctionDef(FunctionDefinition * fdef){
         case FD_LIST_TYPE:
         case FD_TUPLE_TYPE:
         case FD_BUILTIN_TYPE:
-            _outputIndent();
-            _output("public Object ");
+            _output("public ");
+            tValue retValue;
+            tKey key = { .varname = fdef->functionName };
+            boolean found = symbolTableFind(&key, &retValue);
+            if ( found ) {
+                switch (retValue.type) {
+                    case SA_BOOLEAN:
+                        _output("Boolean ");
+                        break;
+                    case SA_FLOAT:
+                        _output("Double ");
+                        break;
+                    case SA_INTEGER:
+                        _output("Integer ");
+                        break;
+                    case SA_STRING:
+                        _output("String ");
+                        break;
+                    default:
+                        _output("Object ");
+                }
+            } else {
+                _output("Object ");
+            }
             _output(fdef->functionName);
             _output("(");
-            while (fdef->parameters != NULL){
+            Parameters * currentParam = fdef->parameters;
+            while (currentParam != NULL && currentParam->leftExpression != NULL) {
                 _outputIndent();
                 _output("Object ");
-                _output(fdef->parameters->leftExpression->variableCall->variableName);
-                if(fdef->parameters->rightParameters != NULL){
+                _output(currentParam->leftExpression->variableCall->variableName);
+                currentParam = currentParam->rightParameters;
+                if (currentParam != NULL) {
                     _output(", ");
                 }
-                fdef->parameters = fdef->parameters->rightParameters;
-            }
+            } 
+            // while (fdef->parameters != NULL){
+            //     _outputIndent();
+            //     _output("Object ");
+            //     _output(fdef->parameters->leftExpression->variableCall->variableName);
+            //     if(fdef->parameters->rightParameters != NULL){
+            //         _output(", ");
+            //     }
+            //     fdef->parameters = fdef->parameters->rightParameters;
+            // }
             _output("){\n");
             indentLevel++;
     }
@@ -365,8 +401,8 @@ void generateBlock(Block * block){
     {
     case BT_FUNCTION_DEFINITION:
         funcListAdd(block);
-        // generateFunctionDef(block->functionDefinition);
-        // generateSentence(block->nextSentence);
+        generateFunctionDef(block->functionDefinition);
+        generateSentence(block->nextSentence);
         break;
     case BT_CLASS_DEFINITION:
     case BT_CONDITIONAL:
