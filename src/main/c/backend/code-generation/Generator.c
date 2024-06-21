@@ -213,7 +213,6 @@ void generateExpression(Expression * expression) {
         case METHOD_CALL_EXPRESSION:
         case FIELD_GETTER_EXPRESSION:
         default:
-           
             return;
     }
 }
@@ -236,13 +235,13 @@ void generateVariable(Variable * variable) {
         symbolTableFind(&key, &value);
         switch (value.type) {
             case SA_BOOLEAN:
-                _output("boolean ");
+                _output("Boolean ");
                 break;
             case SA_FLOAT:
-                _output("double ");
+                _output("Double ");
                 break;
             case SA_INTEGER:
-                _output("int ");
+                _output("Integer ");
                 break;
             case SA_STRING:
                 _output("String ");
@@ -306,10 +305,35 @@ void generateWhileBlock(WhileBlock * whileBlock){
     indentLevel++;
 }
 
-void generateForBlock(ForBlock * ForBlock){
-    _output("for (");
-    // generateExpression(ForBlock->expression);
-    _output(") {\n");
+void generateForBlock(ForBlock * forBlock){
+
+    // struct key key = {.varname = forBlock->left->variableCall->variableName};
+    // struct value value;
+
+    // symbolTableFind(&key, &value);
+    // switch (value.type) {
+    //     case SA_BOOLEAN:
+    //         _output("boolean ");
+    //         break;
+    //     case SA_FLOAT:
+    //         _output("double ");
+    //         break;
+    //     case SA_INTEGER:
+    //         _output("int ");
+    //         break;
+    //     case SA_STRING:
+    //         _output("String ");
+    //         break;
+    //     default:
+    //         _output("Object ");
+    // }
+
+
+    _output("for ( char ");
+    generateExpression(forBlock->left);
+    _output(" : ");
+    generateExpression(forBlock->right);
+    _output(".toCharArray() ) {\n");
     indentLevel++;
 }
 
