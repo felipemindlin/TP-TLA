@@ -328,12 +328,49 @@ SaComputationResult computeBlock(Block * block) {
             logDebugging(_logger, "...of conditional type");
             return computeConditionalBlock(block->conditional);
         case BT_FOR:
+            logDebugging(_logger, "...of for loop type");
+            return computeForLoopBlock(block->forBlock);
         case BT_WHILE:
+            logDebugging(_logger, "...of while loop type");
+            return computeWhileLoopBlock(block->forBlock);
         case BT_CLASS_DEFINITION:
         default:
             logError(_logger, "The specified block type is not supported: %d", block->type);
             return generateInvalidComputationResult();
     }
+}
+
+SaComputationResult computeForLoopBlock(ForBlock * forLoop) {
+    logDebugging(_logger, "Computing for loop block (ADDR: %p)...", forLoop);
+    SaComputationResult leftCompute = computeExpression(forLoop->left);
+    SaComputationResult rightCompute = computeExpression(forLoop->right);
+    if (forLoop->left == NULL || forLoop->left->type != VARIABLE_CALL_EXPRESSION) {
+        logError(_logger, "Invalid for loop initialization");
+        return generateInvalidComputationResult();
+    }
+    if (!leftCompute.success || !rightCompute.success) {
+        logError(_logger, "Invalid for loop bounds");
+        return generateInvalidComputationResult();
+    }
+    _addToSymbolTable(forLoop->left->variableCall->variableName, 
+        (SaComputationResult) { .dataType = SA_OBJECT, .success = true });
+    return (SaComputationResult) {
+        .dataType = SA_VOID,
+        .success = true
+    };
+}
+
+SaComputationResult computeWhileLoopBlock(WhileBlock * whileLoop) {
+    logDebugging(_logger, "Computing while loop block (ADDR: %p)...", whileLoop);
+    SaComputationResult conditionCompute = computeExpression(whileLoop->expression);
+    if (!conditionCompute.success || conditionCompute.dataType == SA_VOID) {
+        logError(_logger, "Invalid condition for while loop");
+        return generateInvalidComputationResult();
+    }
+    return (SaComputationResult) {
+        .dataType = SA_VOID,
+        .success = true
+    };
 }
 
 SaComputationResult computeConditionalBlock(ConditionalBlock * conditional) {

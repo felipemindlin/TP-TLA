@@ -100,6 +100,20 @@ SaComputationResult computeFunctionDefinition(FunctionDefinition * fdef, Sentenc
  */
 SaComputationResult computeParameters(Parameters * params);
 
+/**
+ * @brief Check if a for loop is semantically correct.
+ * @param for The for loop to be computed.
+ * @return A computation result with the subjacent data type if successful.
+ */
+SaComputationResult computeForLoopBlock(ForBlock * forLoop);
+
+/**
+ * @brief Check if a while loop is semantically correct.
+ * @param while The while loop to be computed.
+ * @return A computation result with the subjacent data type if successful.
+ */
+SaComputationResult computeWhileLoopBlock(WhileBlock * whileLoop);
+
 /***
  * @brief Generate a computation result for a constant.
  * @param constant The constant to be computed.
