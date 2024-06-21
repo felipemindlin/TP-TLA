@@ -418,6 +418,11 @@ SaComputationResult computeFunctionDefinition(FunctionDefinition * fdef, Sentenc
     switch (fdef->type) {
         case FD_GENERIC:
             logDebugging(_logger, "...without explicitely typed return (name: %s)", fdef->functionName);
+            SaComputationResult paramComputation = computeParameters(fdef->parameters);
+            if (!paramComputation.success) {
+                logError(_logger, "Invalid parameters for function %s", fdef->functionName);
+                return generateInvalidComputationResult();
+            }
             SaDataType returnType;
             boolean hasReturn = _findReturn(body, &returnType);
             SaComputationResult sacr = {
