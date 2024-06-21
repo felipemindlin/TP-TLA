@@ -24,9 +24,8 @@
  * @see https://westes.github.io/flex/manual/Patterns.html
  */
 
-%%
 
-
+/* 
 <INDENT>[ ]{4}                              { currIndent++; bkupIndent = currIndent; IgnoredLexemeAction(createLexicalAnalyzerContext()); }
 <INDENT>[\t]                                { currIndent++; bkupIndent = currIndent; IgnoredLexemeAction(createLexicalAnalyzerContext()); }
 <INDENT>.                                   { 
@@ -39,7 +38,9 @@
 <INDENT><<EOF>>                             { 
                                               if (currIndent < prevIndent) { currIndent++; return DedentLexemeAction(createLexicalAnalyzerContext()); } 
                                               else { BEGIN(INITIAL); } 
-                                            }
+                                            } */
+
+%%
 
 "#".*"\n"                                   { IgnoredLexemeAction(createLexicalAnalyzerContext()); }
 

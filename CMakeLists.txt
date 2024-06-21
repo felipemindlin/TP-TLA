@@ -57,6 +57,8 @@ add_executable(Compiler
 	src/main/c/backend/code-generation/Generator.c
 	src/main/c/backend/semantic-analysis/SemanticAnalyzer.c
 	src/main/c/backend/semantic-analysis/SymbolTable.c
+	src/main/c/backend/semantic-analysis/linkedListADT.c
+	src/main/c/backend/semantic-analysis/funcList.c
 	src/main/c/backend/semantic-analysis/HashMap.c
 	src/main/c/backend/domain-specific/Calculator.c
 	src/main/c/EntryPoint.c

@@ -1,5 +1,7 @@
 #include "Generator.h"
 #include "../semantic-analysis/SymbolTable.h"
+#include "../semantic-analysis/funcList.h"
+
 /* MODULE INTERNAL STATE */
 
 const char _indentationCharacter = ' ';
@@ -21,8 +23,19 @@ static int indentLevel = 0;
 static void _output(const char * const format, ...); 
 
 /** PRIVATE FUNCTIONS */
+void _outputIndent(){
+    for (int i = 0; i < indentLevel; i++) {
+        _output("\t");
+    }
+}
+
+void _outputBraceWithIndent(){
+    _outputIndent();
+    _output("}\n");
+}
 
 #define MAX_VARIABLES 1000
+
 
 static char *declaredVariables[MAX_VARIABLES];
 static int declaredVariablesCount = 0;
@@ -213,9 +226,7 @@ void generateVariableCall(VariableCall * variableCall) {
 void generateVariable(Variable * variable) {
     struct key key = {.varname = variable->identifier};
     struct value value;
-
     bool declared = isDeclared(variable->identifier);
-
     if (!declared) {
         symbolTableFind(&key, &value);
         switch (value.type) {
@@ -251,6 +262,7 @@ void generateFunctionDef(FunctionDefinition * fdef){
         case FD_LIST_TYPE:
         case FD_TUPLE_TYPE:
         case FD_BUILTIN_TYPE:
+            _outputIndent();
             _output("public Object ");
             _output(fdef->functionName);
             _output("(){\n");
@@ -289,40 +301,50 @@ void generateWhileBlock(WhileBlock * whileBlock){
     indentLevel++;
 }
 
+void generateForBlock(ForBlock * ForBlock){
+    _output("for (");
+    // generateExpression(ForBlock->expression);
+    _output(") {\n");
+    indentLevel++;
+}
+
+
 void generateBlock(Block * block){
     switch (block->type)
     {
     case BT_FUNCTION_DEFINITION:
-        generateFunctionDef(block->functionDefinition);
-        generateSentence(block->nextSentence);
+        funcListAdd(block);
+        // generateFunctionDef(block->functionDefinition);
+        // generateSentence(block->nextSentence);
         break;
     case BT_CLASS_DEFINITION:
     case BT_CONDITIONAL:
         generateConditionalBlock(block->conditional);
         generateSentence(block->nextSentence);
         indentLevel--;
+        _outputBraceWithIndent();
         break;
     case BT_FOR:
+        generateForBlock(block->forBlock);
+        generateSentence(block->nextSentence);
+        indentLevel--;
+        _outputBraceWithIndent();
+        break;
     case BT_WHILE:
         generateWhileBlock(block->whileBlock);
         generateSentence(block->nextSentence);
         indentLevel--;
+        _outputBraceWithIndent();
     default:
         break;
     }
-    for (int i = 0; i < indentLevel ; i++){
-                _output("\t");
-    }
-    _output("}");
 }
 
 void generateSentence(Sentence * sentence) {
     if (sentence == NULL) {
         return;
     }
-    for (int i = 0; i < indentLevel; i++) {
-        _output("\t");
-    }
+    _outputIndent();
     switch (sentence->type) {
         case EXPRESSION_SENTENCE:
             generateExpression(sentence->expression);
@@ -360,7 +382,19 @@ void generateProgram(Program * program) {
     indentLevel = 2;
     generateSentence(program->sentence);
     _output("\n\t}\n");
-    _output("}\n");
+    indentLevel = 1;
+    int funcListLength = getFuncLength();
+
+    Block * block;
+    funcIterBegin();
+    for (int i = 0; i < funcListLength; i++ ){
+        block = getNextFunc();
+        generateFunctionDef(block->functionDefinition);
+        generateSentence(block->nextSentence);
+        indentLevel--;
+        _outputBraceWithIndent();
+    }
+    _output("}\n\n");
 }
 
 

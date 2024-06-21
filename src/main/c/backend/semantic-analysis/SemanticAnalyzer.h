@@ -5,6 +5,7 @@
 #include "../../shared/Logger.h"
 #include "SaDataTypes.h"
 #include "SymbolTable.h"
+#include "funcList.h"
 #include <limits.h>
 
 /**

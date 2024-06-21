@@ -1,3 +1,11 @@
-if True:
-    y = True
-z = True
+x = True
+y = False
+def asd():@{
+    z = True
+@}
+def asd2():@{
+    k = 4
+    while k < 5:@{
+        k = k + 1
+    @}
+@}

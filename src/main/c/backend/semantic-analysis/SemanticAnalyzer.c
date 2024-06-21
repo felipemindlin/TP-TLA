@@ -3,7 +3,6 @@
 static const boolean redeclarationIsError = false;
 
 static Logger * _logger = NULL;
-
 /** PRIVATE FUNCTIONS SECTION **/
 
 /**
@@ -135,6 +134,7 @@ static tValue _getFromSymbolTable(const char * identifier) {
 void initializeSemanticAnalyzerModule() {
     _logger = createLogger("SemanticAnalyzer");
     symbolTableInit();
+    funcListInit();
     logInformation(_logger, "Semantic Analyzer module initialized");
 }
 
