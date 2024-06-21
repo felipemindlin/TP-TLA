@@ -470,9 +470,8 @@ void generateProgram(Program * program) {
      file = fopen("output.java", "wr");
      write = file;
     declaredVariablesCount = 0; // Reset declared variables
-    _output("import java.io.IOException;\n");
     _output("public class Main {\n\t");
-    _output("public static void main(String[] args) throws IOException {\n");
+    _output("public static void main(String[] args){\n");
     indentLevel = 2;
     generateSentence(program->sentence);
     _output("\n\t}\n");
