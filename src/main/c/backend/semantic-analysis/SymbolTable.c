@@ -62,7 +62,7 @@ boolean symbolTableHasUnititializedTypes() {
     tValue** values = (tValue**) hashMapValues(table, &valuesSize);
     logDebugging(_logger, "%d symbol%s found", valuesSize, valuesSize == 1 ? "" : "s");
     for (int i = 0; i < valuesSize; i++) {
-        logCritical(_logger, "ADDR: %p");
+        logDebugging(_logger, "Value in ADDR: %p");
         if ((values[i])->type == SA_UNDECLARED) {
             logWarning(_logger, "   Found symbol with uninitialized type", values[i]->type);
             free(values);
