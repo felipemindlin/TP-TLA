@@ -232,7 +232,7 @@ void generateFunctionCall(FunctionCall * functionCall){
     }
     while (functionCall->functionArguments->leftExpression != NULL){
         generateExpression(functionCall->functionArguments->leftExpression);
-       
+
         if(functionCall->functionArguments->rightParameters != NULL){
             _output(", ");
         }
@@ -317,7 +317,7 @@ void generateFunctionDef(FunctionDefinition * fdef){
                 if (currentParam != NULL) {
                     _output(", ");
                 }
-            } 
+            }
             // while (fdef->parameters != NULL){
             //     _outputIndent();
             //     _output("Object ");
@@ -401,8 +401,6 @@ void generateBlock(Block * block){
     {
     case BT_FUNCTION_DEFINITION:
         funcListAdd(block);
-        generateFunctionDef(block->functionDefinition);
-        generateSentence(block->nextSentence);
         break;
     case BT_CLASS_DEFINITION:
     case BT_CONDITIONAL:

@@ -22,5 +22,6 @@
 BisonParser.c
 BisonParser.h
 FlexScanner.c
+output.java
 POROTOS.c
 ZEFILE
