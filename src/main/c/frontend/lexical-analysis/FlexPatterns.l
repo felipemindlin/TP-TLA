@@ -15,6 +15,7 @@
  * @see https://westes.github.io/flex/manual/Start-Conditions.html
  */
 %x MULTILINE_COMMENT
+%x STRINGS
 %x INDENT
 
 /**
@@ -25,24 +26,28 @@
  */
 
 
-/* 
+/*
 <INDENT>[ ]{4}                              { currIndent++; bkupIndent = currIndent; IgnoredLexemeAction(createLexicalAnalyzerContext()); }
 <INDENT>[\t]                                { currIndent++; bkupIndent = currIndent; IgnoredLexemeAction(createLexicalAnalyzerContext()); }
-<INDENT>.                                   { 
+<INDENT>.                                   {
                                               unput(*yytext);
                                               if (currIndent == prevIndent+1) { currIndent--; return IndentLexemeAction(createLexicalAnalyzerContext()); }
                                               else if (currIndent < prevIndent) { currIndent++; return DedentLexemeAction(createLexicalAnalyzerContext()); }
                                               else if (currIndent == prevIndent) { BEGIN(INITIAL); }
-                                              else { currIndent = prevIndent; return UnknownLexemeAction(createLexicalAnalyzerContext()); } 
+                                              else { currIndent = prevIndent; return UnknownLexemeAction(createLexicalAnalyzerContext()); }
                                             }
-<INDENT><<EOF>>                             { 
-                                              if (currIndent < prevIndent) { currIndent++; return DedentLexemeAction(createLexicalAnalyzerContext()); } 
-                                              else { BEGIN(INITIAL); } 
+<INDENT><<EOF>>                             {
+                                              if (currIndent < prevIndent) { currIndent++; return DedentLexemeAction(createLexicalAnalyzerContext()); }
+                                              else { BEGIN(INITIAL); }
                                             } */
 
 %%
 
 "#".*"\n"                                   { IgnoredLexemeAction(createLexicalAnalyzerContext()); }
+
+"\""                                        { BEGIN(STRINGS); }
+<STRINGS>"\""                               { BEGIN(INITIAL); }
+<STRINGS>.                                  { return StringLexemeAction(createLexicalAnalyzerContext()); }
 
 "import"                                    { IgnoredLexemeAction(createLexicalAnalyzerContext());/* import keyword */ }
 "from"                                      { IgnoredLexemeAction(createLexicalAnalyzerContext());/* from keyword */ }
@@ -95,7 +100,7 @@
 [ ]{4}                                      { IgnoredLexemeAction(createLexicalAnalyzerContext()); }
 [\n]                                        { prevIndent = bkupIndent; currIndent = 0;
                                               IgnoredLexemeAction(createLexicalAnalyzerContext());
-                                              //return NewlineLexemeAction(createLexicalAnalyzerContext());/* new line */ 
+                                              //return NewlineLexemeAction(createLexicalAnalyzerContext());/* new line */
                                             }
 ":"                                         { return ColonLexemeAction(createLexicalAnalyzerContext());/* colon */ }
 ","                                         { return CommaLexemeAction(createLexicalAnalyzerContext());/* comma */ }

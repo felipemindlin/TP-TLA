@@ -107,6 +107,8 @@ Token NoneLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);
 Token IdentifierLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);
 Token BuiltinIdentifierLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext, BuiltinIdentifier id);
 
+Token StringLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);
+
 Token IndentLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);
 Token DedentLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);
 Token NewlineLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);

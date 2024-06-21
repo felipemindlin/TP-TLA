@@ -1,4 +1,4 @@
-// #include "backend/code-generation/Generator.h"
+#include "backend/code-generation/Generator.h"
 // #include "backend/domain-specific/Calculator.h"
 #include "backend/semantic-analysis/SemanticAnalyzer.h"
 #include "frontend/lexical-analysis/FlexActions.h"

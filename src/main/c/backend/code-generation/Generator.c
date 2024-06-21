@@ -3,6 +3,7 @@
 #include "../semantic-analysis/funcList.h"
 
 /* MODULE INTERNAL STATE */
+void generateVariableCall(VariableCall * variableCall);
 
 const char _indentationCharacter = ' ';
 const char _indentationSize = 4;
@@ -20,7 +21,7 @@ void shutdownGeneratorModule() {
 }
 
 static int indentLevel = 0;
-static void _output(const char * const format, ...); 
+static void _output(const char * const format, ...);
 
 /** PRIVATE FUNCTIONS */
 void _outputIndent(){
@@ -187,7 +188,7 @@ void generateExpression(Expression * expression) {
         case BIT_ARITHMETIC_NOT:
         case BIT_ARITHMETIC_LEFT_SHIFT:
         case BIT_ARITHMETIC_RIGHT_SHIFT:
-            return CT_BOOLEAN;
+            return;
         case ASSIGNMENT:
         case ADDITION_ASSIGNMENT:
         case DIVISION_ASSIGNMENT:
@@ -204,22 +205,17 @@ void generateExpression(Expression * expression) {
         case RETURNED_ASSIGNMENT:
         case IDENTITY:
         case VARIABLE_CALL_EXPRESSION:
-            generateVariableCall(expression->variableCall);
-            break;
         case FUNCTION_CALL_EXPRESSION:
-            return expression->functionCall->type;
         case METHOD_CALL_EXPRESSION:
-            return expression->methodCall->type;
         case FIELD_GETTER_EXPRESSION:
-            return expression->fieldGetter->type;
         default:
-            generateVariable(expression->variableCall->variableName);
+            generateVariableCall(expression->variableCall);
             return;
     }
 }
 
 void generateVariableCall(VariableCall * variableCall) {
-    
+
     _output(variableCall->variableName);
 }
 
