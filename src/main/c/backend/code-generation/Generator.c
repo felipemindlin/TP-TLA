@@ -380,7 +380,7 @@ void generateForBlock(ForBlock * forBlock){
     // }
 
 
-    _output("for ( char ");
+    _output("for ( Character ");
     generateExpression(forBlock->left);
     _output(" : ");
     generateExpression(forBlock->right);
