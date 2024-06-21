@@ -257,7 +257,6 @@ void generateVariable(Variable * variable) {
         key.varname = variable->identifier;
     if (!declared) {
         symbolTableFind(&key, &value);
-        _output("TYPE %d IS ?", value.type);
         switch (value.type) {
             case SA_BOOLEAN:
                 _output("Boolean ");
