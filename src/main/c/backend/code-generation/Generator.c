@@ -289,7 +289,7 @@ void generateFunctionDef(FunctionDefinition * fdef){
         case FD_LIST_TYPE:
         case FD_TUPLE_TYPE:
         case FD_BUILTIN_TYPE:
-            _output("public ");
+            _output("public static ");
             tValue retValue;
             tKey key = { .varname = fdef->functionName };
             boolean found = symbolTableFind(&key, &retValue);
