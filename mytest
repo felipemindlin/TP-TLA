@@ -1,11 +1,9 @@
-x = True
-y = False
 def asd():@{
-    z = True
-@}
-def asd2():@{
-    k = 4
-    while k < 5:@{
-        k = k + 1
+    x = True
+    y = 4
+    if x:@{
+        if y > 5:@{
+            return x
+            @}
     @}
 @}

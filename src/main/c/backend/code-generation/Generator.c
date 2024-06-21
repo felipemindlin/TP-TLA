@@ -68,7 +68,7 @@ void generateConstant(Constant * constant){
             _output("%g", constant->decimal);
             return;
         case CT_STRING:
-            _output(constant->string);
+            _output("%s", constant->string);
             return;
         default:
             return;
@@ -84,7 +84,6 @@ void generateExpression(Expression * expression) {
             generateExpression(expression->leftExpression);
             _output(" + ");
             generateExpression(expression->rightExpression);
-            return;
                 break;
         case MULTIPLICATION:
             generateExpression(expression->leftExpression);
@@ -206,6 +205,8 @@ void generateExpression(Expression * expression) {
         case IDENTITY:
         case VARIABLE_CALL_EXPRESSION:
         case FUNCTION_CALL_EXPRESSION:
+            generateFunctionCall(expression->functionCall);
+            break;
         case METHOD_CALL_EXPRESSION:
         case FIELD_GETTER_EXPRESSION:
         default:
@@ -217,6 +218,11 @@ void generateExpression(Expression * expression) {
 void generateVariableCall(VariableCall * variableCall) {
 
     _output(variableCall->variableName);
+}
+
+void generateFunctionCall(FunctionCall * functionCall){
+    _output(functionCall->functionName);
+    _output("()");
 }
 
 void generateVariable(Variable * variable) {

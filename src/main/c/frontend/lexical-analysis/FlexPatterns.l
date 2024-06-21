@@ -45,9 +45,7 @@
 
 "#".*"\n"                                   { IgnoredLexemeAction(createLexicalAnalyzerContext()); }
 
-"\""                                        { BEGIN(STRINGS); }
-<STRINGS>"\""                               { BEGIN(INITIAL); }
-<STRINGS>.                                  { return StringLexemeAction(createLexicalAnalyzerContext()); }
+"\"".*"\""                                  { return StringLexemeAction(createLexicalAnalyzerContext()); }
 
 "import"                                    { IgnoredLexemeAction(createLexicalAnalyzerContext());/* import keyword */ }
 "from"                                      { IgnoredLexemeAction(createLexicalAnalyzerContext());/* from keyword */ }
