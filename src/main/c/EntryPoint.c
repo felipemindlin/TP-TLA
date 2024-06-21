@@ -43,14 +43,13 @@ const int main(const int count, const char ** arguments) {
 		Program * program = compilerState.abstractSyntaxtTree;
 		logDebugging(logger, "Computing program value...");
 		SaComputationResult computationResult = computeProgram(program);
-		// if (computationResult.success) {
-		// 	logInformation(logger, "The computation phase accepts the input program.");
-		// 	generateProgram(program);
-		// } else {
-		// 	logError(logger, "The computation phase rejects the input program.");
-		// 	compilationStatus = FAILED;
-		// }
-		generateProgram(program);
+		if (computationResult.success) {
+		 	logInformation(logger, "The computation phase accepts the input program.");
+		 	generateProgram(program);
+		 } else {
+		 	logError(logger, "The computation phase rejects the input program.");
+		 	compilationStatus = FAILED;
+		 }
 		logDebugging(logger, "Releasing AST resources...");
 		releaseProgram(program);
 	} else {
