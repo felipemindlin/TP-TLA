@@ -92,8 +92,9 @@ static boolean _hasDefinition(Sentence * sentence) {
  * @return true if the symbol was added or updated successfully, false otherwise.
  */
 static boolean _addToSymbolTable(const char * identifier, SaComputationResult comp) {
+    SaDataType dataType = (comp.dataType == SA_UNDECLARED)? SA_OBJECT : comp.dataType;
     tKey key = { .varname = identifier };
-    tValue value = { .type = comp.dataType };
+    tValue value = { .type = dataType };
     tValue existingValue;
 
     boolean isAlreadyDeclared = symbolTableFind(&key, &existingValue);
@@ -418,13 +419,13 @@ SaComputationResult computeFunctionDefinition(FunctionDefinition * fdef, Sentenc
     switch (fdef->type) {
         case FD_GENERIC:
             logDebugging(_logger, "...without explicitely typed return (name: %s)", fdef->functionName);
+            SaDataType returnType;
+            boolean hasReturn = _findReturn(body, &returnType);
             SaComputationResult paramComputation = computeParameters(fdef->parameters);
             if (!paramComputation.success) {
                 logError(_logger, "Invalid parameters for function %s", fdef->functionName);
                 return generateInvalidComputationResult();
             }
-            SaDataType returnType;
-            boolean hasReturn = _findReturn(body, &returnType);
             SaComputationResult sacr = {
                 .dataType = hasReturn? returnType : SA_VOID,
                 .success = true
@@ -446,7 +447,7 @@ SaComputationResult computeFunctionDefinition(FunctionDefinition * fdef, Sentenc
 
 SaComputationResult computeParameters(Parameters * params) {
     logDebugging(_logger, "Computing parameters (ADDR: %p)...", params);
-    if (params == NULL) {
+    if (params == NULL || params->leftExpression == NULL) {
         logDebugging(_logger, "...no parameters");
         return (SaComputationResult) {
             .dataType = SA_VOID,
@@ -457,7 +458,7 @@ SaComputationResult computeParameters(Parameters * params) {
         logError(_logger, "...invalid parameters");
         return generateInvalidComputationResult();
     }
-    if (params->leftExpression == NULL || params->leftExpression->type != VARIABLE_CALL_EXPRESSION) {
+    if (params->leftExpression->type != VARIABLE_CALL_EXPRESSION) {
         logError(_logger, "...invalid parameter");
         return generateInvalidComputationResult();
     }
