@@ -57,7 +57,7 @@ static SaComputationResult generateInvalidBinaryOperation(const SaComputationRes
  */
 static BinaryArithmeticOperation _expressionTypeToBinaryOperator(const ExpressionType type) {
 	switch (type) {
-		case ADDITION: 
+		case ADDITION:
         case MULTIPLICATION:
             return binaryArithmeticOperatorW;
         case SUBTRACTION:
@@ -81,7 +81,7 @@ static BinaryArithmeticOperation _expressionTypeToBinaryOperator(const Expressio
  */
 static boolean _hasDefinition(Sentence * sentence) {
     if (sentence == NULL) return false;
-    else return (sentence->type == BLOCK_SENTENCE && (sentence->block->type == BT_FUNCTION_DEFINITION || sentence->block->type == BT_CLASS_DEFINITION)) 
+    else return (sentence->type == BLOCK_SENTENCE && (sentence->block->type == BT_FUNCTION_DEFINITION || sentence->block->type == BT_CLASS_DEFINITION))
                 || _hasDefinition(sentence->nextSentence);
 }
 
@@ -151,7 +151,7 @@ SaComputationResult binaryComparisonOperator(SaComputationResult left, SaComputa
     if (!left.success || !right.success) {
         return generateInvalidComputationResult();
     }
-    return (SaComputationResult) { 
+    return (SaComputationResult) {
         .dataType = SA_BOOLEAN,
         .success = true
     };
@@ -171,7 +171,7 @@ SaComputationResult binaryArithmeticOperatorW(SaComputationResult left, SaComput
     if (operationDataType == SA_ERROR) {
         return generateInvalidComputationResult();
     }
-    return (SaComputationResult) { 
+    return (SaComputationResult) {
         .dataType = operationDataType,
         .success = true
     };
@@ -192,7 +192,7 @@ SaComputationResult binaryArithmeticOperatorWO(SaComputationResult left, SaCompu
     if (operationDataType == SA_ERROR || operationDataType == SA_STRING) {
         return generateInvalidComputationResult();
     }
-    return (SaComputationResult) { 
+    return (SaComputationResult) {
         .dataType = operationDataType,
         .success = true
     };
@@ -218,7 +218,7 @@ SaComputationResult computeProgram(Program * program) {
     } else {
         logDebugging(_logger, "...non-empty line");
         SaComputationResult tempSacr = computeSentence(program->sentence);
-        if (symbolTableHasUnititializedTypes()) { 
+        if (symbolTableHasUnititializedTypes()) {
             logError(_logger, "There are symbols with uninitialized types");
             return generateInvalidComputationResult();
         }
@@ -251,7 +251,7 @@ SaComputationResult computeSentence(Sentence * sentence) {
         default:
             logError(_logger, "The specified sentence type is not supported: %d", sentence->type);
             return generateInvalidComputationResult();
-    }  
+    }
 }
 
 SaComputationResult computeExpression(Expression * expression) {
@@ -332,7 +332,7 @@ SaComputationResult computeBlock(Block * block) {
             return computeForLoopBlock(block->forBlock);
         case BT_WHILE:
             logDebugging(_logger, "...of while loop type");
-            return computeWhileLoopBlock(block->forBlock);
+            return computeWhileLoopBlock(block->whileBlock);
         case BT_CLASS_DEFINITION:
         default:
             logError(_logger, "The specified block type is not supported: %d", block->type);
@@ -352,7 +352,7 @@ SaComputationResult computeForLoopBlock(ForBlock * forLoop) {
         logError(_logger, "Invalid for loop bounds");
         return generateInvalidComputationResult();
     }
-    _addToSymbolTable(forLoop->left->variableCall->variableName, 
+    _addToSymbolTable(forLoop->left->variableCall->variableName,
         (SaComputationResult) { .dataType = SA_OBJECT, .success = true });
     return (SaComputationResult) {
         .dataType = SA_VOID,
@@ -452,7 +452,7 @@ SaComputationResult computeParameters(Parameters * params) {
             .dataType = SA_VOID,
             .success = true
         };
-    } 
+    }
     if (!computeParameters(params->rightParameters).success) {
         logError(_logger, "...invalid parameters");
         return generateInvalidComputationResult();
@@ -475,7 +475,7 @@ SaComputationResult computeVariableDeclaration(Variable * var) {
     if (!exprResult.success) {
         logError(_logger, "...invalid expression");
         return generateInvalidComputationResult();
-    } 
+    }
 
     boolean wasAdded = _addToSymbolTable(var->identifier, exprResult);
     if (!wasAdded) {

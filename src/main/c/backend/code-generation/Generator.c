@@ -4,6 +4,7 @@
 
 /* MODULE INTERNAL STATE */
 void generateVariableCall(VariableCall * variableCall);
+void generateFunctionCall(FunctionCall * functionCall);
 
 const char _indentationCharacter = ' ';
 const char _indentationSize = 4;
@@ -458,5 +459,5 @@ void generate(CompilerState * compilerState) {
 	logDebugging(_logger, "Generating final _output...");
 	generateProgram(compilerState->abstractSyntaxtTree);
 	logDebugging(_logger, "Generation is done.");
-   
+
 }
