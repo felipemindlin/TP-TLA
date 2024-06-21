@@ -346,7 +346,7 @@ SaComputationResult computeConditionalBlock(ConditionalBlock * conditional) {
         };
     }
     SaComputationResult exprCompute = computeExpression(conditional->expression);
-    if (!exprCompute.success || exprCompute.dataType != SA_BOOLEAN) {
+    if (!exprCompute.success || exprCompute.dataType == SA_VOID) {
         logError(_logger, "Condition for if/else if must be a valid boolean expression");
         return generateInvalidComputationResult();
     }
