@@ -77,6 +77,13 @@ SaComputationResult computeFunctionCall(FunctionCall * fCall);
 SaComputationResult computeBlock(Block * block);
 
 /**
+ * @brief Check if a conditional block is semantically correct.
+ * @param conditional The conditional block to be computed.
+ * @return A computation result with the subjacent data type if successful.
+ */
+SaComputationResult computeConditionalBlock(ConditionalBlock * conditional);
+
+/**
  * @brief Check if a function definition is semantically correct.
  * @param fdef The function definition to be computed.
  * @param body The body of the function.

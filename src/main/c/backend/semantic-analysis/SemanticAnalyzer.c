@@ -187,7 +187,7 @@ SaComputationResult binaryArithmeticOperatorWO(SaComputationResult left, SaCompu
 }
 
 SaComputationResult computeProgram(Program * program) {
-    logDebugging(_logger, "Computing program (ADDR: %lx)...", program);
+    logDebugging(_logger, "Computing program (ADDR: %p)...", program);
     if (program == NULL) {
         logDebugging(_logger, "reached EOF. Backtracking...");
         return (SaComputationResult) {
@@ -217,7 +217,7 @@ SaComputationResult computeProgram(Program * program) {
 SaComputationResult computeSentence(Sentence * sentence) {
     if (sentence == NULL) { return (SaComputationResult) { .dataType = SA_VOID, .success = true }; };
     if (!computeSentence(sentence->nextSentence).success) { return generateInvalidComputationResult(); }
-    logDebugging(_logger, "Computing sentence (ADDR: %lx)...", sentence);
+    logDebugging(_logger, "Computing sentence (ADDR: %p)...", sentence);
     switch (sentence->type){
         case EXPRESSION_SENTENCE:
             logDebugging(_logger, "...of expression type %d", sentence->expression->type);
@@ -243,7 +243,7 @@ SaComputationResult computeSentence(Sentence * sentence) {
 }
 
 SaComputationResult computeExpression(Expression * expression) {
-    logDebugging(_logger, "Computing expression (ADDR: %lx)...", expression);
+    logDebugging(_logger, "Computing expression (ADDR: %p)...", expression);
     switch (expression->type) {
         case CONSTANT_EXPRESSION:
             logDebugging(_logger, "...of a constant of type %d", expression->constant->type);
@@ -276,7 +276,7 @@ SaComputationResult computeVariableCall(VariableCall * vCall) {
         logError(_logger, "Invalid variable call");
         return generateInvalidComputationResult();
     }
-    logDebugging(_logger, "Computing variable call (ADDR: %lx)...", vCall);
+    logDebugging(_logger, "Computing variable call (ADDR: %p)...", vCall);
     tValue retVal = _getFromSymbolTable(vCall->variableName);
     // if (retVal.type == SA_ERROR) {
     //     logError(_logger, "Undeclared variable");
@@ -293,7 +293,7 @@ SaComputationResult computeFunctionCall(FunctionCall * fCall) {
         logError(_logger, "Invalid function call");
         return generateInvalidComputationResult();
     }
-    logDebugging(_logger, "Computing function call (ADDR: %lx)...", fCall);
+    logDebugging(_logger, "Computing function call (ADDR: %p)...", fCall);
     tValue retVal = _getFromSymbolTable(fCall->functionName);
     return (SaComputationResult) {
         .dataType = retVal.type,
@@ -302,19 +302,46 @@ SaComputationResult computeFunctionCall(FunctionCall * fCall) {
 }
 
 SaComputationResult computeBlock(Block * block) {
-    logDebugging(_logger, "Computing code block (ADDR: %lx)...", block);
+    logDebugging(_logger, "Computing code block (ADDR: %p)...", block);
+    if (!computeSentence(block->nextSentence).success) {
+        logError(_logger, "The code block body is invalid");
+        return generateInvalidComputationResult();
+    }
     switch (block->type) {
         case BT_FUNCTION_DEFINITION:
             logDebugging(_logger, "...of function definition type");
             return computeFunctionDefinition(block->functionDefinition, block->nextSentence);
-        case BT_CLASS_DEFINITION:
         case BT_CONDITIONAL:
+            logDebugging(_logger, "...of conditional type");
+            return computeConditionalBlock(block->conditional);
         case BT_FOR:
         case BT_WHILE:
+        case BT_CLASS_DEFINITION:
         default:
             logError(_logger, "The specified block type is not supported: %d", block->type);
             return generateInvalidComputationResult();
     }
+}
+
+SaComputationResult computeConditionalBlock(ConditionalBlock * conditional) {
+    logDebugging(_logger, "Computing conditional block (ADDR: %p)...", conditional);
+    if (conditional->type == CB_ELSE) {
+        logDebugging(_logger, "...of else type");
+        return (SaComputationResult) {
+            .dataType = SA_VOID,
+            .success = true
+        };
+    }
+    SaComputationResult exprCompute = computeExpression(conditional->expression);
+    if (!exprCompute.success || exprCompute.dataType != SA_BOOLEAN) {
+        logError(_logger, "Condition for if/else if must be a valid boolean expression");
+        return generateInvalidComputationResult();
+    }
+    logDebugging(_logger, "...of if/else if type");
+    return (SaComputationResult) {
+        .dataType = SA_VOID,
+        .success = true
+    };
 }
 
 boolean _findReturn(Sentence * first, SaDataType * returnType) {
@@ -333,7 +360,7 @@ boolean _findReturn(Sentence * first, SaDataType * returnType) {
 
 SaComputationResult computeFunctionDefinition(FunctionDefinition * fdef, Sentence * body) {
     if (!computeSentence(body).success) { return generateInvalidComputationResult(); }
-    logDebugging(_logger, "Computing function definition (ADDR: %lx)...", fdef);
+    logDebugging(_logger, "Computing function definition (ADDR: %p)...", fdef);
     if (_hasDefinition(body)) {
         logError(_logger, "Definition of classes or functions inside a function is not allowed");
         return generateInvalidComputationResult();
@@ -361,7 +388,7 @@ SaComputationResult computeFunctionDefinition(FunctionDefinition * fdef, Sentenc
 }
 
 SaComputationResult computeVariableDeclaration(Variable * var) {
-    logDebugging(_logger, "Computing variable declaration (ADDR: %lx)...", var);
+    logDebugging(_logger, "Computing variable declaration (ADDR: %p)...", var);
     SaComputationResult exprResult = computeExpression(var->expression);
     if (!exprResult.success) {
         logError(_logger, "...invalid expression");
@@ -381,7 +408,7 @@ SaComputationResult computeVariableDeclaration(Variable * var) {
 }
 
 SaComputationResult computeConstant(Constant * constant) {
-    logDebugging(_logger, "Computing constant (ADDR: %lx)...", constant);
+    logDebugging(_logger, "Computing constant (ADDR: %p)...", constant);
     switch (constant->type) {
         case CT_BOOLEAN:
             logDebugging(_logger, "...of boolean type (value: %s)", constant->boolean ? "true" : "false");
@@ -402,7 +429,7 @@ SaComputationResult computeConstant(Constant * constant) {
                 .success = true
             };
         case CT_STRING:
-            logDebugging(_logger, "...of string type (addr: %lx)", constant->string);
+            logDebugging(_logger, "...of string type (ADDR: %p)", constant->string);
             return (SaComputationResult) {
                 .dataType = SA_STRING,
                 .success = true

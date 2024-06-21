@@ -232,7 +232,7 @@ ifBlock: IF expression[exp]                                             { $$ = C
 
 elifBlock: ELIF expression[exp]                                         { $$ = ConditionalSemanticAction(CB_ELIF, $exp); }
 
-elseBlock: ELSE expression[exp]                                         { $$ = ConditionalSemanticAction(CB_ELSE, $exp); }
+elseBlock: ELSE                                         				{ $$ = ConditionalSemanticAction(CB_ELSE, NULL); }
 
 forBlock: FOR expression[exp1] IN expression[exp2]                      { $$ = ForBlockSemanticAction($exp1, $exp2); }
 
