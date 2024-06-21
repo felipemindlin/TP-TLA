@@ -36,7 +36,8 @@ void _outputBraceWithIndent(){
 }
 
 #define MAX_VARIABLES 1000
-
+FILE * file = NULL;
+FILE * write = NULL;
 
 static char *declaredVariables[MAX_VARIABLES];
 static int declaredVariablesCount = 0;
@@ -204,13 +205,15 @@ void generateExpression(Expression * expression) {
         case RETURNED_ASSIGNMENT:
         case IDENTITY:
         case VARIABLE_CALL_EXPRESSION:
+            generateVariableCall(expression->variableCall);
+            break;
         case FUNCTION_CALL_EXPRESSION:
             generateFunctionCall(expression->functionCall);
             break;
         case METHOD_CALL_EXPRESSION:
         case FIELD_GETTER_EXPRESSION:
         default:
-            generateVariableCall(expression->variableCall);
+           
             return;
     }
 }
@@ -377,6 +380,8 @@ void generateSentence(Sentence * sentence) {
 
 
 void generateProgram(Program * program) {
+     file = fopen("output.java", "wr");
+     write = file;
     declaredVariablesCount = 0; // Reset declared variables
     _output("import java.io.IOException;\n");
     _output("public class Main {\n\t");
@@ -397,23 +402,27 @@ void generateProgram(Program * program) {
         _outputBraceWithIndent();
     }
     _output("}\n\n");
+    fclose(file);
 }
 
 
 /**
  * _outputs a formatted string to standard _output.
  */
+
 static void _output(const char * const format, ...) {
 	va_list arguments;
 	va_start(arguments, format);
-	vfprintf(stdout, format, arguments);
+	vfprintf(write, format, arguments);
 	va_end(arguments);
 }
 
 /** PUBLIC FUNCTIONS */
 
 void generate(CompilerState * compilerState) {
+    write=stdout;
 	logDebugging(_logger, "Generating final _output...");
 	generateProgram(compilerState->abstractSyntaxtTree);
 	logDebugging(_logger, "Generation is done.");
+   
 }
