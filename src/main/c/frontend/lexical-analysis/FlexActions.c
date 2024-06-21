@@ -342,8 +342,8 @@ Token ConditionalLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext) {
 	_logLexicalAnalyzerContext(__FUNCTION__, lexicalAnalyzerContext);
 	Token value;
 	switch (lexicalAnalyzerContext->lexeme[0]) {
-		case 'a': value = LOGICAL_AND;
-		case 'o': value = LOGICAL_OR;
+		case 'a': value = LOGICAL_AND; break;
+		case 'o': value = LOGICAL_OR; break;
 	}
 	return value;
 }

@@ -40,6 +40,9 @@ FILE * file = NULL;
 FILE * write = NULL;
 
 void generateConstant(Constant * constant){
+    if (constant == NULL) {
+        return;
+    }
     switch (constant->type) {
         case CT_BOOLEAN:
             _output( (constant->boolean == true )? "true" : "false" );
@@ -59,6 +62,9 @@ void generateConstant(Constant * constant){
 }
 
 void generateExpression(Expression * expression) {
+    if (expression == NULL) {
+        return;
+    }
      switch (expression->type) {
         case CONSTANT_EXPRESSION:
             generateConstant(expression->constant);
@@ -102,12 +108,12 @@ void generateExpression(Expression * expression) {
             generateExpression(expression->leftExpression);
             _output(" && ");
             generateExpression(expression->rightExpression);
-                break;
+            break;
         case LOGIC_OR:
             generateExpression(expression->leftExpression);
             _output(" || ");
             generateExpression(expression->rightExpression);
-                break;
+            break;
         case LOGIC_NOT:
             _output("! ");
             generateExpression(expression);
@@ -200,11 +206,16 @@ void generateExpression(Expression * expression) {
 }
 
 void generateVariableCall(VariableCall * variableCall) {
-
+    if (variableCall == NULL) {
+        return;
+    }
     _output(variableCall->variableName);
 }
 
 void generateFunctionCall(FunctionCall * functionCall){
+    if (functionCall == NULL) {
+        return;
+    }
     _output(functionCall->functionName);
     _output("(");
     if (functionCall->functionArguments == NULL){
@@ -226,7 +237,9 @@ void generateFunctionCall(FunctionCall * functionCall){
 }
 
 void generateVariable(Variable * variable) {
-   
+    if (variable == NULL) {
+        return;
+    }
     struct value value;
     struct key key;
     bool declared = isDeclared(variable->identifier);
@@ -263,6 +276,9 @@ void generateVariable(Variable * variable) {
 }
 
 void generateFunctionDef(FunctionDefinition * fdef){
+    if (fdef == NULL) {
+        return;
+    }
     switch (fdef->type) {
         case FD_GENERIC:
         case FD_OBJECT_TYPE:
@@ -298,7 +314,6 @@ void generateFunctionDef(FunctionDefinition * fdef){
             _output("(");
             Parameters * currentParam = fdef->parameters;
             while (currentParam != NULL && currentParam->leftExpression != NULL) {
-                _outputIndent();
                 if (isAlreadyArithmetic(currentParam->leftExpression->variableCall->variableName))
                     _output("double ");
                 else if (isAlreadyBoolean(currentParam->leftExpression->variableCall->variableName))
@@ -326,6 +341,9 @@ void generateFunctionDef(FunctionDefinition * fdef){
 }
 
 void generateConditionalBlock(ConditionalBlock * conditionalBlock){
+    
+    if (conditionalBlock == NULL)
+        return;
     switch (conditionalBlock->type)
     {
     case CB_IF:
@@ -335,10 +353,12 @@ void generateConditionalBlock(ConditionalBlock * conditionalBlock){
         indentLevel++;
         break;
     case CB_ELSE:
+        _outputIndent();
         _output("else {\n");
         indentLevel++;
         break;
     case CB_ELIF:
+        _outputIndent();
         _output("else if (");
         generateExpression(conditionalBlock->expression);
         _output(") {\n");
@@ -357,7 +377,9 @@ void generateWhileBlock(WhileBlock * whileBlock){
 }
 
 void generateForBlock(ForBlock * forBlock){
-
+    if (forBlock == NULL) {
+        return;
+    }
     // struct key key = {.varname = forBlock->left->variableCall->variableName};
     // struct value value;
 
@@ -390,6 +412,8 @@ void generateForBlock(ForBlock * forBlock){
 
 
 void generateBlock(Block * block){
+    if (block == NULL) 
+        return;
     switch (block->type)
     {
     case BT_FUNCTION_DEFINITION:
@@ -401,6 +425,9 @@ void generateBlock(Block * block){
         generateSentence(block->nextSentence);
         indentLevel--;
         _outputBraceWithIndent();
+        if (block->nextCond != NULL);{
+                generateBlock(block->nextCond);
+        }
         break;
     case BT_FOR:
         generateForBlock(block->forBlock);

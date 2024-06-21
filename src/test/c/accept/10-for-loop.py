@@ -1,5 +1,5 @@
 y = "aaaaaaaaaa"
-
+counter = 0.0
 for x in y: @{
-    a = a * x
+    counter = counter + 1.0
 @}

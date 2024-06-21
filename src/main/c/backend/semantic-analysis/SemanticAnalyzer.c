@@ -299,9 +299,11 @@ SaComputationResult computeExpression(Expression * expression) {
         case COMPARISON_EXPRESSION:
             if (expression->leftExpression->type == VARIABLE_CALL_EXPRESSION){
                 markArith(expression->leftExpression->variableCall->variableName);
+                logDebugging(_logger, expression->leftExpression->variableCall->variableName);
             }
             if (expression->rightExpression->type == VARIABLE_CALL_EXPRESSION){
                 markArith(expression->rightExpression->variableCall->variableName);
+                logDebugging(_logger, expression->rightExpression->variableCall->variableName);
             }
             logDebugging(_logger, "...of an arithmetic operator (type: %d)", expression->type);
             return (_expressionTypeToBinaryOperator(expression->type))
@@ -318,7 +320,7 @@ SaComputationResult computeExpression(Expression * expression) {
             return (_expressionTypeToBinaryOperator(expression->type))
                 (computeExpression(expression->leftExpression), computeExpression(expression->rightExpression));
         case LOGIC_NOT:
-
+            return notBooleanOperator(computeExpression(expression->leftExpression));
         case VARIABLE_CALL_EXPRESSION:
             logDebugging(_logger, "...of a variable call (id: %s)", expression->variableCall->variableName);
             return computeVariableCall(expression->variableCall);
