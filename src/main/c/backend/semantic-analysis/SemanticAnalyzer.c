@@ -29,7 +29,7 @@ static SaDataType getOperationDataType(const SaDataType left, const SaDataType r
         case SA_STR_STR_OP:
             return SA_STRING;
         default:
-            return SA_ERROR;
+            return SA_FLOAT;
     }
 }
 

@@ -477,9 +477,11 @@ void generateProgram(Program * program) {
     for (int i = 0; i < funcListLength; i++ ){
         block = getNextFunc();
         generateFunctionDef(block->functionDefinition);
+        indentLevel++;
         generateSentence(block->nextSentence);
         indentLevel--;
         _outputBraceWithIndent();
+        
     }
     _output("}\n\n");
     fclose(file);
